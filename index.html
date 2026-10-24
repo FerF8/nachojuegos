@@ -183,6 +183,18 @@
   .tip p { color: var(--bg-muted); font-size: .95rem; max-width: 60ch; }
   footer { color: var(--bg-muted); font-size: .85rem; max-width: 70ch; }
 
+  .destacado {
+    display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 18px; align-items: center; text-decoration: none;
+    background: var(--surface); color: var(--ink); border: 2px solid var(--line); border-radius: 18px; padding: 14px; box-shadow: 6px 6px 0 var(--pop);
+  }
+  .destacado img { display: block; width: 132px; height: auto; border-radius: 10px; }
+  .destacado h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.4rem, 4vw, 1.9rem); line-height: 1.05; margin-top: 2px; }
+  .destacado-eti { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .destacado p { color: var(--muted); margin-top: 6px; max-width: 60ch; }
+  .destacado .btn { display: inline-block; margin-top: 12px; box-shadow: 3px 3px 0 var(--line); }
+  .destacado:hover .btn { filter: brightness(1.08); }
+  .destacado:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
   /* Galax: el asistente que busca en la lista */
   .galax-btn {
     position: fixed; z-index: 30;
@@ -237,6 +249,10 @@
     .avatar { width: 84px; height: 84px; }
     .panel { grid-template-columns: minmax(0, 1fr); padding: 18px; gap: 22px; box-shadow: 4px 4px 0 var(--pop); }
   }
+  @media (max-width: 480px) {
+    .destacado { grid-template-columns: 88px minmax(0, 1fr); gap: 12px; }
+    .destacado img { width: 88px; }
+  }
   @media (max-width: 560px) {
     .galax {
       left: 0; right: 0; bottom: 0; width: auto; height: 85vh; height: 85dvh;
@@ -271,6 +287,16 @@
       <p class="tag">Juegos buenos para el celu y la compu, gratis y pagos. Poné tu edad y elegí si querés evitar la publicidad o las compras.</p>
     </div>
   </header>
+
+  <a class="destacado" href="https://ferf8.github.io/nachojuegos/juego/">
+    <img src="juego/portada.jpg" width="720" height="791" alt="">
+    <div>
+      <span class="destacado-eti">Nuevo · El juego de Nacho</span>
+      <h2>Dragon Nacho</h2>
+      <p>Un mundo de bloques en 3D: criá a tu kaiju Gigarex y derrotá a los jefes gigantes. Gratis, en la compu o el celu.</p>
+      <span class="btn">Jugar ahora</span>
+    </div>
+  </a>
 
   <section class="panel" aria-label="Filtros">
     <div class="age">
@@ -381,6 +407,7 @@
 // ad: 0 sin publicidad, 1 poca, 2 con publicidad · iap: 0 sin compras, 1 donación opcional, 2 con compras
 // pago: precio aproximado si el juego se compra · t: etiquetas para buscar · al: otros nombres con que lo buscan (_ = frase)
 const JUEGOS = [
+  { n: "Dragon Nacho", p: ["pc", "cel"], a: 7, ad: 0, iap: 0, g: "Aventura", t: "bloques", al: "dragon_nacho nacho", d: "El juego de Nacho: un mundo de bloques en 3D donde criás a tu kaiju Gigarex y derrotás jefes gigantes.", nota: "Es el juego de Nacho. Se juega en el navegador.", url: "https://ferf8.github.io/nachojuegos/juego/" },
   { n: "Minecraft", p: ["cel", "pc"], a: 7, s: "pegi", ad: 0, iap: 2, pago: "≈ USD 7 celu · 30 compu", g: "Construir", t: "bloques online", d: "Construí, explorá y sobreviví en un mundo infinito de bloques, solo o con amigos.", nota: "Adentro hay una tienda con mundos y skins pagos.", url: "https://www.minecraft.net" },
   { n: "Roblox", p: ["cel", "pc"], a: 7, s: "pegi", ad: 1, iap: 2, g: "Con amigos", t: "online", d: "Millones de juegos hechos por otros usuarios, todos adentro de una sola app.", nota: "Tiene chat con desconocidos y compras con Robux: armá el control parental con un adulto.", url: "https://www.roblox.com" },
   { n: "Brawl Stars", p: ["cel"], a: 7, s: "pegi", ad: 0, iap: 2, g: "Acción", t: "disparos peleas online", al: "brawl", d: "Peleas rápidas de 3 contra 3 que duran un par de minutos. Hay un montón de brawlers para desbloquear jugando.", url: "https://supercell.com/en/games/brawlstars/" },
