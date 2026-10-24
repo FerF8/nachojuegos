@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NachoJuegos</title>
+<link rel="icon" type="image/png" href="icono_quieto.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bungee&display=swap">
+<style>
+  /* Base: márgenes seguros del celular y reset mínimo */
+  :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+
+  /* Layout: arriba un tablero de control (la edad en grande + filtros), abajo la grilla de juegos */
+  :root {
+    --bg: #EEF1FB;
+    --surface: #FFFFFF;
+    --ink: #171B3D;
+    --muted: #535980;
+    --line: #171B3D;
+    --soft: #DFE4F6;
+    --accent: #FF5A1F;
+    --blue: #2340D9;
+    --shadow: #171B3D;
+    --ok-bg: #DCF4E3; --ok-fg: #0D6630;
+    --mid-bg: #FFEFC7; --mid-fg: #7A4F00;
+    --bad-bg: #FFE0DA; --bad-fg: #9E2617;
+    --age-low: #55B12F; --age-mid: #F09000; --age-high: #E0453A; --age-ink: #10131F;
+    --font-display: "Bungee", "Arial Black", Impact, system-ui, sans-serif;
+    --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1124; --surface: #171B36; --ink: #ECEEFF; --muted: #A7ACD2; --line: #5058A0;
+      --soft: #252A50; --accent: #FF7A45; --blue: #93A6FF; --shadow: #3B4286;
+      --ok-bg: #123D24; --ok-fg: #8BE3A8; --mid-bg: #3D3010; --mid-fg: #FFD27A; --bad-bg: #46191A; --bad-fg: #FF9E91;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1124; --surface: #171B36; --ink: #ECEEFF; --muted: #A7ACD2; --line: #5058A0;
+    --soft: #252A50; --accent: #FF7A45; --blue: #93A6FF; --shadow: #3B4286;
+    --ok-bg: #123D24; --ok-fg: #8BE3A8; --mid-bg: #3D3010; --mid-fg: #FFD27A; --bad-bg: #46191A; --bad-fg: #FF9E91;
+    color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+  .wrap {
+    max-width: 1120px; margin: 0 auto; display: grid; gap: 32px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 28px 56px;
+  }
+  h1, h2, h3, p { margin: 0; }
+  h1, h2, h3 { text-wrap: balance; }
+
+  .head { display: flex; align-items: center; gap: 20px; }
+  .head > div { min-width: 0; }
+  .head picture { flex: none; line-height: 0; }
+  .avatar { width: 128px; height: 128px; max-width: none; }
+  .logo { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.4rem, 8vw, 4rem); line-height: .92; }
+  .logo span { color: var(--accent); }
+  .tag { margin-top: 10px; color: var(--muted); font-size: 1.125rem; max-width: 54ch; }
+
+  .panel {
+    background: var(--surface); border: 2px solid var(--line); border-radius: 20px;
+    box-shadow: 6px 6px 0 var(--shadow); padding: 24px;
+    display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 28px;
+  }
+  .label { display: block; font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin-bottom: 8px; padding: 0; }
+
+  .age { display: grid; gap: 12px; align-content: start; }
+  .age-q { font-family: var(--font-display); font-weight: 400; font-size: 1.4rem; line-height: 1.1; }
+  .stepper { display: flex; align-items: center; gap: 10px; }
+  .step {
+    flex: none; width: 54px; height: 54px; border: 2px solid var(--line); border-radius: 14px;
+    background: var(--soft); color: var(--ink); font-family: var(--font-display); font-size: 1.7rem; line-height: 1;
+    box-shadow: 3px 3px 0 var(--shadow); cursor: pointer;
+  }
+  .step:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
+  #edad {
+    width: 2.3ch; min-width: 0; font-family: var(--font-display); font-size: 4.25rem; line-height: 1.05; text-align: center;
+    border: 0; border-bottom: 4px solid var(--accent); border-radius: 0; background: transparent; color: var(--ink); padding: 0;
+    -moz-appearance: textfield; appearance: textfield;
+  }
+  #edad::-webkit-outer-spin-button, #edad::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .age-hint { color: var(--muted); font-size: .9rem; }
+
+  .filters { display: grid; gap: 18px; min-width: 0; }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .seg { display: flex; flex-wrap: wrap; gap: 8px; }
+  .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  .seg label, .chip {
+    display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px;
+    border: 2px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink);
+    font: 700 .95rem/1.2 var(--font-body); cursor: pointer; user-select: none;
+  }
+  .seg input:checked + label, .chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .seg input:focus-visible + label, .chip:focus-visible, .step:focus-visible, #edad:focus-visible, select:focus-visible, a:focus-visible {
+    outline: 3px solid var(--accent); outline-offset: 2px;
+  }
+  .chip small { font-weight: 400; opacity: .75; font-size: .8rem; }
+  svg { flex: none; }
+
+  .res-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+  .res-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.35rem, 4vw, 1.8rem); line-height: 1.15; }
+  .res-title b { color: var(--accent); font-weight: 400; }
+  .res-sub { color: var(--muted); font-size: .9rem; margin-top: 4px; }
+  .sort { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--muted); }
+  select {
+    font: 700 .9rem var(--font-body); color: var(--ink); background: var(--surface);
+    border: 2px solid var(--line); border-radius: 10px; padding: 6px 10px;
+  }
+  .results { display: grid; gap: 16px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+  .card {
+    background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 16px;
+    display: flex; flex-direction: column; gap: 10px; min-width: 0;
+  }
+  .card-top { display: flex; gap: 12px; align-items: flex-start; }
+  .rate {
+    flex: none; width: 52px; height: 58px; border-radius: 8px; display: grid; place-content: center; text-align: center;
+    background: var(--band); color: var(--age-ink); border: 2px solid var(--band);
+  }
+  .rate b { font-family: var(--font-display); font-weight: 400; font-size: 1.45rem; line-height: 1; }
+  .rate span { font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-top: 3px; }
+  .rate.est { background: transparent; color: var(--ink); border-style: dashed; }
+  .card h3 { font-size: 1.15rem; line-height: 1.2; font-weight: 700; }
+  .meta { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; color: var(--muted); font-size: .85rem; margin-top: 4px; }
+  .meta span { display: inline-flex; align-items: center; gap: 4px; }
+  .desc { overflow-wrap: anywhere; }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill { font-size: .8rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+  .ok { background: var(--ok-bg); color: var(--ok-fg); }
+  .mid { background: var(--mid-bg); color: var(--mid-fg); }
+  .bad { background: var(--bad-bg); color: var(--bad-fg); }
+  .note { display: flex; gap: 8px; font-size: .88rem; color: var(--muted); }
+  .note svg { margin-top: 3px; }
+  .links { margin-top: auto; padding-top: 4px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  .links a { color: var(--blue); font-weight: 700; text-underline-offset: 3px; display: inline-flex; align-items: center; gap: 4px; }
+  .how { font-size: .88rem; font-weight: 700; }
+  .how code { font-size: .85rem; background: var(--soft); padding: 1px 6px; border-radius: 6px; }
+
+  .empty { border: 2px dashed var(--line); border-radius: 16px; padding: 32px 20px; text-align: center; display: grid; gap: 14px; justify-items: center; }
+  .btn {
+    font: 700 1rem var(--font-body); background: var(--accent); color: var(--age-ink);
+    border: 2px solid var(--line); border-radius: 12px; padding: 9px 18px; box-shadow: 3px 3px 0 var(--shadow); cursor: pointer;
+  }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
+
+  .tips h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.4rem; margin-bottom: 16px; }
+  .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 20px 24px; }
+  .tip { border-top: 3px solid var(--line); padding-top: 12px; display: grid; gap: 6px; align-content: start; }
+  .tip h3 { font-size: 1.02rem; }
+  .tip p { color: var(--muted); font-size: .95rem; max-width: 60ch; }
+  footer { color: var(--muted); font-size: .85rem; max-width: 70ch; }
+
+  @media (max-width: 760px) {
+    .head { gap: 12px; align-items: flex-start; }
+    .avatar { width: 84px; height: 84px; }
+    .panel { grid-template-columns: minmax(0, 1fr); padding: 18px; gap: 22px; box-shadow: 4px 4px 0 var(--shadow); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .step:active, .btn:active { transform: none; }
+  }
+</style>
+
+<meta name="description" content="Juegos gratis y buenos para el celu y la compu, según tu edad. Con filtros para evitar la publicidad y las compras.">
+<meta property="og:title" content="NachoJuegos">
+<meta property="og:description" content="Juegos gratis y buenos para el celu y la compu, según tu edad. Con filtros para evitar la publicidad y las compras.">
+<meta property="og:image" content="https://ferf8.github.io/nachojuegos/icono_quieto.png">
+<meta property="og:url" content="https://ferf8.github.io/nachojuegos/">
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <picture>
+      <source srcset="icono_quieto.png" media="(prefers-reduced-motion: reduce)">
+      <img class="avatar" src="icono_minecraft_giro_2d.gif" width="160" height="160" alt="">
+    </picture>
+    <div>
+      <h1 class="logo">Nacho<br><span>Juegos</span></h1>
+      <p class="tag">Juegos gratis y buenos para el celu y la compu. Poné tu edad y elegí si querés evitar la publicidad o las compras.</p>
+    </div>
+  </header>
+
+  <section class="panel" aria-label="Filtros">
+    <div class="age">
+      <label class="age-q" for="edad">¿Cuántos años tenés?</label>
+      <div class="stepper">
+        <button class="step" id="menos" type="button" aria-label="Un año menos">−</button>
+        <input id="edad" type="number" inputmode="numeric" min="3" max="18" value="10">
+        <button class="step" id="mas" type="button" aria-label="Un año más">+</button>
+      </div>
+      <p class="age-hint">De 3 a 18 años.</p>
+    </div>
+
+    <div class="filters">
+      <fieldset>
+        <legend class="label">¿Dónde vas a jugar?</legend>
+        <div class="seg">
+          <input type="radio" name="plat" id="plat-todos" value="todos" checked><label for="plat-todos">Cualquiera</label>
+          <input type="radio" name="plat" id="plat-cel" value="cel"><label for="plat-cel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18h2"/></svg>Celular</label>
+          <input type="radio" name="plat" id="plat-pc" value="pc"><label for="plat-pc"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Compu</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="label">Publicidad</legend>
+        <div class="seg">
+          <input type="radio" name="ads" id="ads-igual" value="igual" checked><label for="ads-igual">Me da igual</label>
+          <input type="radio" name="ads" id="ads-poca" value="poca"><label for="ads-poca">Poca o nada</label>
+          <input type="radio" name="ads" id="ads-nada" value="nada"><label for="ads-nada">Sin publicidad</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="label">Compras dentro del juego</legend>
+        <div class="seg">
+          <input type="radio" name="iap" id="iap-igual" value="igual" checked><label for="iap-igual">Me da igual</label>
+          <input type="radio" name="iap" id="iap-nada" value="nada"><label for="iap-nada">Que no me pida comprar</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="label">Tipo de juego</legend>
+        <div class="seg" id="generos"></div>
+      </fieldset>
+    </div>
+  </section>
+
+  <section class="results" aria-live="polite">
+    <div class="res-head">
+      <div>
+        <h2 class="res-title" id="titulo"></h2>
+        <p class="res-sub">Etiqueta PEGI = clasificación oficial (la misma de Google Play). "Aprox" = edad estimada, porque el juego no tiene clasificación.</p>
+      </div>
+      <label class="sort" for="orden">Ordenar
+        <select id="orden">
+          <option value="limpios">Primero sin anuncios ni compras</option>
+          <option value="populares">Primero los más conocidos</option>
+          <option value="az">De la A a la Z</option>
+        </select>
+      </label>
+    </div>
+    <div id="lista"></div>
+  </section>
+
+  <section class="tips">
+    <h2>Para jugar tranqui</h2>
+    <div class="tips-grid">
+      <div class="tip"><h3>Control parental</h3><p>En Android está Google Family Link y en iPhone, Tiempo en pantalla. Con eso, cualquier compra necesita el permiso de un adulto.</p></div>
+      <div class="tip"><h3>Modo avión</h3><p>Algunos juegos que funcionan sin internet dejan de mostrar anuncios si ponés el celu en modo avión.</p></div>
+      <div class="tip"><h3>¿Tienen Netflix?</h3><p>La app de Netflix trae juegos para celular sin anuncios ni compras, incluidos en la suscripción.</p></div>
+      <div class="tip"><h3>Ojo con las copias</h3><p>En las tiendas hay imitaciones de juegos famosos llenas de anuncios. Fijate que el creador sea el oficial, por ejemplo Supercell para Brawl Stars.</p></div>
+    </div>
+  </section>
+
+  <footer>Lista armada a mano en octubre de 2026. Los juegos cambian seguido: antes de bajar uno, mirá la ficha en la tienda, que avisa si "Contiene anuncios" u "Ofrece compras en la aplicación".</footer>
+</div>
+
+<script>
+// p: plataformas · a: edad mínima · s: "pegi" si la edad es oficial · max: edad máxima (apps para chiquitos)
+// ad: 0 sin publicidad, 1 poca, 2 con publicidad · iap: 0 sin compras, 1 donación opcional, 2 con compras
+const JUEGOS = [
+  { n: "Brawl Stars", p: ["cel"], a: 7, s: "pegi", ad: 0, iap: 2, g: "Acción", d: "Peleas rápidas de 3 contra 3 que duran un par de minutos. Hay un montón de brawlers para desbloquear jugando.", url: "https://supercell.com/en/games/brawlstars/" },
+  { n: "Roblox", p: ["cel", "pc"], a: 7, s: "pegi", ad: 1, iap: 2, g: "Con amigos", d: "Millones de juegos hechos por otros usuarios, todos adentro de una sola app.", nota: "Tiene chat con desconocidos y compras con Robux: armá el control parental con un adulto.", url: "https://www.roblox.com" },
+  { n: "Fortnite", p: ["cel", "pc"], a: 12, s: "pegi", ad: 0, iap: 2, g: "Acción", d: "Battle royale, LEGO Fortnite, carreras y miles de islas creadas por jugadores.", nota: "Tiene chat de voz. En el celu se baja desde la Epic Games Store (Android).", url: "https://www.fortnite.com" },
+  { n: "Minecraft Classic", p: ["pc"], a: 7, ad: 0, iap: 0, g: "Construir", d: "La primera versión de Minecraft, de 2009, gratis en el navegador. Modo creativo con 32 bloques.", nota: "Se juega en el navegador y podés invitar amigos con un link.", url: "https://classic.minecraft.net" },
+  { n: "Subway Surfers", p: ["cel"], a: 6, ad: 1, iap: 2, g: "Arcade", d: "Corré por las vías esquivando trenes y juntando monedas." },
+  { n: "Stumble Guys", p: ["cel", "pc"], a: 7, ad: 2, iap: 2, g: "Con amigos", d: "Carreras de obstáculos alocadas contra un montón de jugadores online.", nota: "Se juega online con desconocidos." },
+  { n: "Clash Royale", p: ["cel"], a: 7, s: "pegi", ad: 0, iap: 2, g: "Estrategia", d: "Duelos de cartas en tiempo real: derribá las torres del rival antes de que tire las tuyas.", url: "https://supercell.com/en/games/clashroyale/" },
+  { n: "Among Us", p: ["cel"], a: 7, s: "pegi", ad: 2, iap: 2, g: "Con amigos", d: "Tripulantes contra impostores en una nave espacial. Más divertido con amigos.", nota: "En la compu es pago. Para chicos conviene el chat rápido, con frases ya armadas.", url: "https://www.innersloth.com/games/among-us/" },
+  { n: "Free Fire", p: ["cel"], a: 12, ad: 0, iap: 2, g: "Acción", d: "Battle royale para celular con partidas de unos 10 minutos.", nota: "Tiene armas y sorteos pagos de premios sorpresa.", url: "https://ff.garena.com" },
+  { n: "Rocket League", p: ["pc"], a: 3, s: "pegi", ad: 0, iap: 2, g: "Deportes", d: "Fútbol con autos que saltan, aceleran y vuelan.", nota: "Se baja gratis desde la Epic Games Store.", url: "https://www.rocketleague.com" },
+  { n: "Fall Guys", p: ["pc"], a: 3, s: "pegi", ad: 0, iap: 2, g: "Con amigos", d: "Carreras de obstáculos con muñequitos gelatinosos que se caen todo el tiempo.", nota: "Se baja gratis desde la Epic Games Store.", url: "https://www.fallguys.com" },
+  { n: "Pokémon UNITE", p: ["cel"], a: 7, ad: 0, iap: 2, g: "Acción", d: "Equipos de 5 Pokémon contra 5 en partidas cortas de estrategia y acción.", url: "https://unite.pokemon.com" },
+  { n: "Clash of Clans", p: ["cel"], a: 7, s: "pegi", ad: 0, iap: 2, g: "Estrategia", d: "Construí tu aldea, entrená tropas y atacá otras aldeas.", nota: "Para avanzar rápido te tienta bastante a comprar gemas.", url: "https://supercell.com/en/games/clashofclans/" },
+  { n: "Genshin Impact", p: ["cel", "pc"], a: 12, s: "pegi", ad: 0, iap: 2, g: "Aventura", d: "Un mundo abierto enorme para explorar, con magia y personajes con poderes.", nota: "Los personajes salen por sorteo pago (gacha): es fácil gastar sin darse cuenta.", url: "https://genshin.hoyoverse.com" },
+  { n: "Brawlhalla", p: ["cel", "pc"], a: 7, s: "pegi", ad: 0, iap: 2, g: "Acción", d: "Peleas al estilo Smash Bros con más de 50 personajes, que se desbloquean jugando.", nota: "Lo que se compra es solo ropa y aspecto.", url: "https://www.brawlhalla.com" },
+  { n: "Hay Day", p: ["cel"], a: 3, s: "pegi", ad: 0, iap: 2, g: "Construir", d: "Tu propia granja: sembrá, cosechá, criá animales y vendé en tu puesto.", url: "https://supercell.com/en/games/hayday/" },
+  { n: "Toca Boca World", p: ["cel"], a: 6, max: 12, ad: 0, iap: 2, g: "Aprender y crear", d: "Armá casas, personajes e historias en un mundo para inventar lo que quieras.", nota: "Lo básico es gratis; muchos lugares y muebles se compran aparte.", url: "https://tocaboca.com" },
+  { n: "Sky: Children of the Light", p: ["cel", "pc"], a: 7, ad: 0, iap: 2, g: "Aventura", d: "Volá por reinos entre las nubes y ayudá a otros jugadores. Muy tranquilo y lindo.", nota: "Para hablar con alguien primero tienen que hacerse amigos en el juego.", url: "https://www.thatskygame.com" },
+  { n: "Hill Climb Racing", p: ["cel"], a: 5, ad: 2, iap: 2, g: "Carreras", d: "Manejá por colinas sin darte vuelta ni quedarte sin nafta." },
+  { n: "Crossy Road", p: ["cel"], a: 5, ad: 1, iap: 2, g: "Arcade", d: "Cruzá calles, vías y ríos sin que te pisen. Hay cientos de personajes." },
+  { n: "Valorant", p: ["pc"], a: 16, s: "pegi", ad: 0, iap: 2, g: "Acción", d: "Shooter táctico de 5 contra 5 con agentes que tienen habilidades.", nota: "Tiene armas y chat de voz con desconocidos.", url: "https://playvalorant.com" },
+  { n: "Marvel Rivals", p: ["pc"], a: 12, s: "pegi", ad: 0, iap: 2, g: "Acción", d: "Héroes y villanos de Marvel en equipos de 6 contra 6.", url: "https://www.marvelrivals.com" },
+  { n: "Overwatch 2", p: ["pc"], a: 12, s: "pegi", ad: 0, iap: 2, g: "Acción", d: "Héroes con poderes en equipos de 5 contra 5.", url: "https://overwatch.blizzard.com" },
+  { n: "League of Legends", p: ["pc"], a: 12, s: "pegi", ad: 0, iap: 2, g: "Estrategia", d: "Estrategia y acción 5 contra 5. Cuesta aprender, pero es muy completo.", nota: "El chat puede ponerse agresivo: conviene silenciarlo.", url: "https://www.leagueoflegends.com" },
+  { n: "Apex Legends", p: ["pc"], a: 16, s: "pegi", ad: 0, iap: 2, g: "Acción", d: "Battle royale en escuadras, con leyendas que tienen habilidades especiales.", nota: "Tiene armas y chat de voz con desconocidos.", url: "https://www.ea.com/games/apex-legends" },
+  { n: "Trackmania", p: ["pc"], a: 3, s: "pegi", ad: 0, iap: 2, g: "Carreras", d: "Pistas locas para batir tu récord, con un editor para crear las tuyas.", nota: "Lo básico es gratis; el Club, con más funciones, es pago.", url: "https://www.trackmania.com" },
+  { n: "SuperTuxKart", p: ["pc", "cel"], a: 4, ad: 0, iap: 0, g: "Carreras", d: "Carreras de karts con Tux el pingüino, al estilo Mario Kart.", nota: "Pueden jugar varios en la misma compu, con pantalla dividida.", url: "https://supertuxkart.net" },
+  { n: "Luanti (ex Minetest)", p: ["pc", "cel"], a: 7, ad: 0, iap: 0, g: "Construir", d: "Un mundo de bloques parecido a Minecraft, gratis y con miles de mods.", nota: "En los servidores públicos hay chat.", url: "https://www.luanti.org" },
+  { n: "Lichess", p: ["cel", "pc"], a: 6, ad: 0, iap: 0, g: "Mente", d: "Ajedrez online, problemas y lecciones. Gratis para siempre y sin anuncios.", nota: "Activá el modo niño en la configuración para apagar el chat.", url: "https://lichess.org" },
+  { n: "El dinosaurio de Chrome", p: ["pc", "cel"], a: 3, ad: 0, iap: 0, g: "Arcade", d: "Saltá cactus y esquivá pájaros con el dinosaurio que trae Chrome.", como: "Abrí Chrome sin internet, o escribí <code>chrome://dino</code> en la barra." },
+  { n: "Juegos de Google Doodle", p: ["pc", "cel"], a: 4, ad: 0, iap: 0, g: "Arcade", d: "Los juegos de los logos de Google: Champion Island, Pac-Man, el conejo programador y muchos más.", url: "https://doodles.google/" },
+  { n: "The Battle of Polytopia", p: ["cel"], a: 8, ad: 0, iap: 2, g: "Estrategia", d: "Conquistá un mundo de cubitos con tu tribu, en partidas por turnos cortas.", nota: "Algunas tribus se compran; las básicas son gratis.", url: "https://polytopia.io" },
+  { n: "Mekorama", p: ["cel"], a: 6, ad: 0, iap: 1, g: "Mente", d: "Guiá a un robotito por dioramas en 3D que hay que girar. Podés crear tus propios niveles.", nota: "Pagás lo que querés, solo si querés." },
+  { n: "Shattered Pixel Dungeon", p: ["cel"], a: 10, ad: 0, iap: 1, g: "Aventura", d: "Explorá un calabozo que cambia en cada partida. Difícil y muy adictivo.", nota: "La única compra es para apoyar al creador, no cambia el juego.", url: "https://shatteredpixel.com" },
+  { n: "Flow Free", p: ["cel"], a: 5, ad: 2, iap: 2, g: "Mente", d: "Uní los puntos del mismo color sin que los caños se crucen." },
+  { n: "Simon Tatham's Puzzles", p: ["cel", "pc"], a: 8, ad: 0, iap: 0, g: "Mente", d: "Decenas de acertijos de lógica: buscaminas, puentes, cubos y muchos más.", url: "https://www.chiark.greenend.org.uk/~sgtatham/puzzles/" },
+  { n: "Unciv", p: ["pc", "cel"], a: 10, ad: 0, iap: 0, g: "Estrategia", d: "Llevá una civilización desde la Edad de Piedra hasta el espacio, al estilo Civilization.", nota: "En el celu, solo Android.", url: "https://github.com/yairm210/Unciv" },
+  { n: "OpenTTD", p: ["pc"], a: 9, ad: 0, iap: 0, g: "Construir", d: "Armá tu empresa de transporte con trenes, camiones, barcos y aviones.", url: "https://www.openttd.org" },
+  { n: "Battle for Wesnoth", p: ["pc"], a: 10, ad: 0, iap: 0, g: "Estrategia", d: "Batallas por turnos en un mundo de fantasía, con decenas de campañas.", url: "https://www.wesnoth.org" },
+  { n: "0 A.D.", p: ["pc"], a: 12, ad: 0, iap: 0, g: "Estrategia", d: "Estrategia en tiempo real con civilizaciones antiguas, al estilo Age of Empires.", url: "https://play0ad.com" },
+  { n: "Endless Sky", p: ["pc"], a: 10, ad: 0, iap: 0, g: "Aventura", d: "Comerciá, explorá y peleá con tu nave por toda la galaxia.", url: "https://endless-sky.github.io" },
+  { n: "Celeste Classic", p: ["pc"], a: 7, ad: 0, iap: 0, g: "Arcade", d: "La versión original y chiquita de Celeste: saltá y escalá una montaña.", nota: "Se juega en el navegador." },
+  { n: "Scratch", p: ["pc"], a: 8, ad: 0, iap: 0, g: "Aprender y crear", d: "Creá tus propios juegos con bloques y jugá los que hacen chicos de todo el mundo.", nota: "Los comentarios entre usuarios están moderados.", url: "https://scratch.mit.edu" },
+  { n: "ScratchJr", p: ["cel"], a: 5, max: 8, ad: 0, iap: 0, g: "Aprender y crear", d: "Armá historias y juegos animados encastrando bloques. Ideal para empezar.", nota: "Se disfruta más en tablet.", url: "https://www.scratchjr.org" },
+  { n: "Khan Academy Kids", p: ["cel"], a: 3, max: 8, ad: 0, iap: 0, g: "Aprender y crear", d: "Cuentos, números, letras y juegos con animalitos. Todo gratis.", url: "https://learn.khanacademy.org/khan-academy-kids/" },
+  { n: "PBS KIDS Games", p: ["cel", "pc"], a: 3, max: 8, ad: 0, iap: 0, g: "Aprender y crear", d: "Un montón de juegos cortos con personajes de dibujitos.", nota: "Está en inglés.", url: "https://pbskids.org/games" },
+  { n: "Duolingo ABC", p: ["cel"], a: 3, max: 7, ad: 0, iap: 0, g: "Aprender y crear", d: "Aprender a leer en inglés con lecciones cortitas que parecen juegos." }
+];
+JUEGOS.forEach((j, i) => { j.pop = i; });
+
+const GENEROS = ["Acción", "Arcade", "Carreras", "Deportes", "Con amigos", "Estrategia", "Construir", "Aventura", "Mente", "Aprender y crear"];
+const ICON = {
+  cel: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18h2"/></svg>',
+  pc: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+  shield: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/></svg>',
+  out: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>'
+};
+const AD = [["ok", "Sin publicidad"], ["mid", "Poca publicidad"], ["bad", "Con publicidad"]];
+const IAP = [["ok", "Sin compras"], ["ok", "Donación opcional"], ["mid", "Con compras"]];
+
+const KEY = "nachojuegos:v1";
+const DEF = { edad: 10, plat: "todos", ads: "igual", iap: "igual", gen: "todos", orden: "limpios" };
+let st = { ...DEF };
+try { st = { ...DEF, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const clamp = (n) => Math.min(18, Math.max(3, n));
+
+function pasaBase(j) {
+  if (j.a > st.edad || (j.max && st.edad > j.max)) return false;
+  if (st.plat !== "todos" && !j.p.includes(st.plat)) return false;
+  if (st.ads === "poca" && j.ad > 1) return false;
+  if (st.ads === "nada" && j.ad > 0) return false;
+  if (st.iap === "nada" && j.iap > 1) return false;
+  return true;
+}
+
+function banda(a) { return a >= 16 ? "var(--age-high)" : a >= 12 ? "var(--age-mid)" : "var(--age-low)"; }
+
+function tarjeta(j) {
+  const plat = j.p.map((p) => `<span>${ICON[p]}${p === "cel" ? "Celu" : "Compu"}</span>`).join("");
+  const ad = AD[j.ad], iap = IAP[j.iap];
+  const q = encodeURIComponent(j.n);
+  let links;
+  if (j.como) {
+    links = `<p class="how">${j.como}</p>`;
+  } else {
+    const main = j.url
+      ? `<a href="${esc(j.url)}" target="_blank" rel="noopener">Sitio oficial ${ICON.out}</a>`
+      : `<a href="https://www.google.com/search?q=${q}+juego" target="_blank" rel="noopener">Buscar en Google ${ICON.out}</a>`;
+    const play = j.p.includes("cel")
+      ? `<a href="https://play.google.com/store/search?q=${q}&amp;c=apps" target="_blank" rel="noopener">Google Play ${ICON.out}</a>` : "";
+    links = `<div class="links">${main}${play}</div>`;
+  }
+  return `<article class="card">
+    <div class="card-top">
+      <div class="rate${j.s ? "" : " est"}" style="--band:${banda(j.a)}" title="${j.s ? "Clasificación oficial PEGI" : "Edad estimada"}">
+        <b>${j.a}</b><span>${j.s ? "PEGI" : "aprox"}</span>
+      </div>
+      <div>
+        <h3>${esc(j.n)}</h3>
+        <div class="meta">${plat}<span>· ${esc(j.g)}</span></div>
+      </div>
+    </div>
+    <p class="desc">${esc(j.d)}</p>
+    <div class="pills"><span class="pill ${ad[0]}">${ad[1]}</span><span class="pill ${iap[0]}">${iap[1]}</span></div>
+    ${j.nota ? `<p class="note">${ICON.shield}<span>${esc(j.nota)}</span></p>` : ""}
+    ${links}
+  </article>`;
+}
+
+function render() {
+  const base = JUEGOS.filter(pasaBase);
+  const cuenta = {};
+  base.forEach((j) => { cuenta[j.g] = (cuenta[j.g] || 0) + 1; });
+  if (st.gen !== "todos" && !cuenta[st.gen]) st.gen = "todos";
+
+  $("generos").innerHTML =
+    `<button type="button" class="chip" data-gen="todos" aria-pressed="${st.gen === "todos"}">Todos <small>${base.length}</small></button>` +
+    GENEROS.filter((g) => cuenta[g]).map((g) =>
+      `<button type="button" class="chip" data-gen="${esc(g)}" aria-pressed="${st.gen === g}">${esc(g)} <small>${cuenta[g]}</small></button>`
+    ).join("");
+
+  const lista = base.filter((j) => st.gen === "todos" || j.g === st.gen);
+  const limpieza = (j) => j.ad * 3 + (j.iap === 2 ? 2 : j.iap === 1 ? 0.5 : 0);
+  if (st.orden === "limpios") lista.sort((x, y) => limpieza(x) - limpieza(y) || x.pop - y.pop);
+  else if (st.orden === "populares") lista.sort((x, y) => x.pop - y.pop);
+  else lista.sort((x, y) => x.n.localeCompare(y.n, "es"));
+
+  const n = lista.length;
+  $("titulo").innerHTML = `<b>${n}</b> ${n === 1 ? "juego" : "juegos"} para <b>${st.edad}</b> años`;
+  $("lista").innerHTML = n
+    ? `<div class="grid">${lista.map(tarjeta).join("")}</div>`
+    : `<div class="empty"><p>No hay juegos con todos esos filtros juntos.</p><button type="button" class="btn" id="reset">Sacar filtros de publicidad y compras</button></div>`;
+  const r = $("reset");
+  if (r) r.onclick = () => { st.ads = "igual"; st.iap = "igual"; st.gen = "todos"; sync(); };
+  save();
+}
+
+function sync() {
+  $("edad").value = st.edad;
+  ["plat", "ads", "iap"].forEach((k) => {
+    const el = document.querySelector(`input[name="${k}"][value="${st[k]}"]`);
+    if (el) el.checked = true;
+  });
+  $("orden").value = st.orden;
+  render();
+}
+
+$("menos").onclick = () => { st.edad = clamp(st.edad - 1); sync(); };
+$("mas").onclick = () => { st.edad = clamp(st.edad + 1); sync(); };
+$("edad").addEventListener("input", (e) => {
+  const v = parseInt(e.target.value, 10);
+  if (v >= 3 && v <= 18) { st.edad = v; render(); }
+});
+$("edad").addEventListener("change", (e) => {
+  const v = parseInt(e.target.value, 10);
+  st.edad = Number.isNaN(v) ? st.edad : clamp(v);
+  sync();
+});
+document.querySelectorAll('.seg input[type="radio"]').forEach((el) =>
+  el.addEventListener("change", () => { st[el.name] = el.value; render(); })
+);
+$("generos").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-gen]");
+  if (b) { st.gen = b.dataset.gen; render(); }
+});
+$("orden").addEventListener("change", (e) => { st.orden = e.target.value; render(); });
+
+st.edad = clamp(parseInt(st.edad, 10) || DEF.edad);
+sync();
+</script>
+</body>
+</html>
