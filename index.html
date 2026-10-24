@@ -15,9 +15,13 @@
   img { max-width: 100%; }
   [hidden] { display: none !important; }
 
-  /* Layout: arriba un tablero de control (la edad en grande + filtros), abajo la grilla de juegos */
+  /* Layout: cielo de arcade estilo Galaxian de fondo; arriba el tablero (edad + filtros), abajo la grilla de juegos */
   :root {
-    --bg: #EEF1FB;
+    --bg: #0A0D24;
+    --bg-ink: #F1F3FF;
+    --bg-muted: #AAB1DB;
+    --bg-line: #4A5296;
+    --pop: #FF5A1F;
     --surface: #FFFFFF;
     --ink: #171B3D;
     --muted: #535980;
@@ -35,21 +39,23 @@
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #0E1124; --surface: #171B36; --ink: #ECEEFF; --muted: #A7ACD2; --line: #5058A0;
+      --bg: #05071A; --bg-ink: #ECEEFF; --bg-muted: #A7ACD2; --bg-line: #3B4286; --pop: #FF7A45; --surface: #171B36; --ink: #ECEEFF; --muted: #A7ACD2; --line: #5058A0;
       --soft: #252A50; --accent: #FF7A45; --blue: #93A6FF; --shadow: #3B4286;
       --ok-bg: #123D24; --ok-fg: #8BE3A8; --mid-bg: #3D3010; --mid-fg: #FFD27A; --bad-bg: #46191A; --bad-fg: #FF9E91;
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0E1124; --surface: #171B36; --ink: #ECEEFF; --muted: #A7ACD2; --line: #5058A0;
+    --bg: #05071A; --bg-ink: #ECEEFF; --bg-muted: #A7ACD2; --bg-line: #3B4286; --pop: #FF7A45; --surface: #171B36; --ink: #ECEEFF; --muted: #A7ACD2; --line: #5058A0;
     --soft: #252A50; --accent: #FF7A45; --blue: #93A6FF; --shadow: #3B4286;
     --ok-bg: #123D24; --ok-fg: #8BE3A8; --mid-bg: #3D3010; --mid-fg: #FFD27A; --bad-bg: #46191A; --bad-fg: #FF9E91;
     color-scheme: dark;
   }
 
-  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+  body { background: var(--bg); color: var(--bg-ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+  #cielo { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; pointer-events: none; }
   .wrap {
+    position: relative; z-index: 1;
     max-width: 1120px; margin: 0 auto; display: grid; gap: 32px;
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, env(safe-area-inset-right, 0px));
@@ -64,11 +70,11 @@
   .avatar { width: 128px; height: 128px; max-width: none; }
   .logo { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.4rem, 8vw, 4rem); line-height: .92; }
   .logo span { color: var(--accent); }
-  .tag { margin-top: 10px; color: var(--muted); font-size: 1.125rem; max-width: 54ch; }
+  .tag { margin-top: 10px; color: var(--bg-muted); font-size: 1.125rem; max-width: 54ch; }
 
   .panel {
-    background: var(--surface); border: 2px solid var(--line); border-radius: 20px;
-    box-shadow: 6px 6px 0 var(--shadow); padding: 24px;
+    background: var(--surface); color: var(--ink); border: 2px solid var(--line); border-radius: 20px;
+    box-shadow: 6px 6px 0 var(--pop); padding: 24px;
     display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 28px;
   }
   .label { display: block; font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin-bottom: 8px; padding: 0; }
@@ -109,8 +115,8 @@
   .res-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
   .res-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.35rem, 4vw, 1.8rem); line-height: 1.15; }
   .res-title b { color: var(--accent); font-weight: 400; }
-  .res-sub { color: var(--muted); font-size: .9rem; margin-top: 4px; }
-  .sort { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--muted); }
+  .res-sub { color: var(--bg-muted); font-size: .9rem; margin-top: 4px; }
+  .sort { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--bg-muted); }
   select {
     font: 700 .9rem var(--font-body); color: var(--ink); background: var(--surface);
     border: 2px solid var(--line); border-radius: 10px; padding: 6px 10px;
@@ -119,7 +125,7 @@
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
   .card {
-    background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 16px;
+    background: var(--surface); color: var(--ink); border: 2px solid var(--line); border-radius: 16px; padding: 16px;
     display: flex; flex-direction: column; gap: 10px; min-width: 0;
   }
   .card-top { display: flex; gap: 12px; align-items: flex-start; }
@@ -146,24 +152,24 @@
   .how { font-size: .88rem; font-weight: 700; }
   .how code { font-size: .85rem; background: var(--soft); padding: 1px 6px; border-radius: 6px; }
 
-  .empty { border: 2px dashed var(--line); border-radius: 16px; padding: 32px 20px; text-align: center; display: grid; gap: 14px; justify-items: center; }
+  .empty { border: 2px dashed var(--bg-line); border-radius: 16px; padding: 32px 20px; text-align: center; display: grid; gap: 14px; justify-items: center; }
   .btn {
     font: 700 1rem var(--font-body); background: var(--accent); color: var(--age-ink);
-    border: 2px solid var(--line); border-radius: 12px; padding: 9px 18px; box-shadow: 3px 3px 0 var(--shadow); cursor: pointer;
+    border: 2px solid var(--line); border-radius: 12px; padding: 9px 18px; box-shadow: 3px 3px 0 var(--bg-ink); cursor: pointer;
   }
-  .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--bg-ink); }
 
   .tips h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.4rem; margin-bottom: 16px; }
   .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 20px 24px; }
-  .tip { border-top: 3px solid var(--line); padding-top: 12px; display: grid; gap: 6px; align-content: start; }
+  .tip { border-top: 3px solid var(--bg-line); padding-top: 12px; display: grid; gap: 6px; align-content: start; }
   .tip h3 { font-size: 1.02rem; }
-  .tip p { color: var(--muted); font-size: .95rem; max-width: 60ch; }
-  footer { color: var(--muted); font-size: .85rem; max-width: 70ch; }
+  .tip p { color: var(--bg-muted); font-size: .95rem; max-width: 60ch; }
+  footer { color: var(--bg-muted); font-size: .85rem; max-width: 70ch; }
 
   @media (max-width: 760px) {
     .head { gap: 12px; align-items: flex-start; }
     .avatar { width: 84px; height: 84px; }
-    .panel { grid-template-columns: minmax(0, 1fr); padding: 18px; gap: 22px; box-shadow: 4px 4px 0 var(--shadow); }
+    .panel { grid-template-columns: minmax(0, 1fr); padding: 18px; gap: 22px; box-shadow: 4px 4px 0 var(--pop); }
   }
   @media (prefers-reduced-motion: reduce) {
     .step:active, .btn:active { transform: none; }
@@ -177,11 +183,12 @@
 <meta property="og:url" content="https://ferf8.github.io/nachojuegos/">
 </head>
 <body>
+<canvas id="cielo" aria-hidden="true"></canvas>
 <div class="wrap">
   <header class="head">
     <picture>
       <source srcset="icono_quieto.png" media="(prefers-reduced-motion: reduce)">
-      <img class="avatar" src="icono_minecraft_giro_2d.gif" width="160" height="160" alt="">
+      <img class="avatar" src="icono_giro.gif" width="160" height="160" alt="">
     </picture>
     <div>
       <h1 class="logo">Nacho<br><span>Juegos</span></h1>
@@ -441,6 +448,134 @@ $("orden").addEventListener("change", (e) => { st.orden = e.target.value; render
 
 st.edad = clamp(parseInt(st.edad, 10) || DEF.edad);
 sync();
+</script>
+<script>
+// Fondo estilo Galaxian: estrellas de colores que bajan despacio y una formación de aliens que se balancea.
+// Cada tanto un alien se separa, baja en curva y vuelve a su lugar desde arriba.
+(() => {
+  const cv = document.getElementById("cielo");
+  const ctx = cv.getContext("2d");
+  const quieto = matchMedia("(prefers-reduced-motion: reduce)");
+  const COLORES = ["#FF4D4D", "#FFD23F", "#4DD2FF", "#7CFF6B", "#FF7AE0", "#FFFFFF", "#B38CFF"];
+  // Sprites de 11×6 con dos cuadros (alas arriba / alas abajo). b = cuerpo, w = alas, e = ojos
+  const FORMAS = {
+    bicho: [
+      ["w....b....w", "ww..bbb..ww", ".wwbebebww.", "..wbbbbbw..", "...bbbbb...", "....b.b...."],
+      [".....b.....", "....bbb....", "..wbebebw..", ".wwbbbbbww.", "ww.bbbbb.ww", "w...b.b...w"]
+    ],
+    jefe: [
+      ["...b.b.b...", "...bbbbb...", "ww.bebeb.ww", ".wwbbbbbww.", "..w.bbb.w..", ".....b....."],
+      ["...b.b.b...", "...bbbbb...", "...bebeb...", ".wwbbbbbww.", "ww..bbb..ww", ".....b....."]
+    ]
+  };
+  // Filas de la formación: forma, color del cuerpo, color de las alas, cantidad
+  const FILAS = [
+    ["jefe", "#FFD23F", "#FF4D4D", 2],
+    ["bicho", "#FF4D4D", "#4DA6FF", 4],
+    ["bicho", "#B36BFF", "#4DA6FF", 6],
+    ["bicho", "#4DA6FF", "#B36BFF", 6]
+  ];
+  let W = 0, H = 0, P = 3, alfa = 0.45, ojos = "#0A0D24";
+  let estrellas = [], aliens = [], buceo = null, proximo = 5, t = 0, ultimo = 0, corriendo = false;
+
+  function armar(todo) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!todo) return;
+    const chico = W < 760;
+    P = chico ? 2 : 3;
+    alfa = chico ? 0.22 : 0.45;
+    ojos = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || ojos;
+    estrellas = Array.from({ length: Math.min(220, Math.round(W * H / 7000)) }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      v: 4 + Math.random() * 10,
+      c: COLORES[Math.floor(Math.random() * COLORES.length)],
+      s: Math.random() < 0.3 ? P : P - 1,
+      f: 0.4 + Math.random() * 1.1, ph: Math.random() * 6.28
+    }));
+    const paso = 15 * P, cx = chico ? W / 2 : W * 0.72, y0 = chico ? 14 : 28;
+    aliens = [];
+    FILAS.forEach(([forma, b, w, cant], fila) => {
+      for (let i = 0; i < cant; i++) aliens.push({ forma, b, w, hx: cx + (i - (cant - 1) / 2) * paso, hy: y0 + fila * 10 * P });
+    });
+    buceo = null;
+  }
+
+  function sprite(a, x, y, ala) {
+    const filas = FORMAS[a.forma][ala];
+    for (let r = 0; r < filas.length; r++) {
+      for (let c = 0; c < 11; c++) {
+        const ch = filas[r][c];
+        if (ch === ".") continue;
+        ctx.fillStyle = ch === "b" ? a.b : ch === "w" ? a.w : ojos;
+        ctx.fillRect(Math.round(x + (c - 5) * P), Math.round(y + r * P), P, P);
+      }
+    }
+  }
+
+  function dibujar(dt) {
+    ctx.clearRect(0, 0, W, H);
+    for (const e of estrellas) {
+      e.y += e.v * dt;
+      if (e.y > H) { e.y -= H + 4; e.x = Math.random() * W; }
+      ctx.globalAlpha = 0.25 + 0.6 * (0.5 + 0.5 * Math.sin(t * e.f + e.ph));
+      ctx.fillStyle = e.c;
+      ctx.fillRect(Math.round(e.x), Math.round(e.y), e.s, e.s);
+    }
+    ctx.globalAlpha = alfa;
+    const dx = Math.sin(t * Math.PI / 6) * 6 * P;
+    const ala = Math.floor(t / 0.9) % 2;
+    for (const a of aliens) if (!buceo || a !== buceo.a) sprite(a, a.hx + dx, a.hy, ala);
+    if (!buceo && dt > 0 && t > proximo && aliens.length) {
+      const a = aliens[Math.floor(Math.random() * aliens.length)];
+      buceo = { a, t0: t, x0: a.hx + dx, y0: a.hy, lado: Math.random() < 0.5 ? -1 : 1 };
+    }
+    if (buceo) {
+      const e = t - buceo.t0, R = Math.min(W * 0.22, 170);
+      if (e < 10) {
+        const u = e / 10, s = u * u * (3 - 2 * u);
+        sprite(buceo.a, buceo.x0 + buceo.lado * Math.sin(u * Math.PI * 1.5) * R, buceo.y0 + s * (H + 40 - buceo.y0), ala);
+      } else if (e < 13) {
+        const v = (e - 10) / 3, s = 1 - (1 - v) * (1 - v);
+        sprite(buceo.a, buceo.a.hx + dx, -30 + s * (buceo.a.hy + 30), ala);
+      } else {
+        buceo = null;
+        proximo = t + 8 + Math.random() * 6;
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function cuadro(ahora) {
+    if (quieto.matches) { corriendo = false; dibujar(0); return; }
+    const dt = ultimo ? Math.min(0.1, (ahora - ultimo) / 1000) : 0;
+    if (ultimo && dt < 1 / 32) { requestAnimationFrame(cuadro); return; }
+    ultimo = ahora; t += dt;
+    dibujar(dt);
+    requestAnimationFrame(cuadro);
+  }
+  function seguir() {
+    if (corriendo) return;
+    corriendo = true; ultimo = 0;
+    requestAnimationFrame(cuadro);
+  }
+
+  armar(true);
+  if (quieto.matches) dibujar(0); else seguir();
+
+  let espera;
+  addEventListener("resize", () => {
+    clearTimeout(espera);
+    espera = setTimeout(() => {
+      // En el celu la barra del navegador cambia el alto al scrollear: ahí solo se ajusta el lienzo
+      armar(innerWidth !== W || Math.abs(innerHeight - H) > 160);
+      if (quieto.matches) dibujar(0);
+    }, 150);
+  });
+  if (quieto.addEventListener) quieto.addEventListener("change", () => { if (quieto.matches) dibujar(0); else seguir(); });
+})();
 </script>
 </body>
 </html>
