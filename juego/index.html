@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dragon Nacho</title>
-<meta name="description" content="El juego de Nacho: un mundo de bloques infinito en 3D donde criás a tu kaiju Gigarex y derrotás jefes gigantes. Gratis, en el navegador.">
+<meta name="description" content="El juego de Nacho: un mundo de bloques infinito en 3D con ciudad, central nuclear, Tokio y todos los países. Criá a tu kaiju, derrotá jefes y jugá con amigos. Gratis.">
 <meta property="og:title" content="Dragon Nacho">
-<meta property="og:description" content="El juego de Nacho: construí, criá tu kaiju y derrotá a los jefes gigantes. Gratis, en el navegador.">
+<meta property="og:description" content="El juego de Nacho: construí, criá tu kaiju, viajá por todos los países y jugá con amigos. Gratis, en el navegador.">
 <meta property="og:image" content="https://ferf8.github.io/nachojuegos/juego/portada.jpg">
 <meta property="og:url" content="https://ferf8.github.io/nachojuegos/juego/">
 <link rel="icon" type="image/png" href="../icono_quieto.png">
@@ -72,6 +72,7 @@
   .modo-op label span { color: var(--muted); font-size: .84rem; }
   .modo-op input:checked + label { border-color: var(--oro); background: var(--panel2); }
   .modo-op input:focus-visible + label { outline: 3px solid var(--diamante); outline-offset: 2px; }
+  .candado { font-family: var(--body); font-size: .7rem; color: var(--oro); border: 1px solid var(--oro); border-radius: 999px; padding: 0 6px; margin-left: 6px; vertical-align: 2px; }
   .clave { display: grid; gap: 6px; }
   .clave label { font-weight: 700; }
   .fila { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; }
@@ -86,15 +87,24 @@
   .hud-izq img { width: 42px; height: 42px; image-rendering: pixelated; }
   .hud-izq b { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
   .hud-izq small { display: block; color: var(--muted); font-size: .75rem; }
-  .hud-der { position: absolute; top: calc(10px + env(safe-area-inset-top, 0px)); right: calc(10px + env(safe-area-inset-right, 0px)); display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; max-width: 60vw; pointer-events: auto; }
+  #hud-sitio { position: absolute; top: calc(68px + env(safe-area-inset-top, 0px)); left: calc(10px + env(safe-area-inset-left, 0px)); background: rgba(10, 13, 36, .75); border: 2px solid var(--borde); border-radius: 999px; padding: 3px 12px; font-weight: 700; font-size: .85rem; color: var(--diamante); }
+  .hud-der { position: absolute; top: calc(10px + env(safe-area-inset-top, 0px)); right: calc(10px + env(safe-area-inset-right, 0px)); display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; max-width: 62vw; pointer-events: auto; }
   .hud-der .boton { font-size: .75rem; padding: 7px 10px; }
   .hud-der kbd { font-family: var(--body); color: var(--muted); font-size: .7rem; margin-left: 4px; background: none; border: 0; padding: 0; }
-  #jefe-barra { position: absolute; top: calc(66px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); width: min(420px, 70vw); text-align: center; display: grid; gap: 4px; }
+  #jefe-barra { position: absolute; top: calc(66px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); width: min(420px, 60vw); text-align: center; display: grid; gap: 4px; }
   #jefe-barra b { font-family: var(--display); font-weight: 400; text-shadow: 2px 2px 0 #000; }
   .barra { height: 12px; background: #2A0A0A; border: 2px solid var(--borde); border-radius: 3px; overflow: hidden; }
   .barra i { display: block; height: 100%; width: 100%; background: #E5483E; box-shadow: inset 0 3px 0 #FF8A80; }
   #avisos { position: absolute; top: calc(118px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); width: min(92vw, 520px); display: grid; gap: 6px; justify-items: center; }
   .aviso { background: rgba(10, 13, 36, .88); border: 2px solid var(--oro); border-radius: 8px; padding: 6px 12px; font-weight: 700; text-align: center; }
+  #chat { position: absolute; top: calc(104px + env(safe-area-inset-top, 0px)); left: calc(10px + env(safe-area-inset-left, 0px)); width: min(360px, 62vw); display: grid; gap: 4px; }
+  #chat-log { display: grid; gap: 3px; }
+  .msg-chat { background: rgba(10, 13, 36, .74); border-radius: 6px; padding: 3px 8px; font-size: .88rem; overflow-wrap: anywhere; transition: opacity .6s; }
+  .msg-chat b { color: var(--oro); }
+  .msg-chat.viejo { opacity: 0; }
+  #chat.abierto .msg-chat { opacity: 1; }
+  #chat-form { display: flex; gap: 6px; pointer-events: auto; }
+  #chat-form input { flex: 1; min-width: 0; }
   #mira { position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; transform: translate(-50%, -50%); mix-blend-mode: difference; }
   #mira::before, #mira::after { content: ""; position: absolute; background: #fff; }
   #mira::before { left: 9px; top: 0; width: 2px; height: 20px; }
@@ -133,7 +143,7 @@
     position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; background: rgba(5, 6, 26, .62);
     padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
   }
-  .panel { width: min(600px, 100%); max-height: 100%; overflow: auto; background: var(--panel); border: 4px solid var(--borde); border-radius: 12px; box-shadow: 6px 6px 0 var(--diamante); }
+  .panel { width: min(620px, 100%); max-height: 100%; overflow: auto; background: var(--panel); border: 4px solid var(--borde); border-radius: 12px; box-shadow: 6px 6px 0 var(--diamante); }
   .panel-cab { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--panel2); border-bottom: 3px solid var(--borde); }
   .panel-cab h2 { font-family: var(--display); font-weight: 400; font-size: 1.25rem; color: var(--oro); }
   .x { margin-left: auto; flex: none; width: 38px; height: 38px; cursor: pointer; background: transparent; border: 2px solid var(--line); border-radius: 8px; font-size: 1.3rem; line-height: 1; }
@@ -152,10 +162,11 @@
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip { cursor: pointer; padding: 6px 12px; border-radius: 999px; background: var(--panel2); border: 2px solid var(--line); font-weight: 700; font-size: .88rem; }
   .chip.activo { border-color: var(--oro); color: var(--oro); }
-  .trajes { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+  .trajes, .bloques { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
   .traje { display: grid; justify-items: center; gap: 4px; padding: 8px 4px; cursor: pointer; background: var(--panel2); border: 3px solid var(--line); border-radius: 8px; font-size: .78rem; font-weight: 700; text-align: center; line-height: 1.15; }
   .traje img { width: 48px; height: 48px; image-rendering: pixelated; border-radius: 4px; }
   .traje.activo { border-color: var(--oro); color: var(--oro); }
+  .sala b { font-family: var(--display); font-weight: 400; font-size: 1.7rem; color: var(--oro); letter-spacing: .12em; }
   .teclas { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   kbd { font-family: var(--body); font-size: .8rem; background: var(--panel2); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
   .campo { display: grid; gap: 4px; font-weight: 700; font-size: .88rem; }
@@ -194,11 +205,11 @@
   <div class="portada-img"><img src="portada.jpg" width="720" height="791" alt="Nacho con armadura de diamante, parado sobre bloques de diamante"></div>
   <div class="portada-menu">
     <h1 class="titulo">Dragon<br>Nacho</h1>
-    <p class="sub">El juego de Nacho: construí, criá a tu kaiju Gigarex y derrotá a los jefes gigantes en un mundo infinito.</p>
+    <p class="sub">El juego de Nacho: construí, criá a tu kaiju Gigarex, derrotá jefes gigantes y viajá por todos los países del mundo.</p>
     <p><span class="moneda"></span> Tenés <b id="p-monedas">1000</b> monedas</p>
     <fieldset class="modos" id="modos"><legend>Modo de juego</legend></fieldset>
     <div id="clave-zona" class="clave" hidden>
-      <label for="clave">Contraseña del modo Nacho</label>
+      <label for="clave">Contraseña del creador</label>
       <input id="clave" type="password" inputmode="numeric" autocomplete="off" maxlength="12">
       <p id="clave-error" class="error" aria-live="polite"></p>
     </div>
@@ -215,9 +226,14 @@
 
 <div id="hud" hidden>
   <div class="hud-izq"><img id="hud-cara" alt=""><div><b><span class="moneda"></span> <span id="hud-monedas">0</span></b><small id="hud-modo"></small></div></div>
+  <div id="hud-sitio" hidden></div>
   <div class="hud-der" id="hud-botones"></div>
   <div id="jefe-barra" hidden><b id="jefe-nombre"></b><div class="barra"><i id="jefe-vida"></i></div></div>
   <div id="avisos" aria-live="polite"></div>
+  <div id="chat" hidden>
+    <div id="chat-log" aria-live="polite"></div>
+    <form id="chat-form" hidden><input id="chat-txt" type="text" maxlength="120" autocomplete="off" placeholder="Escribí y apretá Enter" aria-label="Mensaje para tus amigos"><button class="boton chico" type="submit">Enviar</button></form>
+  </div>
   <div id="mira"></div>
   <div id="progreso" hidden><i></i></div>
   <div class="abajo">
@@ -254,10 +270,14 @@
 // ================== Configuración ==================
 // Cuando exista el servidor de Discord, pegá acá el link de invitación (por ejemplo "https://discord.gg/abc123")
 const DISCORD_URL = "";
-// Ojo: la contraseña queda a la vista en el código de la página. Es un candado para chicos, no una seguridad real.
-const CLAVE_NACHO = "111";
-const VERSION = "1.1";
+// Contraseña de los modos del creador (Admin, Creador y Nacho).
+// Ojo: queda a la vista en el código de la página. Es un candado para chicos, no una seguridad real.
+const CLAVE_CREADOR = "111";
+const VERSION = "1.2";
 const CARA = "data:image/png;base64,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";
+// Para jugar con amigos se usa PeerJS (conexión directa entre navegadores con un servicio público gratuito)
+const PEERJS_URL = "https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js";
+const PREFIJO_SALA = "dragonnacho-sala-";
 
 // ================== Utilidades ==================
 const $ = (id) => document.getElementById(id);
@@ -267,6 +287,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const distXZ = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 const numero = (n) => Math.floor(n).toLocaleString("es-AR");
 const corto = (n) => n >= 1e6 ? Math.floor(n / 1e6) + "M" : n >= 1e4 ? Math.floor(n / 1e3) + "k" : String(n);
+const normalizar = (s) => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 const tactil = matchMedia("(pointer: coarse)").matches;
 function rng(s) {
   return () => { s |= 0; s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
@@ -274,24 +295,25 @@ function rng(s) {
 function lerpAngulo(a, b, t) { const d = ((((b - a) % (2 * Math.PI)) + 3 * Math.PI) % (2 * Math.PI)) - Math.PI; return a + d * t; }
 
 // ================== Modos y partida guardada ==================
-// En la tienda solo es todo gratis en el modo Nacho
+// Admin, Creador y Nacho son solo para el creador (piden contraseña). La tienda es gratis solo en el modo Nacho.
 const MODOS = {
-  supervivencia: { nombre: "Supervivencia", desc: "Tenés vida, juntás bloques y comprás con monedas.", daño: true, vuelo: false, infinito: false },
-  creativo: { nombre: "Creativo", desc: "Bloques infinitos, volás y nadie te puede lastimar.", daño: false, vuelo: true, infinito: true },
-  observador: { nombre: "Observador", desc: "Volás atravesando todo para mirar. No tocás nada.", daño: false, vuelo: true, infinito: true, fantasma: true },
-  admin: { nombre: "Admin", desc: "Como creativo, más un panel para agregar monedas y bloques, invocar jefes y controlar el juego.", daño: false, vuelo: true, infinito: true, panel: true },
-  creador: { nombre: "Creador", desc: "Inventá tus propios jefes y aliados en el taller.", daño: false, vuelo: true, infinito: true, taller: true },
-  nacho: { nombre: "Nacho", desc: "Modo secreto con contraseña: trajes de Marvel, todo gratis y todos los poderes.", daño: false, vuelo: true, infinito: true, gratis: true, panel: true, taller: true, trajes: true }
+  supervivencia: { nombre: "Supervivencia", desc: "Tenés vida, juntás bloques y comprás con monedas.", daño: true },
+  creativo: { nombre: "Creativo", desc: "Bloques infinitos, volás y nadie te puede lastimar.", vuelo: true, infinito: true },
+  observador: { nombre: "Observador", desc: "Volás atravesando todo para mirar. No tocás nada.", vuelo: true, infinito: true, fantasma: true },
+  admin: { nombre: "Admin", desc: "Panel para agregar monedas y bloques, invocar jefes y teletransportarte a donde quieras.", vuelo: true, infinito: true, panel: true, soloCreador: true },
+  creador: { nombre: "Creador", desc: "Volás, caminás sobre el agua, picás cualquier bloque en 1 segundo e inventás criaturas.", vuelo: true, infinito: true, taller: true, caminaAgua: true, picar: 1, rompeTodo: true, soloCreador: true },
+  nacho: { nombre: "Nacho", desc: "Todos los poderes del creador, todo gratis y los trajes de Marvel.", vuelo: true, infinito: true, gratis: true, panel: true, taller: true, trajes: true, caminaAgua: true, rompeTodo: true, soloCreador: true }
 };
 const modo = () => MODOS[save.modo] || MODOS.supervivencia;
 const CLAVE = "dragonnacho:v1";
 const demo = location.hash === "#demo";
-let nachoOk = false;
+const RANURAS_INICIALES = [1, 2, 3, 4, 8, 9, 10, 12, 14, "huevo"];
+let creadorOk = false;
 function saveNuevo() {
   return {
     monedas: 1000, modo: "supervivencia", inv: { 1: 16, 2: 16, 3: 16, 8: 16, 9: 8 }, huevos: 0, espada: false, armadura: false,
     desbloqueado: 1, derrotados: [], cambios: {}, semilla: Math.floor(Math.random() * 1e9), gigarex: null, huevoPlantado: null, criaturas: [],
-    traje: "normal", trajes: {}, bloquesInfinitos: false, nuevo: true
+    traje: "normal", trajes: {}, bloquesInfinitos: false, ranuras: RANURAS_INICIALES.slice(), nombre: "", nuevo: true
   };
 }
 let save = saveNuevo();
@@ -299,6 +321,7 @@ if (!demo) {
   try { const s = JSON.parse(localStorage.getItem(CLAVE)); if (s && typeof s === "object") save = Object.assign(saveNuevo(), s, { nuevo: false }); } catch (e) {}
 }
 if (!MODOS[save.modo]) save.modo = "supervivencia";
+if (!Array.isArray(save.ranuras) || save.ranuras.length !== 10) save.ranuras = RANURAS_INICIALES.slice();
 let sucio = false;
 function guardar() { if (demo) return; try { localStorage.setItem(CLAVE, JSON.stringify(save)); sucio = false; } catch (e) {} }
 const marcar = () => { sucio = true; };
@@ -320,21 +343,33 @@ const BLOQUES = {
   11: { nombre: "Mena de diamante", tex: [12, 12, 12], color: "#3ee6e0" },
   12: { nombre: "Bloque de diamante", tex: [13, 13, 13], color: "#3ee6e0" },
   13: { nombre: "Roca madre", tex: [14, 14, 14], color: "#333333", irrompible: true },
-  14: { nombre: "Bloque de oro", tex: [15, 15, 15], color: "#f2c230" }
+  14: { nombre: "Bloque de oro", tex: [15, 15, 15], color: "#f2c230" },
+  15: { nombre: "Asfalto", tex: [16, 16, 16], color: "#3a3d44" },
+  16: { nombre: "Hormigón", tex: [17, 17, 17], color: "#c9c6bf" },
+  17: { nombre: "Nieve", tex: [18, 19, 2], color: "#f2f7fb" },
+  18: { nombre: "Hojas de cerezo", tex: [20, 20, 20], color: "#f4a6c8", recorte: true },
+  19: { nombre: "Bloque rojo", tex: [21, 21, 21], color: "#c8302a" },
+  20: { nombre: "Calle con línea", tex: [22, 16, 16], color: "#3a3d44" },
+  21: { nombre: "Ventana", tex: [23, 23, 23], color: "#2d5f8a" },
+  22: { nombre: "Obsidiana", tex: [24, 24, 24], color: "#2a1838" },
+  23: { nombre: "Portal", tex: [25, 25, 25], color: "#b04cff", recorte: true, irrompible: true }
 };
-const DUREZA = { 1: 0.5, 2: 0.45, 3: 1.1, 4: 0.4, 6: 0.8, 7: 0.2, 8: 0.7, 9: 0.3, 10: 1.1, 11: 1.4, 12: 1.6, 14: 1.6 };
-const solido = (id) => id !== 0 && id !== 5;
+const PONIBLES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+const DUREZA = { 1: 0.5, 2: 0.45, 3: 1.1, 4: 0.4, 6: 0.8, 7: 0.2, 8: 0.7, 9: 0.3, 10: 1.1, 11: 1.4, 12: 1.6, 14: 1.6, 15: 1, 16: 1.2, 17: 0.3, 18: 0.2, 19: 1, 20: 1, 21: 0.4, 22: 3 };
+const solido = (id) => id !== 0 && id !== 5 && id !== 23;
 
-const TILE = 16, COLS = 8, FILAS_ATLAS = 2;
+const TILE = 16, COLS = 8, FILAS_ATLAS = 4;
 const atlas = document.createElement("canvas");
 atlas.width = TILE * COLS; atlas.height = TILE * FILAS_ATLAS;
 const actx = atlas.getContext("2d");
 const hsl = (h, s, l) => `hsl(${h},${s}%,${clamp(l, 0, 100)}%)`;
 const piedra = (x, y, r) => hsl(220, 4, 50 + (r() - 0.5) * 16);
+const tierra = (x, y, r) => hsl(28, 42, 32 + (r() - 0.5) * 12);
+const asfalto = (x, y, r) => hsl(220, 6, 22 + (r() - 0.5) * 8);
 const PINTORES = [
   (x, y, r) => hsl(100, 50, 36 + (r() - 0.5) * 14),
-  (x, y, r) => (y < 3 || (y === 3 && r() < 0.5)) ? hsl(100, 50, 36 + (r() - 0.5) * 12) : hsl(28, 42, 32 + (r() - 0.5) * 12),
-  (x, y, r) => hsl(28, 42, 32 + (r() - 0.5) * 12),
+  (x, y, r) => (y < 3 || (y === 3 && r() < 0.5)) ? hsl(100, 50, 36 + (r() - 0.5) * 12) : tierra(x, y, r),
+  tierra,
   piedra,
   (x, y, r) => hsl(48, 55, 72 + (r() - 0.5) * 8),
   (x, y, r) => hsl(212, 75, 46 + (r() - 0.5) * 8),
@@ -350,7 +385,17 @@ const PINTORES = [
   })(),
   (x, y, r) => (x === 0 || y === 0) ? hsl(178, 80, 82) : (x === 15 || y === 15) ? hsl(182, 70, 38) : hsl(178, 72, 58 + (r() - 0.5) * 10),
   (x, y, r) => hsl(0, 0, 22 + (r() - 0.5) * 22),
-  (x, y, r) => (x === 0 || y === 0) ? hsl(52, 100, 80) : (x === 15 || y === 15) ? hsl(40, 90, 38) : hsl(48, 92, 55 + (r() - 0.5) * 8)
+  (x, y, r) => (x === 0 || y === 0) ? hsl(52, 100, 80) : (x === 15 || y === 15) ? hsl(40, 90, 38) : hsl(48, 92, 55 + (r() - 0.5) * 8),
+  asfalto,
+  (x, y, r) => hsl(40, 6, 78 + (r() - 0.5) * 6),
+  (x, y, r) => hsl(205, 35, 94 + (r() - 0.5) * 5),
+  (x, y, r) => (y < 4 || (y === 4 && r() < 0.5)) ? hsl(205, 35, 94 + (r() - 0.5) * 5) : tierra(x, y, r),
+  (x, y, r) => r() < 0.16 ? null : hsl(330, 70, 80 + (r() - 0.5) * 14),
+  (x, y, r) => hsl(3, 72, 45 + (r() - 0.5) * 6),
+  (x, y, r) => (x === 7 || x === 8) && y % 8 < 5 ? "#e8c23a" : asfalto(x, y, r),
+  (x, y, r) => (x === 0 || y === 0 || x === 15 || y === 15) ? hsl(40, 6, 70) : (x - y === 5 || x - y === 6) && x < 12 ? hsl(200, 60, 70) : hsl(205, 55, 32 + (r() - 0.5) * 6),
+  (x, y, r) => r() < 0.08 ? hsl(285, 60, 40) : hsl(272, 45, 12 + (r() - 0.5) * 8),
+  (x, y, r) => r() < 0.22 ? null : hsl(285, 90, 45 + 15 * Math.sin((x + y) / 2) + (r() - 0.5) * 10)
 ];
 PINTORES.forEach((pintar, i) => {
   const r = rng(i * 977 + 13), x0 = (i % COLS) * TILE, y0 = Math.floor(i / COLS) * TILE;
@@ -405,14 +450,192 @@ texAtlas.magFilter = THREE.NearestFilter; texAtlas.minFilter = THREE.NearestFilt
 const matOpaco = new THREE.MeshBasicMaterial({ map: texAtlas, vertexColors: true, alphaTest: 0.5 });
 const matAgua = new THREE.MeshBasicMaterial({ map: texAtlas, vertexColors: true, transparent: true, opacity: 0.72, depthWrite: false });
 
+// ================== Mapa del mundo ==================
+// Todos los países, de Natural Earth (dominio público), en una grilla de medio grado por celda.
+// En el juego el mapa empieza lejos del inicio y cada celda mide 8×8 bloques: se llega por el portal.
+const MAPA_RLE = "/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wDHAAFRAwADUQIAGVH/AP8AZAABKAIABSgCABEoAgAGKCQABVEDACdR/wD/AFIABSgDACkoDAADUQIAAVEEAAVRBAACUQEAJlH/AP8ATgA2KAcABVEBAENRAgAFUQkABlGPAAK8/wCfAAQoBgAGKAIADSgBABkoCQBOUQIAEVGIAAW8SgACvP8AUwAIKAUAAygBAA0oAwAUKAYAZlF6AAK8AQABvAEABbwGAAa8BAAFvAIAA7w5AAq8/wBNAA4oAQACKAIABSgCABooBgBfUQEABVFHAAGiAQACogMAAaICAAOiKwAEvAYABLwCAAG8AQACvAEAArxDAAq8/wBPABIoAgAIKAIADygBAAMoDQBaUQIAAlE5AAeiAQABogIABKICAAKiAgALooMAArwCAAy8/wA2AAUoFQAPKAEAEigUAF1RPAABogEAB6IBAAaiCAACoo0ACbwFAAO8/wA0AAcoAwADKAcADCgBABkoCQBiUT8AAaICABOingAJvP8ANAAEKAMABSgHAAMoAQABKAEAASgCABgoBgBmUQQAAVFAAAGiBAAHogQAA6KaAAe8BgABvP8AFwABKAIABigPAAMoCgAFKAsABCgBAA8oDwBmUQMAAVFDAAWiBgAHov8AsAAIKBQAAigcAAEoBgAKKAEAAigXAGNRAQABUUIABqKPAAG8GAAIvP8ADQAJKAMAAigIAAIoFwAIKAUAGSgRAF5RAQABUUsAAqJiAAa8QAAMvFQAAbywAAcoBgAEKAEAASgGAAQoCQACKAEAAigBAAYoCQAIKBAAAigWAAlRAQABUQIAVFEDAAFRnwACvAIACrw3AAO8BQAavAEAAbz/AAIoAgALKAUABygGAAkoDAAGKAoABigsAE9RnAAMvDgAKLwBAAK8KwABvAMABrwBAAe8xAAXKAIAAygHAAQoBAAFKAIAGigrAEtRAQABUQEAAlGWAAi8NwAyvC8AC7wBAAS8AgAFvAEAAbzBAAcoHwADKAMAESgBAAYoLgBIUQEAAlGXAAi8NAABvAEAMrw1AAK8wAAJKAMAAih6AElRlgAHvDgAL7wEAAK8NwABvL4AECgUAAIoCAAIKAQACSgGAAUoCAABKDEAPVEBAAlRlQAHvDYAAbwBAAO8AQAqvAIAArwBAAK8AgABvDcABLy5ABAoAgADKAwAASgBAAEoAQADKAgABSgFAAgoBQAGKAIACCgBAAgoKgA6UQIABFGaAAW8HAADvBIAC7wBACe8BAAVvAoACrwcAAK8twANKAEABygCAAQoAwACKAIABSgGAAIoAgAHKAMAAygCAAIoBQAGKAIACigxAAJRAQA4UQEACFGVAAa8GwAHvAUAAbwHAAG8AgBBvAEAH7wYAAK8uQAMKAMAEygBAAYoCAAJKAMAAigIAAcoAwAIKAIABCgBAAUoJwA/UQIAAlGVAAa8GgAIvAUAAbwFAAS8BABcvAEAArwTAAq8AgAIvK0ACCgDABYoAQAGKAoABSgDAAMoCAAIKAEAFSgCAAEoJAAEUQEAPlGTAAi8GgAIvAIABLwBAAu8AgABvAEAXLwGAAG8DQALvAIABrw+AAW8KQACQ0EAAygKABkoEAAHKAkABigCABsoIgABUQEAN1ECAAZRlAABvAEABbwWAAu8AgAFvAQACbwBAF28BQALvAEAG7w3AAK8KAABQwEADUNFABwoDwAIKAcAJCgBAAMoHQADUQMAL1EBAARRAwAFUVkAAaICAAKiAQABogEAAqIBAAKiMgAGvBQACrwDABK8AQCYvE4AG0MpAAEoFwAFKAEAFigKAAooCgAPKAEAEigCAAEoGwACUQEANFECAANRXQACogEAA6IBAAuiNwACvA8AC7wDABG8AQCavEoAK0MTAAMoAQAHKAMAASgDAAMoCQAdKAEAAigFAAIoBAAGKA4AAygHAAIoBQASKAEAASgYAAZRAQABUQEANlFUAAKiAQAMogVHAqIBAAKiAQADvDUABrwJAAu8AgCtvBAAA7wCAAy8KAAtQwUoBQAHKAEAGigKAA4oAQAJKAcABSgDAAEoAQAFKAMAASgHAAgoBQABKAIAASgDABIoHwA0UVQACKIBRwmiBkcBogq8AQABvBoAA7wVAAm8BgAJvAMAvbwFABG8AQACvBoAMkM1KAIACSgEAAMoBwABKAYABigEAAYoAQAEKAYABygKAAEoAwAMKCMAMlFRAASiAgAGogLWAkcFogdHErwWAAG8CAACvAgAA7wCAA28BAAIvAMABbwBAKe8AQAqvBcAMkM0KA0AAigCAAMoDQAEKAQADCgDAAEoAQAHKAwAAygDAA0oAQABKBsAAVEBACtRVwABogEAAaICAASiCtYLRxW8CgAEvAkABrwBAAG8AQAkvAMABrwBANW8FgAvQzUoBQAFKAMACygDAAMoAQACKAIAAigBAA8oAwAJKAkABSgFABAoFgABUQIAAVEBACRRYAADog7WDUcVvAcAA7wHADC8AwDdvBYALkNCKAEAKCgBAAsoCQABKAkAEigSAClRYgACog7WDEcXvAYAA7wFADC8BADevAIABbwSACtDQigBAC4oAQAEKBIAFygRACZRXwAFohDWCkcIvAIADrwHADG8AgADvAMA17wBABK8CAAEQwYAKENuKAIAASgUAA4oAgAIKBIAH1EBAARRGQACZQsAA2U4AAGiAQADohDWDEcJvAYABrwEAAO8AQD/vBK8AgAQvAYANUNmKAIABSgBAAMoFgALKAUABigTAANRAQAbURwABGUCAAxlNgAEohDWBAALRwq8CwD/vBm8BwAHvAwAM0NrKAMABCgNABUoBAADKBYAGVEjABJlNQADog7WCAAIRwq8CwD/vBm8CwADvA0ACUMCAChDaygCAAgoCQAGKAEAECgBAAEoGwABUQMAE1EhAAFlAgARZTMABaIO1gcAC0cKvAMABbwCAP+8D7wBAAK8AQAEvCgAKENqKAMACigJAAEoBwAPKBwAFFEBAAFRJQANZTQAB6IO1gYADUcLvAQA/7wavCkAKENhKAEABCgGAAYoAwAEKBAAECgaABZRKAAGZTQAAaIBAAaiENYFAA5H/7wqvBYABEMMACtDZSgKAAEoDQACKAwABigDAAQoHAAUUWIACKIO1gYAEkf/vCm8IAAwQ2EoEgADKBYAASgCAAUoAwABKB0AEVFjAAmiDNYGABVH/7wkvAEABLweADFDYCgTAAEoBgABKAMABigBAAMoCQAFKCEADlFHAAFpGAAOogrWCAATR/+8CbwCABi8JAAyQ18oGwABKAMADCgtAA5RXwAOogvWCAARR/+8BgAFvAIAFLwpAB1DAgASQ14oIQAMKC4ADFFfABCiCNYJAA9H/7wHAAO8BQARvC0AAUMCABdDAQAGQwQAC0NdKCIAECgrAAFRAwAHUV8AD6IK1ggADUf/vAG8CAABvAUAEbwrAANDAgAYQwIACUMFAAtDWSgiABAoAgABKAYA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/wD/AP8A/wD/AP8A/wD/AP8A/wD/AEAAAQgBAAMI/wD/AMYAAQgCAAMI/wD/AMkAAQgCAAQIAgABCP8A/wDFAAIIAQAECP8A/wDLAAQI/wD/AM0ABQj/AP8AyAABCAIABggBAAEI4QAKCFoACQgKAAcIIQAHCAIAAgj/ADkAAQgCAAUI4QABCAMADAhEACQIAwALCA8ACAgFABcILAABCP8AAggBAAUI5AAUCDIAPAgDAAcIAwAwCP8AKgADCN0AKggfAH0IAQAECP8AJgAECNcANwgSAIgI/wAlAAUIAQABCAUAAQi7AAIIDQA6CBEAkggBAAIIAgADCP8ACwAECAYACAgBAAEIvQAFCAkAPAgPAKMI/AABCAYABQgCAAwInQABCCEACAgBAAEIAwA7CA4AqAj/AAUAAggCAAsIfwABCAUAAQgJAAEIBwABCAUAAQgEAAEIDgACCAgASQgKALEI+AADCAUABQgCAAsIcAABCAQAAggOAA4IAQAOCAQAAwgCAAIIBwBSCAYAswgBAAoI8QAICAIADQhlAAMIAwADCA0AiAgGAMII6AAGCAEACAgCAAwIYwCeCAcAyAixAAcIAQACCDAAAQgBAAQIAwANCGIAnggCAAEIAgDICK4AAQgWAAEIBAABCCoADghcAAEIAgCgCAIAzAiuAAwIAwACCAEABQgCAAYIAwABCAoAAwgGAAMIAQABCAcAEAgCAAIIWACmCAEAxwiFAAEIBQAFCCQABAgBACQIAgAJCAIAHghQAAEICQD/CG0IjgAECAwAAwgDAAIIEwBPCFIAAQgLAP8IaQh2AAMIDQAICAUADwgFAAIIFQBKCAEAAQhYAP8IaggCAAEIcAA/CAUACQgGAEUIWwD/CGkIbACfCFIA/wh2CGEABQgBAJsIUQD/CH4IXQACCAEAAggGAIkICgABCFIA/wiECE4ACAgFAAEIBAACCAUAighXAP8IiggGAAEIRQARCAEAmQhNAP8IjggFAAEITQCOCAEACQg6AAsIEAD/CJIIAQABCAEAAgg7AAIIDQCRCAUABQgSAAQIIgAKCBMA/wiMCAEAAwhAAAgIEQCNCBQABAgDAAIIIQAPCA0ABQgIAP8IfghMAAUIFQCRCBIAAggeABAIFgABCAEAAQgKAP8IdAhjAJUIEwABCAkABAgMABIIHQD/CHsIaACTCAcAAwgPAAYICwAKCBwA/wiJCFUAtAgzAP8IlQhbALEILgD/CJsIWACvCAkAAggNABAIBQD/CJ4IVQC4CAsA/wjACC0ACwgRAL8IBQD/CMYIMQD/CP8IrQgtAP8I/wixCAEAGAgSAP8I/wj/CP8I/wj/CP8I/wj/CP8I/wj/CP8I/wj/CP8I/wj/CP8I/wj/CP8I/wj/CP8I/wj/CP8I/wj/COQI";
+const PAISES = [["Afganistán",34.16,66.5],["Åland",60.16,19.87],["Albania",40.65,20.11],["Alemania",50.96,9.68],["Andorra",42.55,1.54],["Angola",-12.18,17.98],["Anguila",18.24,-63.03],["Antártida",-79.84,35.89],["Antigua y Barbuda",17.35,-61.79],["Arabia Saudita",23.81,44.7],["Argelia",27.4,2.81],["Argentina",-33.5,-64.17],["Armenia",40.46,44.8],["Aruba",12.52,-69.97],["Australia",-24.13,134.05],["Austria",47.52,14.13],["Azerbaiyán",40.4,47.21],["Bahamas",26.4,-77.15],["Bangladés",24.21,89.68],["Barbados",13.16,-59.57],["Baréin",26.06,50.55],["Bélgica",50.79,4.8],["Belice",17.2,-88.71],["Benín",10.32,2.35],["Bermudas",32.3,-64.76],["Bielorrusia",53.82,28.42],["Birmania",21.57,95.8],["Bolivia",-16.67,-64.59],["Bosnia y Herzegovina",44.09,18.07],["Botsuana",-22.1,24.18],["Brasil",-12.1,-49.56],["Brunéi",4.45,114.55],["Bulgaria",42.51,25.16],["Burkina Faso",12.67,-1.36],["Burundi",-3.33,29.92],["Bután",27.54,90.04],["Cabo Verde",15.07,-23.64],["Camboya",12.65,104.5],["Camerún",4.59,12.47],["Canadá",60.32,-101.91],["Catar",25.24,51.14],["Chad",15.14,18.65],["Chile",-38.15,-72.32],["China",32.5,106.34],["Chipre",34.91,33.08],["Ciudad del Vaticano",41.9,12.45],["Colombia",3.37,-73.17],["Comoras",-11.73,43.32],["Corea del Norte",39.89,126.44],["Corea del Sur",36.38,128.13],["Costa de Marfil",7.49,-5.57],["Costa Rica",10.07,-84.08],["Croacia",45.81,16.37],["Cuba",21.33,-77.98],["Curazao",12.15,-68.92],["Dinamarca",55.97,9.02],["Dominica",15.46,-61.34],["Ecuador",-1.26,-78.19],["Egipto",26.19,29.45],["El Salvador",13.69,-88.89],["Emiratos Árabes Unidos",23.47,54.55],["Eritrea",15.79,38.29],["Eslovaquia",48.73,19.05],["Eslovenia",46.06,14.92],["España",40.09,-3.46],["Estados Federados de Micronesia",6.89,158.23],["Estados Unidos",39.54,-97.48],["Estonia",58.72,25.87],["Etiopía",8.03,39.09],["Filipinas",11.2,122.47],["Finlandia",63.25,27.28],["Fiyi",-17.83,177.98],["Francia",46.7,2.55],["Gabón",-0.44,11.84],["Gambia",13.64,-15.0],["Georgia",41.87,43.74],["Ghana",7.72,-1.04],["Glaciar de Siachen",35.34,77.13],["Granada",12.11,-61.68],["Grecia",39.49,21.73],["Groenlandia",74.32,-39.34],["Guam",13.35,144.7],["Guatemala",14.98,-90.5],["Guernsey",49.46,-2.56],["Guinea",10.62,-10.02],["Guinea Ecuatorial",2.33,8.99],["Guinea-Bisáu",12.16,-14.52],["Guyana",5.12,-58.94],["Haití",19.26,-72.22],["Honduras",14.79,-86.89],["Hong Kong",22.45,114.1],["Hungría",47.09,19.45],["India",22.69,79.36],["Indonesia",-0.95,101.89],["Irak",33.09,43.26],["Irán",32.17,54.93],["Irlanda",53.08,-7.8],["Isla de Man",54.22,-4.53],["Isla Norfolk",-29.03,167.95],["Isla Santa Elena",-15.95,-5.71],["Islandia",64.78,-18.67],["Islas Ashmore y Cartier",-12.43,123.59],["Islas Caimán",19.32,-81.24],["Islas Cook",-21.22,-159.79],["Islas Feroe",62.19,-7.06],["Islas Georgias del Sur y Sandwich del Sur",-55.68,-31.06],["Islas Heard y McDonald",-53.1,73.51],["Islas Malvinas",-51.61,-58.74],["Islas Marianas del Norte",15.19,145.73],["Islas Marshall",7.08,171.19],["Islas Pitcairn",-24.36,-128.32],["Islas Salomón",-8.03,159.17],["Islas Turcas y Caicos",21.82,-71.75],["Islas Vírgenes Británicas",18.43,-64.64],["Islas Vírgenes de los Estados Unidos",17.75,-64.78],["Israel",30.91,34.85],["Italia",44.73,11.08],["Jamaica",18.14,-77.32],["Japón",36.14,138.44],["Jersey",49.22,-2.09],["Jordania",30.81,36.38],["Kazajistán",49.05,68.69],["Kenia",0.55,37.91],["Kirguistán",41.67,74.53],["Kiribati",1.82,-157.38],["Kosovo",42.59,20.86],["Kuwait",29.41,47.31],["Laos",19.43,102.53],["Lesoto",-29.48,28.25],["Letonia",57.07,25.46],["Líbano",34.13,35.99],["Liberia",6.45,-9.46],["Libia",26.64,18.01],["Liechtenstein",47.11,9.56],["Lituania",55.1,24.09],["Luxemburgo",49.73,6.08],["Macao",22.13,113.56],["Macedonia del Norte",41.56,21.56],["Madagascar",-18.63,46.7],["Malasia",2.53,113.84],["Malaui",-13.39,33.61],["Maldivas",4.17,73.51],["Malí",18.69,-2.04],["Malta",35.89,14.43],["Marruecos",31.65,-7.19],["Mauricio",-20.3,57.57],["Mauritania",19.59,-9.74],["México",23.92,-102.29],["Moldavia",47.43,28.49],["Mónaco",43.74,7.4],["Mongolia",46.0,104.15],["Montenegro",42.8,19.14],["Montserrat",16.74,-62.19],["Mozambique",-13.94,37.84],["Namibia",-20.58,17.11],["Nauru",-0.52,166.93],["Nepal",28.3,83.64],["Nicaragua",12.67,-85.07],["Níger",17.45,9.5],["Nigeria",9.44,7.5],["Niue",-19.05,-169.86],["Noruega",61.36,9.68],["Nueva Caledonia",-21.06,165.08],["Nueva Zelanda",-39.76,172.79],["Omán",22.12,57.34],["Países Bajos",52.42,5.61],["Pakistán",29.33,68.55],["Palaos",7.52,134.58],["Palestina",32.05,35.29],["Panamá",8.72,-80.35],["Papúa Nueva Guinea",-5.7,143.91],["Paraguay",-21.67,-60.15],["Perú",-12.98,-72.9],["Polinesia Francesa",-17.63,-149.46],["Polonia",51.99,19.49],["Portugal",39.61,-8.27],["Puerto Rico",18.23,-66.48],["Reino Unido",54.4,-2.12],["República Centroafricana",6.99,20.91],["República Checa",49.88,15.38],["República de China",23.65,120.87],["República del Congo",0.14,15.9],["República Democrática del Congo",-1.86,23.46],["República Dominicana",19.1,-70.65],["República Turca del Norte de Chipre",35.22,33.69],["Ruanda",-1.9,30.1],["Rumania",45.73,24.97],["Rusia",58.25,44.69],["Sahara Occidental",23.97,-12.63],["Samoa",-13.64,-172.44],["Samoa Estadounidense",-14.33,-170.75],["San Bartolomé",17.9,-62.83],["San Cristóbal y Nieves",17.34,-62.76],["San Marino",43.93,12.44],["San Martín",18.08,-63.05],["San Martín",18.04,-63.07],["San Pedro y Miquelón",47.04,-56.33],["San Vicente y las Granadinas",13.09,-61.34],["Santa Lucía",13.89,-60.98],["Santo Tomé y Príncipe",0.97,7.02],["Senegal",15.14,-14.78],["Serbia",44.19,20.79],["Seychelles",-4.68,55.48],["Sierra Leona",8.62,-11.76],["Singapur",1.37,103.82],["Siria",35.01,38.28],["Somalia",3.57,45.19],["Somalilandia",9.44,46.73],["Sri Lanka",7.58,80.7],["Suazilandia",-26.53,31.47],["Sudáfrica",-29.71,23.67],["Sudán",16.33,29.26],["Sudán del Sur",7.23,30.39],["Suecia",65.86,19.02],["Suiza",46.72,7.46],["Surinam",4.14,-55.91],["Tailandia",15.46,101.07],["Tanzania",-6.05,34.96],["Tayikistán",38.2,72.59],["Territorio Británico del Océano Índico",-6.19,71.35],["Territorios Australianos del Océano Índico",-10.49,105.67],["Tierras Australes y Antárticas Francesas",-49.3,69.12],["Timor Oriental",-8.8,125.85],["Togo",8.81,1.06],["Tonga",-21.21,-175.16],["Trinidad y Tobago",11.0,-60.92],["Túnez",33.69,9.01],["Turkmenistán",39.86,58.68],["Turquía",39.35,34.51],["Tuvalu",-8.51,179.21],["Ucrania",49.72,32.14],["Uganda",1.97,32.95],["Uruguay",-32.96,-55.97],["Uzbekistán",41.69,64.01],["Vanuatu",-15.37,166.91],["Venezuela",7.18,-64.6],["Vietnam",21.72,105.39],["Wallis y Futuna",-14.29,-178.14],["Yemen",15.33,45.87],["Yibuti",11.98,42.5],["Zambia",-14.66,26.4],["Zimbabue",-18.91,29.93]];
+const MAPA = { x0: 4000, z0: 4000, esc: 8, w: 720, h: 360 };
+const mapaCeldas = (() => {
+  const b = atob(MAPA_RLE), g = new Uint8Array(MAPA.w * MAPA.h);
+  for (let i = 0, k = 0; i < b.length; i += 2) { const n = b.charCodeAt(i); g.fill(b.charCodeAt(i + 1), k, k + n); k += n; }
+  return g;
+})();
+const PAISES_ORDEN = PAISES.map((p, i) => i).sort((a, b) => PAISES[a][0].localeCompare(PAISES[b][0], "es"));
+function celdaMapa(x, z) {
+  const i = Math.floor((x - MAPA.x0) / MAPA.esc), j = Math.floor((z - MAPA.z0) / MAPA.esc);
+  if (i < 0 || j < 0 || i >= MAPA.w || j >= MAPA.h) return -1;
+  return mapaCeldas[j * MAPA.w + i];
+}
+const latDe = (z) => 90 - (z - MAPA.z0) / (MAPA.esc * 2);
+const lonDe = (x) => (x - MAPA.x0) / (MAPA.esc * 2) - 180;
+const xDeLon = (lon) => Math.floor(MAPA.x0 + (lon + 180) * MAPA.esc * 2);
+const zDeLat = (lat) => Math.floor(MAPA.z0 + (90 - lat) * MAPA.esc * 2);
+const esDesierto = (lat, lon) => (lat > 15 && lat < 33 && lon > -17 && lon < 60) || (lat > -30 && lat < -19 && lon > 118 && lon < 142) || (lat > 36 && lat < 46 && lon > 75 && lon < 110);
+function esFrontera(x, z, c) {
+  const e = MAPA.esc, ox = (x - MAPA.x0) % e, oz = (z - MAPA.z0) % e;
+  const otro = (dx, dz) => { const v = celdaMapa(x + dx * e, z + dz * e); return v > 0 && v !== c; };
+  return (ox === 0 && otro(-1, 0)) || (ox === e - 1 && otro(1, 0)) || (oz === 0 && otro(0, -1)) || (oz === e - 1 && otro(0, 1));
+}
+
+// ================== Lugares especiales: ciudad, central nuclear, portales, Tokio y el Monte Fuji ==================
+const CIUDAD = { x0: CENTRO + 40, z0: CENTRO - 40, x1: CENTRO + 120, z1: CENTRO + 40, suelo: 16, alto: 26, sal: 11, nombre: "Ciudad" };
+const CENTRAL = { x0: CENTRO + 40, z0: CENTRO + 52, x1: CENTRO + 100, z1: CENTRO + 112, suelo: 16, nombre: "Central nuclear" };
+const PORTAL_INICIO = { x0: CENTRO + 8, z0: CENTRO - 2, x1: CENTRO + 9, z1: CENTRO + 3, suelo: 16 };
+const TOKIO_X = xDeLon(139.69), TOKIO_Z = zDeLat(35.68);
+const TOKIO = { x0: TOKIO_X - 30, z0: TOKIO_Z - 30, x1: TOKIO_X + 30, z1: TOKIO_Z + 30, suelo: 14, alto: 30, sal: 23, nombre: "Tokio, Japón", rojo: true, cerezos: true, torre: [1, 1], portal: [0, 1] };
+const FUJI = { cx: TOKIO_X - 58, cz: TOKIO_Z + 6, r: 18, alto: 26 };
+FUJI.x0 = FUJI.cx - FUJI.r; FUJI.x1 = FUJI.cx + FUJI.r + 1; FUJI.z0 = FUJI.cz - FUJI.r; FUJI.z1 = FUJI.cz + FUJI.r + 1;
+const TORRES_ENFRIAMIENTO = [[16, 18], [42, 18]];
+
+function arbolEn(lu, lv, cu, cv, S, set, hojas) {
+  const du = Math.abs(lu - cu), dv = Math.abs(lv - cv), d = Math.max(du, dv);
+  if (d === 0) { for (let k = 1; k <= 4; k++) set(S + k, 6); set(S + 5, hojas); set(S + 6, hojas); }
+  else if (d <= 2 && !(du === 2 && dv === 2)) { set(S + 4, hojas); set(S + 5, hojas); if (d === 1) set(S + 6, hojas); }
+}
+function columnaCiudad(E, x, z, set) {
+  const S = E.suelo, u = x - E.x0, v = z - E.z0;
+  set(0, 13);
+  for (let y = 1; y < S - 3; y++) set(y, 3);
+  for (let y = S - 3; y < S; y++) set(y, 2);
+  for (let y = S + 1; y < WY; y++) set(y, 0);
+  const bu = Math.floor(u / 20), bv = Math.floor(v / 20), lu = u - bu * 20, lv = v - bv * 20;
+  if (lu < 4 || lv < 4) {   // calles con línea en el medio
+    const raya = lu < 4 && lv < 4 ? false : lu < 4 ? (lu === 1 || lu === 2) && v % 6 < 3 : (lv === 1 || lv === 2) && u % 6 < 3;
+    set(S, raya ? 20 : 15);
+    return;
+  }
+  if (lu === 4 || lu === 19 || lv === 4 || lv === 19) { set(S, 16); return; }   // veredas
+  const es = (p) => p && p[0] === bu && p[1] === bv;
+  if (es(E.torre)) { columnaTorre(lu, lv, S, set); return; }
+  if (es(E.portal)) { columnaPlazaPortal(lu, lv, S, set); return; }
+  if (hash2(bu + E.sal, bv, 3) < 0.15) { set(S, 1); arbolEn(lu, lv, 11, 11, S, set, E.cerezos ? 18 : 7); return; }   // plaza con árbol
+  set(S, 16);
+  if (lu === 5 || lu === 18 || lv === 5 || lv === 18) return;
+  const alto = 8 + Math.floor(hash2(bu + E.sal, bv, 7) * (E.alto - 8));
+  const borde = lu === 6 || lu === 17 || lv === 6 || lv === 17;
+  for (let k = 1; k <= alto && S + k < WY - 1; k++) {
+    const y = S + k;
+    if (k === alto) { set(y, 16); continue; }
+    if (borde) {
+      if (lv === 6 && (lu === 11 || lu === 12) && k <= 2) continue;   // puerta
+      const col = lu === 6 || lu === 17 ? lv : lu;
+      set(y, k % 4 !== 0 && col % 2 === 1 ? 21 : (E.rojo && k % 8 === 0 ? 19 : 16));
+    } else if (k % 4 === 0) set(y, 16);   // pisos
+  }
+}
+// Torre roja y blanca de Tokio: patas que se van juntando, con dos plataformas y antena
+function columnaTorre(lu, lv, S, set) {
+  set(S, 16);
+  const du = Math.abs(lu - 11.5), dv = Math.abs(lv - 11.5), ALTO = Math.min(32, WY - 3 - S);
+  for (let k = 1; k <= ALTO; k++) {
+    const w = 6 - (k / ALTO) * 5.5, color = Math.floor(k / 4) % 2 ? 19 : 16;
+    const enX = Math.abs(du - w) < 0.6, enZ = Math.abs(dv - w) < 0.6;
+    const borde = (enX && dv <= w + 0.5) || (enZ && du <= w + 0.5);
+    if ((enX && enZ) || ((k === 10 || k === 18) && du <= w && dv <= w) || (borde && k % 3 === 0)) set(S + k, color);
+  }
+  if (du < 1 && dv < 1) for (let k = ALTO - 4; k <= ALTO + 1; k++) set(S + k, 16);
+}
+// Plaza de Tokio: portal de vuelta, un torii rojo y cerezos
+function columnaPlazaPortal(lu, lv, S, set) {
+  set(S, 16);
+  if (lu === 8 && lv >= 9 && lv <= 13) {
+    if (lv === 9 || lv === 13) { for (let k = 0; k <= 5; k++) set(S + k, 22); }
+    else { set(S, 22); for (let k = 1; k <= 4; k++) set(S + k, 23); set(S + 5, 22); }
+    return;
+  }
+  if (lu === 14) {
+    if (lv === 8 || lv === 14) for (let k = 1; k <= 5; k++) set(S + k, 19);
+    if (lv >= 7 && lv <= 15) set(S + 6, 19);
+    if (lv > 8 && lv < 14) set(S + 4, 19);
+    return;
+  }
+  if (lu >= 15) { set(S, 1); arbolEn(lu, lv, 17, 6, S, set, 18); arbolEn(lu, lv, 17, 16, S, set, 18); }
+}
+function columnaPortalInicio(x, z, set) {
+  const E = PORTAL_INICIO, S = E.suelo, lv = z - E.z0;
+  for (let y = S + 1; y <= S + 6; y++) set(y, 0);
+  if (lv === 0 || lv === 4) { for (let y = S; y <= S + 5; y++) set(y, 22); return; }
+  set(S, 22); for (let k = 1; k <= 4; k++) set(S + k, 23); set(S + 5, 22);
+}
+function columnaCentral(x, z, set) {
+  const E = CENTRAL, S = E.suelo, u = x - E.x0, v = z - E.z0;
+  for (let y = S + 1; y < WY; y++) set(y, 0);
+  set(S, 16);
+  if (u === 0 || v === 0 || u === 59 || v === 59) {   // cerca con portón
+    if (!(v === 0 && u >= 27 && u <= 31)) { set(S + 1, 10); set(S + 2, 9); }
+    return;
+  }
+  if (Math.abs(u - 29) <= 1 && v < 34) set(S, 15);   // camino de entrada
+  for (const [cu, cv] of TORRES_ENFRIAMIENTO) {   // torres de enfriamiento con franja roja
+    const d = Math.hypot(u - cu, v - cv);
+    for (let k = 1; k <= 28; k++) {
+      const r = 5 + 0.011 * (k - 20) * (k - 20);
+      if (Math.abs(d - r) < 0.7) set(S + k, k === 24 || k === 25 ? 19 : 16);
+    }
+  }
+  const d = Math.hypot(u - 29, v - 42);   // reactor: cilindro con cúpula
+  for (let k = 1; k <= 18; k++) {
+    const pared = k <= 9 ? Math.abs(d - 8) < 0.7 : Math.abs(Math.hypot(d, k - 9) - 8) < 0.75;
+    const puerta = k <= 3 && v < 42 && Math.abs(u - 29) <= 1;
+    if (pared && !puerta) set(S + k, 16);
+  }
+  if (u >= 44 && u <= 55 && v >= 34 && v <= 50) {   // sala de turbinas
+    const borde = u === 44 || u === 55 || v === 34 || v === 50;
+    for (let k = 1; k <= 8; k++) if (borde || k === 8) set(S + k, k === 8 ? 16 : (k % 3 === 2 && (u + v) % 2 ? 21 : 10));
+  }
+}
+function columnaFuji(x, z, set) {
+  const d = Math.hypot(x - FUJI.cx, z - FUJI.cz);
+  if (d > FUJI.r) return;
+  let cima = 14 + Math.round(FUJI.alto * Math.min(1, (FUJI.r - d) / (FUJI.r * 0.85)));
+  if (d < 2.5) cima -= 2;   // cráter
+  for (let y = 1; y <= cima; y++) set(y, y === cima ? (cima >= 32 ? 17 : cima >= 22 ? 2 : 1) : 3);
+  for (let y = cima + 1; y < WY; y++) set(y, 0);
+}
+const ESTRUCTURAS = [
+  Object.assign({ columna: (x, z, set) => columnaCiudad(CIUDAD, x, z, set) }, CIUDAD),
+  Object.assign({ columna: columnaCentral }, CENTRAL),
+  Object.assign({ columna: columnaPortalInicio }, PORTAL_INICIO),
+  Object.assign({ columna: (x, z, set) => columnaCiudad(TOKIO, x, z, set) }, TOKIO),
+  Object.assign({ columna: columnaFuji }, FUJI)
+];
+const cercaDeEstructura = (x, z, m) => ESTRUCTURAS.some((E) => x >= E.x0 - m && x < E.x1 + m && z >= E.z0 - m && z < E.z1 + m);
+function aplanado(x, z) {
+  let w = 0;
+  for (const E of [CIUDAD, CENTRAL]) {
+    const dx = Math.max(E.x0 - x, 0, x - E.x1 + 1), dz = Math.max(E.z0 - z, 0, z - E.z1 + 1);
+    w = Math.max(w, 1 - Math.hypot(dx, dz) / 12);
+  }
+  return w;
+}
+const DESTINOS_FIJOS = () => [
+  ["Casa (inicio)", inicio.x, inicio.z],
+  ["Ciudad", CIUDAD.x0 + 2, CIUDAD.z0 + 40],
+  ["Central nuclear", CENTRAL.x0 + 29, CENTRAL.z0 - 3],
+  ["Tokio, Japón", TOKIO.x0 + 2, TOKIO.z0 + 30],
+  ["Monte Fuji, Japón", FUJI.cx + FUJI.r + 3, FUJI.cz]
+];
+function lugarActual() {
+  const x = Math.floor(jugador.pos.x), z = Math.floor(jugador.pos.z);
+  for (const E of [CIUDAD, CENTRAL, TOKIO]) if (x >= E.x0 && x < E.x1 && z >= E.z0 && z < E.z1) return E.nombre;
+  if (Math.hypot(x - FUJI.cx, z - FUJI.cz) < FUJI.r) return "Monte Fuji, Japón";
+  const c = celdaMapa(x, z);
+  if (c < 0) return "";
+  return c === 0 ? "Océano" : PAISES[c - 1][0];
+}
+
 // ================== Mundo infinito ==================
 // Se genera por chunks de 16×16 columnas alrededor del jugador; con la misma semilla siempre sale igual.
-// Lo que construís se guarda en save.cambios y se vuelve a aplicar cada vez que se genera ese chunk.
+// Lo que construís se guarda en "cambios" y se vuelve a aplicar cada vez que se genera ese chunk.
+// Si entrás a la sala de un amigo, se usa su mundo (mundoInvitado) y no se toca el tuyo.
 const datos = new Map(), mallas = new Map(), cambiosPorChunk = new Map();
 const claveChunk = (cx, cz) => cx + "," + cz;
 const li = (lx, y, lz) => (y * CH + lz) * CH + lx;
 let inicio = { x: CENTRO + 0.5, y: 20, z: CENTRO + 0.5 };
-let mundoListo = false, cacheCx = NaN, cacheCz = NaN, cacheD = null;
+let mundoListo = false, cacheCx = NaN, cacheCz = NaN, cacheD = null, mundoInvitado = null;
+const semillaMundo = () => (mundoInvitado || save).semilla;
+const cambiosMundo = () => (mundoInvitado || save).cambios;
 
 function hash2(x, z, s) {
   let h = (Math.imul(x, 374761393) + Math.imul(z, 668265263) + Math.imul(s, 982451653)) | 0;
@@ -426,10 +649,12 @@ function ruido(x, z, s) {
   return lerp(lerp(hash2(x0, z0, s), hash2(x0 + 1, z0, s), sx), lerp(hash2(x0, z0 + 1, s), hash2(x0 + 1, z0 + 1, s), sx), sz);
 }
 function alturaTerreno(x, z, s) {
-  // Donde aparecés es más plano; hacia afuera hay colinas, lagos y montañas
+  const c = celdaMapa(x, z);
+  if (c >= 0) return c === 0 ? 8 : 14;
+  // Donde aparecés es más plano; hacia afuera hay colinas, lagos y montañas. La ciudad y la central están en terreno plano.
   const plano = clamp((Math.hypot(x - CENTRO, z - CENTRO) - 6) / 14, 0, 1);
   const h = 15 + (ruido(x / 22, z / 22, s) - 0.5) * 16 + (ruido(x / 7, z / 7, s + 7) - 0.5) * 5;
-  return Math.round(lerp(16, h, plano));
+  return Math.round(lerp(lerp(16, h, plano), 16, aplanado(x, z)));
 }
 function agregarCambio(x, y, z, id) {
   const ck = claveChunk(Math.floor(x / CH), Math.floor(z / CH));
@@ -440,16 +665,25 @@ function agregarCambio(x, y, z, id) {
 }
 function indexarCambios() {
   cambiosPorChunk.clear();
-  for (const k in save.cambios) { const [x, y, z] = k.split(",").map(Number); if (y >= 0 && y < WY) agregarCambio(x, y, z, save.cambios[k]); }
+  const cambios = cambiosMundo();
+  for (const k in cambios) { const [x, y, z] = k.split(",").map(Number); if (y >= 0 && y < WY) agregarCambio(x, y, z, cambios[k]); }
 }
 function generarChunk(cx, cz) {
-  const d = new Uint8Array(CH * CH * WY), s = save.semilla % 1000003, x0 = cx * CH, z0 = cz * CH, A = CH + 4;
+  const d = new Uint8Array(CH * CH * WY), s = semillaMundo() % 1000003, x0 = cx * CH, z0 = cz * CH, A = CH + 4;
   const H = new Int16Array(A * A);
   for (let lz = -2; lz < CH + 2; lz++) for (let lx = -2; lx < CH + 2; lx++) H[(lz + 2) * A + lx + 2] = clamp(alturaTerreno(x0 + lx, z0 + lz, s), 3, WY - 14);
   for (let lz = 0; lz < CH; lz++) for (let lx = 0; lx < CH; lx++) {
     const h = H[(lz + 2) * A + lx + 2], playa = h <= NIVEL_MAR + 1, x = x0 + lx, z = z0 + lz;
+    let arriba = playa ? 4 : 1, abajo = playa ? 4 : 2;
+    const c = celdaMapa(x, z);
+    if (c > 0) {   // en el mapa del mundo: nieve en los polos, arena en los desiertos y líneas en las fronteras
+      const lat = latDe(z);
+      if (Math.abs(lat) > 62) { arriba = 17; abajo = 2; }
+      else if (esDesierto(lat, lonDe(x))) { arriba = 4; abajo = 4; }
+      if (esFrontera(x, z, c)) arriba = 16;
+    }
     for (let y = 0; y <= h; y++) {
-      let id = y === 0 ? 13 : y < h - 3 ? 3 : playa ? 4 : y < h ? 2 : 1;
+      let id = y === 0 ? 13 : y < h - 3 ? 3 : y < h ? abajo : arriba;
       if (id === 3 && y < 11 && hash3(x, y, z, s) < 0.014) id = 11;
       d[li(lx, y, lz)] = id;
     }
@@ -459,7 +693,8 @@ function generarChunk(cx, cz) {
   const troncos = [];
   for (let lz = -2; lz < CH + 2; lz++) for (let lx = -2; lx < CH + 2; lx++) {
     const x = x0 + lx, z = z0 + lz, h = H[(lz + 2) * A + lx + 2];
-    if (h <= NIVEL_MAR + 1 || hash2(x, z, s + 99) > 0.013 || Math.hypot(x - CENTRO, z - CENTRO) < 7) continue;
+    if (h <= NIVEL_MAR + 1 || hash2(x, z, s + 99) > 0.013 || Math.hypot(x - CENTRO, z - CENTRO) < 10 || cercaDeEstructura(x, z, 3)) continue;
+    if (celdaMapa(x, z) > 0) { const lat = latDe(z); if (Math.abs(lat) > 62 || esDesierto(lat, lonDe(x)) || esFrontera(x, z, celdaMapa(x, z))) continue; }
     const alto = 4 + (hash2(x, z, s + 7) < 0.5 ? 0 : 1);
     for (let dy = -2; dy <= 1; dy++) {
       const rad = dy >= 0 ? 1 : 2, yy = h + alto + dy;
@@ -472,6 +707,12 @@ function generarChunk(cx, cz) {
     if (lx >= 0 && lx < CH && lz >= 0 && lz < CH) troncos.push([lx, lz, h, alto]);
   }
   troncos.forEach(([lx, lz, h, alto]) => { for (let y = h + 1; y <= h + alto && y < WY; y++) d[li(lx, y, lz)] = 6; });
+  for (const E of ESTRUCTURAS) {
+    const xa = Math.max(E.x0, x0), xb = Math.min(E.x1, x0 + CH), za = Math.max(E.z0, z0), zb = Math.min(E.z1, z0 + CH);
+    for (let z = za; z < zb; z++) for (let x = xa; x < xb; x++) {
+      E.columna(x, z, (y, id) => { if (y >= 0 && y < WY) d[li(x - x0, y, z - z0)] = id; });
+    }
+  }
   (cambiosPorChunk.get(claveChunk(cx, cz)) || []).forEach(([x, y, z, id]) => { d[li(x - x0, y, z - z0)] = id; });
   return d;
 }
@@ -491,7 +732,7 @@ function getBloque(x, y, z) {
 const getChoque = (x, y, z) => y < 0 ? 13 : getBloque(x, y, z);
 function alturaSuelo(x, z) {
   const xi = Math.floor(x), zi = Math.floor(z);
-  for (let y = WY - 1; y > 0; y--) if (getBloque(xi, y, zi)) return y + 1;
+  for (let y = WY - 1; y > 0; y--) { const id = getBloque(xi, y, zi); if (id && id !== 23) return y + 1; }
   return 1;
 }
 
@@ -572,11 +813,17 @@ function gestionarChunks(maximo) {
     if (!mallas.has(claveChunk(x, z))) construirChunk(x, z);
   }
 }
-function ponerBloqueEn(x, y, z, id) {
+function recargarMundo() {
+  for (const k of [...mallas.keys()]) quitarMalla(k);
+  datos.clear(); cacheCx = NaN; centroChunks = null;
+  indexarCambios();
+  inicio.y = alturaSuelo(inicio.x, inicio.z);
+}
+function ponerBloqueEn(x, y, z, id, remoto) {
   if (y < 1 || y >= WY) return false;
   const cx = Math.floor(x / CH), cz = Math.floor(z / CH), lx = x - cx * CH, lz = z - cz * CH;
   datosChunk(cx, cz)[li(lx, y, lz)] = id;
-  save.cambios[`${x},${y},${z}`] = id;
+  cambiosMundo()[`${x},${y},${z}`] = id;
   agregarCambio(x, y, z, id);
   marcar();
   const rehacer = (a, b) => { if (mallas.has(claveChunk(a, b))) construirChunk(a, b); };
@@ -585,6 +832,7 @@ function ponerBloqueEn(x, y, z, id) {
   if (lx === CH - 1) rehacer(cx + 1, cz);
   if (lz === 0) rehacer(cx, cz - 1);
   if (lz === CH - 1) rehacer(cx, cz + 1);
+  if (!remoto && multi.peer) enviar({ t: "bloque", x, y, z, id });
   return true;
 }
 
@@ -799,6 +1047,7 @@ function trajeActual() {
   if (t.id === "spiderman" && save.trajes.spiderman) return t;
   return modo().trajes ? t : null;
 }
+const trajeVisible = () => { const t = trajeActual(); return t ? t.id : "normal"; };
 function agregarExtras(m, x) {
   const P = m.p;
   if (x.capa) parte(m.g, null, 0.5, 1.0, 0.05, 0, 0.98, -0.16, mat(x.capa));
@@ -837,27 +1086,38 @@ const matsNacho = {
   cara: new THREE.MeshLambertMaterial({ map: caraTex }), torso: new THREE.MeshLambertMaterial(),
   brazos: new THREE.MeshLambertMaterial(), piernas: new THREE.MeshLambertMaterial()
 };
-let nacho = null;
-function construirNacho() {
-  if (nacho) escena.remove(nacho.g);
-  const t = trajeActual();
-  if (!t) {
-    nacho = modeloHumano({
-      cabeza: [matsNacho.pelo, matsNacho.pelo, matsNacho.pelo, matsNacho.piel, matsNacho.cara, matsNacho.pelo],
-      torso: matsNacho.torso, brazos: matsNacho.brazos, manos: matsNacho.piel, piernas: matsNacho.piernas
-    });
-    nacho.casco = parte(nacho.p.cabeza, null, 0.56, 0.14, 0.56, 0, 0.53, 0, matsNacho.torso);
-    nacho.escala = 1;
-    vestirNacho();
-  } else {
+let caraGenerica = null;
+// Modelo de un jugador: con un traje, con la cara de Nacho (vos) o con una cara común (tus amigos sin traje)
+function modeloJugador(t, conMiCara) {
+  let m;
+  if (t) {
     const cab = mat(t.cabeza), torso = mat(t.torso);
     const cara = new THREE.MeshLambertMaterial({ map: texturaDe(lienzoDibujo(t.cabeza, t.cara)) });
     const pecho = t.pecho ? new THREE.MeshLambertMaterial({ map: texturaDe(lienzoDibujo(t.torso, t.pecho)) }) : torso;
-    nacho = modeloHumano({ cabeza: [cab, cab, cab, cab, cara, cab], torso: [torso, torso, torso, torso, pecho, torso], brazos: mat(t.brazos), manos: mat(t.manos), piernas: mat(t.piernas) });
-    agregarExtras(nacho, t.extras || {});
-    nacho.escala = t.escala || 1;
+    m = modeloHumano({ cabeza: [cab, cab, cab, cab, cara, cab], torso: [torso, torso, torso, torso, pecho, torso], brazos: mat(t.brazos), manos: mat(t.manos), piernas: mat(t.piernas) });
+    agregarExtras(m, t.extras || {});
+    m.escala = t.escala || 1;
+  } else if (conMiCara) {
+    m = modeloHumano({
+      cabeza: [matsNacho.pelo, matsNacho.pelo, matsNacho.pelo, matsNacho.piel, matsNacho.cara, matsNacho.pelo],
+      torso: matsNacho.torso, brazos: matsNacho.brazos, manos: matsNacho.piel, piernas: matsNacho.piernas
+    });
+    m.casco = parte(m.p.cabeza, null, 0.56, 0.14, 0.56, 0, 0.53, 0, matsNacho.torso);
+    m.escala = 1;
+  } else {
+    if (!caraGenerica) caraGenerica = new THREE.MeshLambertMaterial({ map: texturaDe(lienzoDibujo("#4a2f1d", [[PIEL, [2, 5, 12, 11]], ["#2a1a10", [4, 8, 2, 2], [10, 8, 2, 2]], ["#a0603a", [6, 12, 4, 1]]])) });
+    const pelo = mat("#4a2f1d");
+    m = modeloHumano({ cabeza: [pelo, pelo, pelo, mat(PIEL), caraGenerica, pelo], torso: mat("#3a8f5a"), brazos: mat("#3a8f5a"), manos: mat(PIEL), piernas: mat("#2b2f6b") });
+    m.escala = 1;
   }
-  nacho.g.scale.setScalar(nacho.escala);
+  m.g.scale.setScalar(m.escala);
+  return m;
+}
+let nacho = null;
+function construirNacho() {
+  if (nacho) escena.remove(nacho.g);
+  nacho = modeloJugador(trajeActual(), true);
+  vestirNacho();
   escena.add(nacho.g);
 }
 function vestirNacho() {
@@ -903,26 +1163,31 @@ const NIVELES_GIGAREX = [null,
   { nombre: "bebé", escala: 0.5, vida: 40, daño: 4, aliento: 0 },
   { nombre: "joven", escala: 0.9, vida: 90, daño: 8, aliento: 10 },
   { nombre: "adulto", escala: 1.4, vida: 180, daño: 14, aliento: 18 }];
-const RANURAS = [1, 2, 3, 4, 8, 9, 10, 12, 14, "huevo"];
 const COLOR_DISPARO = { fuego: "#ff7a1a", laser: "#ff3b3b", rayo: "#ffe14d", polvo: "#ff8be0", "telaraña": "#ffffff", aliento: "#4dd2ff", golpe: "#ffffff" };
 
 const entes = [], huevos = [], proyectiles = [], particulas = [];
 const teclas = {}, mov = { x: 0, y: 0 };
 let jugando = false, pausado = false, panelFijo = false, vista3 = false, abiertoEn = 0;
-let apretIzq = false, cdRomper = 0, ranura = 0, ultimoEspacio = 0, golpeNacho = 0;
+let apretIzq = false, cdRomper = 0, ranura = 0, ranuraEdit = 0, ultimoEspacio = 0, golpeNacho = 0;
 let rotura = { x: 0, y: -1, z: 0, t: 0 };
-let tiempoDia = 0.05, gigarexEspera = 0, acumGuardar = 0;
+let tiempoDia = 0.05, gigarexEspera = 0, acumGuardar = 0, lugarT = 0, lugarMostrado = null, modoPedido = null;
 
 // ================== Jugador ==================
 const R = 0.3, ALTO = 1.8, OJOS = 1.62;
-const jugador = { pos: new THREE.Vector3(CENTRO + 0.5, 20, CENTRO + 0.5), vel: new THREE.Vector3(), yaw: Math.PI, pitch: -0.15, enSuelo: false, volando: false, vida: 20, max: 20, invul: 0, golpeCd: 0, sinDaño: 0, regen: 0, mov: 0 };
+const jugador = { pos: new THREE.Vector3(CENTRO + 0.5, 20, CENTRO + 0.5), vel: new THREE.Vector3(), yaw: Math.PI, pitch: -0.15, enSuelo: false, volando: false, enPortal: false, vida: 20, max: 20, invul: 0, golpeCd: 0, sinDaño: 0, regen: 0, mov: 0 };
 const _dir = new THREE.Vector3();
 function direccion() { const cp = Math.cos(jugador.pitch); return _dir.set(-Math.sin(jugador.yaw) * cp, Math.sin(jugador.pitch), -Math.cos(jugador.yaw) * cp); }
 const ojo = () => new THREE.Vector3(jugador.pos.x, jugador.pos.y + OJOS, jugador.pos.z);
 
+// El agua es piso solo para quien camina sobre el agua (Creador y Nacho) y solo desde arriba
+function solidoEn(x, y, z) {
+  const id = getChoque(x, y, z);
+  if (id === 5) return !!modo().caminaAgua && !jugador.volando && getBloque(x, y + 1, z) !== 5 && jugador.pos.y >= y + 0.5;
+  return solido(id);
+}
 function chocaEn(px, py, pz) {
   const x0 = Math.floor(px - R), x1 = Math.floor(px + R), y0 = Math.floor(py), y1 = Math.floor(py + ALTO - 0.01), z0 = Math.floor(pz - R), z1 = Math.floor(pz + R);
-  for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) for (let x = x0; x <= x1; x++) if (solido(getChoque(x, y, z))) return true;
+  for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) for (let x = x0; x <= x1; x++) if (solidoEn(x, y, z)) return true;
   return false;
 }
 function moverEje(eje, d) {
@@ -987,6 +1252,11 @@ function actualizarJugador(dt) {
     jugador.regen += dt;
     if (jugador.regen > 3) { jugador.regen = 0; jugador.vida = Math.min(jugador.max, jugador.vida + 1); dibujarCorazones(); }
   }
+  // Portal: al entrar se abre la lista de lugares para viajar
+  const fx = Math.floor(p.x), fz = Math.floor(p.z);
+  const enPortal = getBloque(fx, Math.floor(p.y + 0.5), fz) === 23 || getBloque(fx, Math.floor(p.y + 1.3), fz) === 23;
+  if (enPortal && !jugador.enPortal) panelViaje(true);
+  jugador.enPortal = enPortal;
 }
 function dañarJugador(n) {
   if (!modo().daño || jugador.invul > 0 || n <= 0 || !jugando || pausado) return;
@@ -1001,6 +1271,16 @@ function morirJugador() {
   jugador.vida = 0;
   abrirPanel("¡Te derrotaron!", `<p>Los jefes se fueron. Volvé a aparecer en el inicio y preparate mejor: comprá la armadura o el huevo de Gigarex en la tienda.</p>
     <button class="boton grande" type="button" data-acc="revivir">Volver a aparecer</button>`, true);
+}
+function irA(x, z, nombre) {
+  x = Math.floor(x); z = Math.floor(z);
+  jugador.pos.set(x + 0.5, alturaSuelo(x, z), z + 0.5);
+  jugador.vel.set(0, 0, 0);
+  centroChunks = null;
+  gestionarChunks(25);
+  entes.filter((e) => e.equipo === "aliado").forEach((e) => { e.pos.set(jugador.pos.x + 2, alturaSuelo(jugador.pos.x + 2, jugador.pos.z + 2), jugador.pos.z + 2); });
+  cerrarPanel(true);
+  avisar(`Llegaste a ${nombre}`, 3000);
 }
 
 // ================== Apuntar, romper y poner ==================
@@ -1053,17 +1333,18 @@ function actualizarInteraccion(dt) {
     return;
   }
   const b = ap.bloque;
-  if (!b || BLOQUES[b.id].irrompible) { rotura.t = 0; progreso(0); return; }
-  if (M.infinito) { if (cdRomper <= 0) { romper(b); cdRomper = 0.22; } return; }
+  // El creador puede romper hasta la roca madre; el portal no lo rompe nadie
+  if (!b || (BLOQUES[b.id].irrompible && !(M.rompeTodo && b.id === 13))) { rotura.t = 0; progreso(0); return; }
+  if (!M.picar && M.infinito) { if (cdRomper <= 0) { romper(b); cdRomper = 0.22; } return; }
   if (rotura.x !== b.x || rotura.y !== b.y || rotura.z !== b.z) rotura = { x: b.x, y: b.y, z: b.z, t: 0 };
   rotura.t += dt;
-  const total = DUREZA[b.id] || 0.6;
+  const total = M.picar ? Math.min(DUREZA[b.id] || 0.6, M.picar) : DUREZA[b.id] || 0.6;
   progreso(rotura.t / total);
   if (rotura.t >= total) { romper(b); rotura.t = 0; progreso(0); }
 }
 function botin(id) {
   if (id === 6) return [8, 4];
-  if (id === 7) return null;
+  if (id === 7 || id === 18) return null;
   if (id === 11) { ganar(25, "¡Encontraste un diamante! +25 monedas"); return [12, 1]; }
   return [id, 1];
 }
@@ -1087,11 +1368,12 @@ function poner() {
   const b = ap.bloque, x = b.x + b.n[0], y = b.y + b.n[1], z = b.z + b.n[2];
   const ahi = getBloque(x, y, z);
   if (y < 1 || y >= WY || (ahi !== 0 && ahi !== 5)) return;
-  const id = RANURAS[ranura];
+  const id = save.ranuras[ranura];
   if (id === "huevo") { plantarHuevo(x, y, z); return; }
+  if (!BLOQUES[id]) return;
   if (!bloquesInfinitos() && !(save.inv[id] > 0)) { avisar(`No tenés más ${BLOQUES[id].nombre.toLowerCase()}. Rompé bloques o comprá en la tienda.`); return; }
   const p = jugador.pos;
-  if (x + 1 > p.x - R && x < p.x + R && y + 1 > p.y && y < p.y + ALTO && z + 1 > p.z - R && z < p.z + R) return;
+  if (solido(id) && x + 1 > p.x - R && x < p.x + R && y + 1 > p.y && y < p.y + ALTO && z + 1 > p.z - R && z < p.z + R) return;
   golpeNacho = 0.2;
   if (ponerBloqueEn(x, y, z, id) && !bloquesInfinitos()) { save.inv[id]--; dibujarBarra(); }
 }
@@ -1334,6 +1616,8 @@ function actualizarProyectiles(dt) {
   }
 }
 const geoParticula = new THREE.BoxGeometry(0.12, 0.12, 0.12);
+const geoHumo = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+const matHumo = new THREE.MeshBasicMaterial({ color: 0xeef3f6, transparent: true, opacity: 0.55, depthWrite: false });
 function explosion(p, color, n) {
   for (let i = 0; i < n && particulas.length < 220; i++) {
     const m = new THREE.Mesh(geoParticula, matBasico(color));
@@ -1342,14 +1626,277 @@ function explosion(p, color, n) {
     particulas.push({ m, v: new THREE.Vector3((Math.random() - 0.5) * 5, Math.random() * 5, (Math.random() - 0.5) * 5), vida: 0.6 + Math.random() * 0.5 });
   }
 }
+let humoT = 0;
+function humo(dt) {   // vapor saliendo de las torres de enfriamiento cuando estás cerca
+  humoT -= dt;
+  if (humoT > 0 || particulas.length > 150) return;
+  humoT = 0.15;
+  for (const [cu, cv] of TORRES_ENFRIAMIENTO) {
+    const x = CENTRAL.x0 + cu, z = CENTRAL.z0 + cv;
+    if (Math.hypot(jugador.pos.x - x, jugador.pos.z - z) > 100) continue;
+    const m = new THREE.Mesh(geoHumo, matHumo);
+    m.position.set(x + (Math.random() - 0.5) * 6, CENTRAL.suelo + 29, z + (Math.random() - 0.5) * 6);
+    escena.add(m);
+    particulas.push({ m, v: new THREE.Vector3((Math.random() - 0.5) * 0.6, 1.6 + Math.random(), (Math.random() - 0.5) * 0.6), vida: 4, flota: true });
+  }
+}
 function actualizarParticulas(dt) {
   for (let i = particulas.length - 1; i >= 0; i--) {
     const p = particulas[i];
-    p.vida -= dt; p.v.y -= 12 * dt;
+    p.vida -= dt;
+    if (p.flota) p.m.scale.multiplyScalar(1 + dt * 0.35); else p.v.y -= 12 * dt;
     p.m.position.addScaledVector(p.v, dt);
     if (p.vida <= 0) { escena.remove(p.m); particulas.splice(i, 1); }
   }
 }
+
+// ================== Jugar con amigos ==================
+// Salas con código: quien crea la sala es el anfitrión y su mundo es el que se comparte.
+// Los demás se conectan a él; él reenvía posiciones, chat y bloques a todos. Los jefes no se comparten.
+const multi = { peer: null, host: false, conns: new Map(), codigo: "", otros: new Map(), estado: "", enviarT: 0, ultimoChat: 0 };
+const LETRAS_SALA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const MALAS = ["boludo", "boluda", "pelotudo", "pelotuda", "puto", "puta", "mierda", "forro", "concha", "pija", "verga", "culo", "idiota", "estupido", "estupida", "tarado", "imbecil", "pendejo", "cabron", "carajo", "hdp", "ctm", "tonto", "tonta"];
+const filtrar = (t) => t.split(/(\s+)/).map((p) => MALAS.some((m) => normalizar(p).replace(/[^a-z]/g, "").includes(m)) ? "***" : p).join("");
+const nombreJugador = () => (save.nombre || "").trim() || "Jugador";
+const limpiarNombre = (n) => filtrar(String(n || "Jugador").replace(/[\u0000-\u001f]/g, "").slice(0, 16)) || "Jugador";
+function cargarPeer() {
+  return new Promise((ok, mal) => {
+    if (window.Peer) { ok(); return; }
+    const s = document.createElement("script");
+    s.src = PEERJS_URL; s.onload = () => ok(); s.onerror = () => mal(new Error("sin PeerJS"));
+    document.head.appendChild(s);
+  });
+}
+function estadoMulti(t) { multi.estado = t; const e = $("multi-estado"); if (e) e.textContent = t; }
+function errorPeer(err) {
+  const tipo = err && err.type;
+  if (tipo === "unavailable-id" && multi.host) { crearSala(); return; }
+  const textos = {
+    "peer-unavailable": "No existe una sala con ese código. Revisalo y probá de nuevo.",
+    "browser-incompatible": "Este navegador no permite jugar con amigos. Probá con Chrome o Edge.",
+    "network": "No se pudo conectar. Revisá internet.", "server-error": "El servicio para conectar no responde. Probá en un rato.",
+    "socket-error": "No se pudo conectar. Revisá internet.", "socket-closed": "Se cortó la conexión."
+  };
+  estadoMulti(textos[tipo] || "No se pudo conectar con la sala.");
+  if (!multi.host || tipo !== "peer-unavailable") salirSala(true);
+}
+function enviar(m) {
+  for (const c of multi.conns.values()) if (c.open) { try { c.send(m); } catch (e) {} }
+}
+function difundir(m, excepto) {
+  for (const [id, c] of multi.conns) if (id !== excepto && c.open) { try { c.send(m); } catch (e) {} }
+}
+async function crearSala(forzado) {
+  try { await cargarPeer(); } catch (e) { estadoMulti("No se pudo cargar lo necesario para jugar con amigos. Revisá internet."); return; }
+  salirSala(true);
+  const codigo = forzado || Array.from({ length: 5 }, () => LETRAS_SALA[Math.floor(Math.random() * LETRAS_SALA.length)]).join("");
+  const peer = new Peer(PREFIJO_SALA + codigo);
+  Object.assign(multi, { peer, host: true, codigo });
+  estadoMulti("Creando la sala…");
+  peer.on("open", () => { estadoMulti(""); avisar(`Sala ${codigo} lista: pasale el código a tus amigos`, 5000); refrescarAmigos(); dibujarHUD(); });
+  peer.on("connection", recibirInvitado);
+  peer.on("error", errorPeer);
+  peer.on("disconnected", () => { if (multi.peer === peer && !peer.destroyed) { try { peer.reconnect(); } catch (e) {} } });
+}
+function recibirInvitado(conn) {
+  conn.on("open", () => {
+    if (multi.conns.size >= 5) { conn.send({ t: "llena" }); setTimeout(() => conn.close(), 400); return; }
+    multi.conns.set(conn.peer, conn);
+    const otros = [...multi.otros].map(([id, o]) => ({ id, nombre: o.nombre, traje: o.traje }));
+    conn.send({ t: "bienvenida", semilla: save.semilla, cambios: save.cambios, host: { id: multi.peer.id, nombre: nombreJugador(), traje: trajeVisible(), x: jugador.pos.x, y: jugador.pos.y, z: jugador.pos.z }, otros });
+  });
+  conn.on("data", (m) => alRecibir(conn.peer, m));
+  conn.on("close", () => {
+    if (!multi.conns.has(conn.peer)) return;
+    multi.conns.delete(conn.peer);
+    const o = multi.otros.get(conn.peer);
+    if (o) avisar(`${o.nombre} salió de la sala`);
+    quitarOtro(conn.peer);
+    difundir({ t: "sale", id: conn.peer });
+    refrescarAmigos();
+  });
+  conn.on("error", () => {});
+}
+async function unirseSala(codigo) {
+  codigo = String(codigo || "").trim().toUpperCase();
+  if (!/^[A-Z0-9]{5}$/.test(codigo)) { estadoMulti("El código tiene 5 letras o números."); return; }
+  try { await cargarPeer(); } catch (e) { estadoMulti("No se pudo cargar lo necesario para jugar con amigos. Revisá internet."); return; }
+  salirSala(true);
+  const peer = new Peer();
+  Object.assign(multi, { peer, host: false, codigo });
+  estadoMulti("Conectando…");
+  peer.on("open", () => {
+    const conn = peer.connect(PREFIJO_SALA + codigo, { reliable: true });
+    conn.on("open", () => { multi.conns.set(conn.peer, conn); conn.send({ t: "hola", nombre: nombreJugador(), traje: trajeVisible() }); });
+    conn.on("data", (m) => alRecibir(conn.peer, m));
+    conn.on("close", () => { if (multi.peer === peer) { avisar("Se terminó la sala."); salirSala(); } });
+    conn.on("error", () => {});
+  });
+  peer.on("error", errorPeer);
+}
+function salirSala(silencio) {
+  const eraInvitado = !!mundoInvitado;
+  if (multi.peer) { try { multi.peer.destroy(); } catch (e) {} }
+  multi.conns.clear();
+  for (const id of [...multi.otros.keys()]) quitarOtro(id);
+  Object.assign(multi, { peer: null, host: false, codigo: "" });
+  if (eraInvitado) {   // volvés a tu propio mundo
+    mundoInvitado = null;
+    recargarMundo();
+    jugador.pos.set(inicio.x, inicio.y, inicio.z);
+    gestionarChunks(25);
+    if (!silencio) avisar("Volviste a tu mundo.");
+  }
+  cerrarChat();
+  $("chat").hidden = true;
+  if (jugando) dibujarHUD();
+  refrescarAmigos();
+}
+function limpiarCambios(c) {
+  const out = {};
+  if (!c || typeof c !== "object") return out;
+  let n = 0;
+  for (const k in c) {
+    if (++n > 300000) break;
+    const id = c[k];
+    if (/^-?\d+,\d+,-?\d+$/.test(k) && (id === 0 || BLOQUES[id])) out[k] = id;
+  }
+  return out;
+}
+const numeroValido = (v) => typeof v === "number" && Number.isFinite(v) && Math.abs(v) < 1e7;
+function alRecibir(desde, m) {
+  if (!m || typeof m !== "object") return;
+  if (m.t === "bienvenida" && !multi.host) {
+    mundoInvitado = { semilla: Number.isFinite(m.semilla) ? Math.floor(Math.abs(m.semilla)) % 2147483647 : 1, cambios: limpiarCambios(m.cambios) };
+    recargarMundo();
+    const h = m.host || {};
+    jugador.pos.set(numeroValido(h.x) ? h.x + 2 : inicio.x, numeroValido(h.y) ? h.y + 1 : inicio.y, numeroValido(h.z) ? h.z + 2 : inicio.z);
+    gestionarChunks(25);
+    actualizarOtro(desde, h);
+    (Array.isArray(m.otros) ? m.otros : []).slice(0, 6).forEach((o) => o && actualizarOtro(String(o.id), o));
+    estadoMulti("");
+    avisar(`¡Entraste a la sala de ${limpiarNombre(h.nombre)}!`, 4000);
+    refrescarAmigos(); dibujarHUD();
+    return;
+  }
+  if (m.t === "hola" && multi.host) {
+    actualizarOtro(desde, m);
+    difundir({ t: "entra", id: desde, nombre: limpiarNombre(m.nombre), traje: m.traje }, desde);
+    avisar(`${limpiarNombre(m.nombre)} entró a la sala`);
+    refrescarAmigos();
+    return;
+  }
+  if (m.t === "entra" && !multi.host) { actualizarOtro(String(m.id), m); avisar(`${limpiarNombre(m.nombre)} entró a la sala`); refrescarAmigos(); return; }
+  if (m.t === "sale" && !multi.host) { const o = multi.otros.get(String(m.id)); if (o) avisar(`${o.nombre} salió de la sala`); quitarOtro(String(m.id)); refrescarAmigos(); return; }
+  if (m.t === "llena") { avisar("La sala está llena (máximo 6 jugadores)."); salirSala(true); return; }
+  if (m.t === "pos") {
+    const id = multi.host ? desde : String(m.id || desde);
+    actualizarOtro(id, m);
+    if (multi.host) difundir({ t: "pos", id: desde, x: m.x, y: m.y, z: m.z, yaw: m.yaw, nombre: m.nombre, traje: m.traje }, desde);
+    return;
+  }
+  if (m.t === "chat") {
+    const nombre = limpiarNombre(m.nombre), texto = filtrar(String(m.texto || "").replace(/[\u0000-\u001f]/g, "").slice(0, 120));
+    if (!texto.trim()) return;
+    mostrarChat(nombre, texto);
+    if (multi.host) difundir({ t: "chat", nombre, texto }, desde);
+    return;
+  }
+  if (m.t === "bloque") {
+    const { x, y, z, id } = m;
+    if (![x, y, z].every(Number.isInteger) || y < 1 || y >= WY || !(id === 0 || (BLOQUES[id] && id !== 23))) return;
+    ponerBloqueEn(x, y, z, id, true);
+    if (multi.host) difundir({ t: "bloque", x, y, z, id }, desde);
+  }
+}
+function etiqueta(texto) {
+  const cv = document.createElement("canvas"), x = cv.getContext("2d");
+  cv.width = 256; cv.height = 64;
+  x.fillStyle = "rgba(10,13,36,0.75)"; x.fillRect(0, 8, 256, 48);
+  x.font = "bold 30px system-ui, sans-serif"; x.fillStyle = "#ffffff"; x.textAlign = "center"; x.textBaseline = "middle";
+  x.fillText(texto, 128, 33);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: false }));
+  s.scale.set(1.6, 0.4, 1); s.position.y = 2.35;
+  return s;
+}
+function actualizarOtro(id, d) {
+  if (!id || !d || (multi.peer && id === multi.peer.id)) return;
+  let o = multi.otros.get(id);
+  const nombre = limpiarNombre(d.nombre), traje = typeof d.traje === "string" && TRAJE_POR_ID[d.traje] ? d.traje : "normal";
+  if (!o) { o = { nombre, traje: null, modelo: null, desde: new THREE.Vector3(), hacia: new THREE.Vector3(), yaw: 0, t: 1, nuevo: true }; multi.otros.set(id, o); }
+  if (!o.modelo || o.traje !== traje || o.nombre !== nombre) {
+    const pos = o.modelo ? o.modelo.g.position.clone() : null;
+    if (o.modelo) escena.remove(o.modelo.g);
+    o.nombre = nombre; o.traje = traje;
+    o.modelo = modeloJugador(TRAJE_POR_ID[traje] || null, false);
+    o.modelo.g.add(etiqueta(nombre));
+    if (pos) o.modelo.g.position.copy(pos);
+    escena.add(o.modelo.g);
+  }
+  if (numeroValido(d.x) && numeroValido(d.y) && numeroValido(d.z)) {
+    if (o.nuevo) { o.modelo.g.position.set(d.x, d.y, d.z); o.nuevo = false; }
+    o.desde.copy(o.modelo.g.position); o.hacia.set(d.x, d.y, d.z); o.t = 0;
+  }
+  if (numeroValido(d.yaw)) o.yaw = d.yaw;
+}
+function quitarOtro(id) {
+  const o = multi.otros.get(id);
+  if (o && o.modelo) escena.remove(o.modelo.g);
+  multi.otros.delete(id);
+}
+function actualizarMulti(dt) {
+  multi.enviarT -= dt;
+  if (multi.enviarT <= 0 && multi.conns.size) {
+    multi.enviarT = 0.1;
+    const p = jugador.pos;
+    enviar({ t: "pos", id: multi.host ? multi.peer.id : undefined, x: +p.x.toFixed(2), y: +p.y.toFixed(2), z: +p.z.toFixed(2), yaw: +jugador.yaw.toFixed(2), nombre: nombreJugador(), traje: trajeVisible() });
+  }
+  for (const o of multi.otros.values()) {
+    if (!o.modelo) continue;
+    o.t = Math.min(1, o.t + dt * 10);
+    o.modelo.g.position.lerpVectors(o.desde, o.hacia, o.t);
+    o.modelo.g.rotation.y = o.yaw + Math.PI;
+    const anda = o.desde.distanceTo(o.hacia) > 0.05 ? Math.sin(performance.now() / 90) * 0.6 : 0;
+    o.modelo.p.piernas[0].rotation.x = anda; o.modelo.p.piernas[1].rotation.x = -anda;
+  }
+}
+// Chat
+function mostrarChat(nombre, texto) {
+  const d = document.createElement("div"), b = document.createElement("b");
+  d.className = "msg-chat";
+  b.textContent = nombre + ": ";
+  d.append(b, document.createTextNode(texto));
+  $("chat-log").appendChild(d);
+  while ($("chat-log").children.length > 8) $("chat-log").firstChild.remove();
+  $("chat").hidden = false;
+  setTimeout(() => d.classList.add("viejo"), 12000);
+}
+function abrirChat() {
+  if (!multi.peer) { avisar("Para chatear, entrá a una sala con el botón Amigos."); return; }
+  for (const k in teclas) teclas[k] = false;
+  apretIzq = false;
+  $("chat").hidden = false;
+  $("chat").classList.add("abierto");
+  $("chat-form").hidden = false;
+  $("chat-txt").focus();
+}
+function cerrarChat() {
+  $("chat").classList.remove("abierto");
+  $("chat-form").hidden = true;
+  $("chat-txt").blur();
+}
+$("chat-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const texto = filtrar($("chat-txt").value.trim().slice(0, 120));
+  $("chat-txt").value = "";
+  cerrarChat();
+  if (!texto || !multi.peer) return;
+  if (performance.now() - multi.ultimoChat < 800) { avisar("Esperá un poquito antes de mandar otro mensaje."); return; }
+  multi.ultimoChat = performance.now();
+  mostrarChat(nombreJugador(), texto);
+  enviar({ t: "chat", nombre: nombreJugador(), texto });
+});
+$("chat-txt").addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); cerrarChat(); } });
 
 // ================== Cielo, cámara y bucle ==================
 function actualizarCielo() {
@@ -1398,6 +1945,16 @@ function actualizarBarraJefe() {
   if (jefeMostrado !== j) { $("jefe-nombre").textContent = j.nombre; jefeMostrado = j; }
   $("jefe-vida").style.width = Math.max(0, (j.vida / j.max) * 100) + "%";
 }
+function actualizarLugar(dt) {
+  lugarT -= dt;
+  if (lugarT > 0) return;
+  lugarT = 0.25;
+  const l = lugarActual();
+  if (l === lugarMostrado) return;
+  lugarMostrado = l;
+  $("hud-sitio").hidden = !l;
+  $("hud-sitio").textContent = l;
+}
 
 let ultimo = performance.now();
 function bucle(ahora) {
@@ -1411,7 +1968,7 @@ function bucle(ahora) {
     entes.slice().forEach((e) => actualizarEntidad(e, dt));
     actualizarHuevos(dt);
     actualizarProyectiles(dt);
-    actualizarParticulas(dt);
+    humo(dt);
     if (save.gigarex && gigarexEspera > 0) {
       gigarexEspera -= dt;
       if (gigarexEspera <= 0) { spawnGigarex(); avisar("¡Gigarex volvió!"); }
@@ -1420,7 +1977,10 @@ function bucle(ahora) {
     acumGuardar += dt;
     if (acumGuardar > 5) { acumGuardar = 0; if (sucio) guardar(); }
   }
+  actualizarParticulas(dt);
+  if (multi.peer) actualizarMulti(dt);
   gestionarChunks(2);
+  actualizarLugar(dt);
   actualizarCielo();
   actualizarCamara(dt);
   actualizarNubes(dt);
@@ -1445,7 +2005,7 @@ function dibujarMonedas() { $("hud-monedas").textContent = numero(save.monedas);
 const FILAS_CORAZON = [".XX.XX.", "XXXXXXX", "XXXXXXX", ".XXXXX.", "..XXX..", "...X..."];
 const RECTS_CORAZON = FILAS_CORAZON.map((f, y) => [...f].map((ch, x) => ch === "X" ? `<rect x="${x}" y="${y}" width="1" height="1"/>` : "").join("")).join("");
 function dibujarCorazones() {
-  const ver = modo().daño;
+  const ver = !!modo().daño;
   $("corazones").hidden = !ver;
   if (!ver) return;
   let h = "";
@@ -1457,21 +2017,20 @@ function dibujarCorazones() {
   $("corazones").setAttribute("aria-label", `Vida: ${Math.max(0, jugador.vida)} de ${jugador.max}`);
 }
 let timerNombre;
+const nombreRanura = (id) => id === "huevo" ? "Huevo de Gigarex" : BLOQUES[id] ? BLOQUES[id].nombre : "";
 function dibujarBarra() {
   const M = modo(), inf = bloquesInfinitos();
   $("barra-items").hidden = !!M.fantasma;
-  $("barra-items").innerHTML = RANURAS.map((id, i) => {
+  $("barra-items").innerHTML = save.ranuras.map((id, i) => {
     const esHuevo = id === "huevo";
     const n = esHuevo ? save.huevos : inf ? Infinity : save.inv[id] || 0;
-    const nombre = esHuevo ? "Huevo de Gigarex" : BLOQUES[id].nombre;
-    return `<button type="button" class="ranura${i === ranura ? " activa" : ""}${n === 0 ? " vacia" : ""}" data-ranura="${i}" title="${nombre}" aria-label="${nombre}"><img src="${esHuevo ? iconoHuevo : iconoBloque(id)}" alt=""><span>${n === Infinity ? "" : corto(n)}</span><kbd>${(i + 1) % 10}</kbd></button>`;
+    return `<button type="button" class="ranura${i === ranura ? " activa" : ""}${n === 0 ? " vacia" : ""}" data-ranura="${i}" title="${nombreRanura(id)}" aria-label="${nombreRanura(id)}"><img src="${esHuevo ? iconoHuevo : iconoBloque(id)}" alt=""><span>${n === Infinity ? "" : corto(n)}</span><kbd>${(i + 1) % 10}</kbd></button>`;
   }).join("");
 }
 function elegirRanura(i) {
-  ranura = (i + RANURAS.length) % RANURAS.length;
+  ranura = (i + save.ranuras.length) % save.ranuras.length;
   dibujarBarra();
-  const id = RANURAS[ranura];
-  $("nombre-ranura").textContent = id === "huevo" ? "Huevo de Gigarex" : BLOQUES[id].nombre;
+  $("nombre-ranura").textContent = nombreRanura(save.ranuras[ranura]);
   $("nombre-ranura").style.opacity = 1;
   clearTimeout(timerNombre);
   timerNombre = setTimeout(() => { $("nombre-ranura").style.opacity = 0; }, 1500);
@@ -1479,11 +2038,12 @@ function elegirRanura(i) {
 function dibujarHUD() {
   const M = modo();
   dibujarMonedas();
-  $("hud-modo").textContent = "Modo " + M.nombre;
-  const extras = (M.panel ? '<button class="boton" type="button" data-hud="admin">Admin<kbd>P</kbd></button>' : "")
-    + (M.taller ? '<button class="boton" type="button" data-hud="taller">Taller<kbd>C</kbd></button>' : "")
-    + (M.trajes || save.trajes.spiderman ? '<button class="boton" type="button" data-hud="trajes">Trajes<kbd>K</kbd></button>' : "");
-  $("hud-botones").innerHTML = `<button class="boton" type="button" data-hud="tienda">Tienda<kbd>T</kbd></button><button class="boton" type="button" data-hud="jefes">Jefes<kbd>J</kbd></button>${extras}<button class="boton" type="button" data-hud="pausa">Menú<kbd>Esc</kbd></button>`;
+  $("hud-modo").textContent = "Modo " + M.nombre + (multi.codigo ? ` · Sala ${multi.codigo}` : "");
+  const b = (hud, texto, tecla) => `<button class="boton" type="button" data-hud="${hud}">${texto}${tecla ? `<kbd>${tecla}</kbd>` : ""}</button>`;
+  $("hud-botones").innerHTML = b("tienda", "Tienda", "T") + b("jefes", "Jefes", "J") + b("amigos", "Amigos")
+    + (multi.peer ? b("chat", "Chat", "Enter") : "")
+    + (M.panel ? b("admin", "Admin", "P") : "") + (M.taller ? b("taller", "Taller", "C") : "")
+    + (M.trajes || save.trajes.spiderman ? b("trajes", "Trajes", "K") : "") + b("pausa", "Menú", "Esc");
   dibujarCorazones();
   dibujarBarra();
   $("mira").hidden = !!M.fantasma;
@@ -1499,6 +2059,7 @@ function abrirPanel(titulo, html, fijo = false) {
   apretIzq = false;
   for (const k in teclas) teclas[k] = false;
   if (document.pointerLockElement) document.exitPointerLock();
+  cerrarChat();
   $("panel-titulo").textContent = titulo;
   $("panel-cuerpo").innerHTML = html;
   $("panel-cerrar").hidden = fijo;
@@ -1525,8 +2086,10 @@ function panelPausa() {
   const M = modo();
   abrirPanel("Pausa", `<div class="botones-col">
       <button class="boton grande" type="button" data-acc="seguir">Seguir jugando</button>
+      <button class="boton" type="button" data-acc="amigos">Jugar con amigos</button>
       <button class="boton" type="button" data-acc="tienda">Tienda</button>
       <button class="boton" type="button" data-acc="jefes">Jefes</button>
+      <button class="boton" type="button" data-acc="bloques">Elegir bloques</button>
       <button class="boton" type="button" data-acc="trajes">Trajes</button>
       ${M.panel ? '<button class="boton" type="button" data-acc="admin">Panel de admin</button>' : ""}
       ${M.taller ? '<button class="boton" type="button" data-acc="taller">Taller de criaturas</button>' : ""}
@@ -1534,12 +2097,13 @@ function panelPausa() {
       <button class="boton" type="button" data-acc="reportar">Reportar un problema</button>
     </div>
     <h3>Cambiar de modo</h3>
-    <div class="chips">${Object.entries(MODOS).map(([k, m]) => `<button class="chip${k === save.modo ? " activo" : ""}" type="button" data-acc="modo:${k}">${m.nombre}</button>`).join("")}</div>
+    <div class="chips">${Object.entries(MODOS).map(([k, m]) => `<button class="chip${k === save.modo ? " activo" : ""}" type="button" data-acc="modo:${k}">${m.nombre}${m.soloCreador && !creadorOk ? '<span class="candado">creador</span>' : ""}</button>`).join("")}</div>
     <p class="nota">${esc(M.desc)}</p>
     <button class="boton chico" type="button" data-acc="salir">Volver a la portada</button>`);
 }
-function panelClave() {
-  abrirPanel("Modo Nacho", `<p>Este modo es secreto. Escribí la contraseña para entrar.</p>
+function panelClave(k) {
+  modoPedido = k;
+  abrirPanel("Solo el creador", `<p>El modo ${esc(MODOS[k].nombre)} es solo para el creador del juego. Escribí la contraseña para entrar.</p>
     <label class="campo">Contraseña <input type="password" id="clave2" inputmode="numeric" autocomplete="off" maxlength="12"></label>
     <p class="error" id="clave2-error" aria-live="polite"></p>
     <div class="fila"><button class="boton chico" type="button" data-acc="clave">Entrar</button><button class="boton chico" type="button" data-acc="pausa">Volver</button></div>`);
@@ -1574,13 +2138,13 @@ function comprar(id) {
   const it = TIENDA.find((t) => t.id === id);
   if (!it || !estadoItem(it).ok) return;
   if (!modo().gratis) save.monedas -= it.precio;
-  if (id === "huevo") { save.huevos = 1; elegirRanura(RANURAS.indexOf("huevo")); avisar("Elegí la ranura del huevo y plantalo en el piso con clic derecho (o Poner)."); }
+  if (id === "huevo") { save.huevos = 1; const i = save.ranuras.indexOf("huevo"); if (i >= 0) elegirRanura(i); avisar("Elegí la ranura del huevo y plantalo en el piso con clic derecho (o Poner)."); }
   if (id === "espada") { save.espada = true; avisar("¡Espada de diamante lista!"); }
   if (id === "armadura") { save.armadura = true; vestirNacho(); avisar("¡Armadura de diamante puesta! Apretá V para verte."); }
   if (id === "spiderman") { save.trajes.spiderman = true; save.traje = "spiderman"; construirNacho(); avisar("¡Traje de Spider-Man puesto! Apretá V para verte."); }
   if (id === "pocion") { jugador.vida = jugador.max; dibujarCorazones(); avisar("¡Vida llena!"); }
   if (id === "aracnix") spawnAracnix();
-  if (id === "bloques") { [1, 2, 3, 4, 8, 9, 10, 12, 14].forEach((b) => { save.inv[b] = (save.inv[b] || 0) + 32; }); avisar("+32 de cada bloque."); }
+  if (id === "bloques") { [1, 2, 3, 4, 8, 9, 10, 12, 14, 15, 16, 21].forEach((b) => { save.inv[b] = (save.inv[b] || 0) + 32; }); avisar("+32 de cada bloque."); }
   marcar(); dibujarHUD(); panelTienda();
 }
 function panelTrajes() {
@@ -1601,6 +2165,14 @@ function ponerTraje(id) {
   const t = trajeActual();
   avisar(t ? `Ahora sos ${t.nombre}` : "Volviste a ser Nacho", 1800);
 }
+function panelBloques() {
+  if (ranuraEdit > 8) ranuraEdit = 0;
+  const actual = save.ranuras[ranuraEdit];
+  abrirPanel("Elegir bloques", `<p>Tocá una ranura de abajo y después el bloque que querés poner en ella.</p>
+    <div class="chips">${save.ranuras.slice(0, 9).map((id, i) => `<button class="chip${i === ranuraEdit ? " activo" : ""}" type="button" data-acc="ranura-edit:${i}">${i + 1}: ${esc(nombreRanura(id))}</button>`).join("")}</div>
+    <div class="bloques">${PONIBLES.map((id) => `<button class="traje${id === actual ? " activo" : ""}" type="button" data-acc="poner-bloque:${id}"><img src="${iconoBloque(id)}" alt=""><span>${esc(BLOQUES[id].nombre)}</span></button>`).join("")}</div>
+    <p class="nota">La ranura 0 siempre es para el huevo de Gigarex.</p>`);
+}
 function panelJefes() {
   const admin = !!modo().panel, activo = entes.some((e) => e.equipo === "jefe") && !admin;
   abrirPanel("Jefes", `<p>Invocá un jefe y derrotalo para ganar monedas y desbloquear el siguiente.${save.gigarex ? "" : " Consejo: comprá el huevo de Gigarex en la tienda para tener ayuda."}</p>
@@ -1614,14 +2186,23 @@ function panelJefes() {
     ${listaCriaturas(activo)}`);
 }
 function listaCriaturas(activo) {
-  if (!save.criaturas.length) return modo().taller ? "" : '<p class="nota">En el modo Creador podés inventar tus propios jefes y aliados.</p>';
+  if (!save.criaturas.length) return modo().taller ? "" : '<p class="nota">En el modo Creador se pueden inventar jefes y aliados propios.</p>';
   return `<h3>Tus criaturas</h3><div class="lista">${save.criaturas.map((c, i) => `<div class="item"><div><b>${esc(c.nombre)}</b>
     <p>${c.equipo === "jefe" ? "Jefe" : "Aliado"} · ${{ lagarto: "Lagarto", gorila: "Gorila", volador: "Volador" }[c.forma]} · Vida ${c.vida}</p></div>
     <div class="fila"><button class="boton chico" type="button" data-acc="criatura:${i}"${c.equipo === "jefe" && activo ? " disabled" : ""}>Invocar</button>
     <button class="boton chico peligro" type="button" data-acc="borrar:${i}" aria-label="Borrar ${esc(c.nombre)}">Borrar</button></div></div>`).join("")}</div>`;
 }
 function panelAdmin() {
-  abrirPanel("Panel de admin", `<h3>Monedas</h3>
+  const p = jugador.pos, x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+  abrirPanel("Panel de admin", `<h3>Teletransporte</h3>
+    <p class="nota">Estás en X ${x}, Y ${y}, Z ${z}${lugarActual() ? ` (${esc(lugarActual())})` : ""}.</p>
+    <div class="fila">
+      <label class="campo">X <input type="number" id="tp-x" step="1" value="${x}"></label>
+      <label class="campo">Z <input type="number" id="tp-z" step="1" value="${z}"></label>
+      <button class="boton chico" type="button" data-acc="tp">Ir</button>
+    </div>
+    <button class="boton chico" type="button" data-acc="viaje">Elegir un lugar: ciudad, central, Tokio, países…</button>
+    <h3>Monedas</h3>
     <div class="fila">
       <label class="campo">Cuántas agregar <input type="number" id="a-cant" min="1" max="999000" step="1" value="1000" inputmode="numeric"></label>
       <button class="boton chico" type="button" data-acc="a-monedas">Agregar monedas</button>
@@ -1642,19 +2223,46 @@ function panelAdmin() {
       <button class="boton chico" type="button" data-acc="a-huevo">Dar huevo</button>
       <button class="boton chico" type="button" data-acc="a-desbloquear">Desbloquear jefes</button>
       <button class="boton chico" type="button" data-acc="a-matar">Derrotar a todos</button>
-      <button class="boton chico" type="button" data-acc="a-inicio">Ir al inicio</button>
     </div>
     <h3>Invocar cualquier jefe</h3>
     <div class="botones-grid">${JEFES.map((j) => `<button class="boton chico" type="button" data-acc="a-jefe:${j.id}">${j.nombre}</button>`).join("")}</div>
     <h3>Mundo</h3>
     <div id="zona-reinicio"><button class="boton chico peligro" type="button" data-acc="a-reiniciar">Crear un mundo nuevo</button></div>`);
 }
-function leerCantidad(id) {
+function leerCantidad(id, min, max) {
   const n = Number($(id).value);
-  if (!Number.isInteger(n) || n < 1 || n > 999000) { $("a-estado").textContent = "Elegí un número entero entre 1 y 999.000."; $("a-estado").style.color = "var(--peligro)"; return 0; }
+  if (!Number.isInteger(n) || n < min || n > max) { $("a-estado").textContent = `Elegí un número entero entre ${numero(min)} y ${numero(max)}.`; $("a-estado").style.color = "var(--peligro)"; return null; }
   $("a-estado").style.color = "";
   return n;
 }
+function htmlDestinos(filtro) {
+  const f = normalizar(filtro || "").trim();
+  const fijos = DESTINOS_FIJOS().map((d, i) => [d, i]).filter(([d]) => !f || normalizar(d[0]).includes(f));
+  const paises = PAISES_ORDEN.filter((i) => !f || normalizar(PAISES[i][0]).includes(f));
+  return `${fijos.length ? `<div class="chips">${fijos.map(([d, i]) => `<button class="chip activo" type="button" data-acc="ir-fijo:${i}">${esc(d[0])}</button>`).join("")}</div>` : ""}
+    <h3>Países (${paises.length})</h3>
+    ${paises.length ? `<div class="chips">${paises.map((i) => `<button class="chip" type="button" data-acc="ir-pais:${i}">${esc(PAISES[i][0])}</button>`).join("")}</div>` : '<p class="nota">No encontré ese país. Probá escribirlo de otra forma.</p>'}`;
+}
+function panelViaje(desdePortal) {
+  abrirPanel(desdePortal ? "Portal: ¿a dónde vamos?" : "Viajar", `<p>${desdePortal ? "Elegí un lugar y el portal te lleva." : "Elegí un lugar para teletransportarte."} En el mapa del mundo están todos los países, con sus fronteras.</p>
+    <label class="campo">Buscar <input type="text" id="buscar-pais" placeholder="Ej.: Japón, Argentina, Italia" autocomplete="off"></label>
+    <div id="destinos" class="lista">${htmlDestinos("")}</div>`);
+}
+function panelAmigos() {
+  const en = !!multi.peer && (multi.host ? !!multi.peer.open : multi.conns.size > 0);
+  abrirPanel("Jugar con amigos", `<p>Armá una sala y pasale el código a tus amigos, o entrá a la de un amigo con su código. Se ven, chatean y construyen en el mismo mundo. Los jefes no se comparten: cada uno pelea con los suyos.</p>
+    <label class="campo">Tu nombre <input type="text" id="mi-nombre" maxlength="16" autocomplete="off" value="${esc(save.nombre || "")}" placeholder="Jugador"></label>
+    ${en ? `<p class="sala">${multi.host ? "Tu sala" : "Sala"}: <b>${esc(multi.codigo)}</b></p>
+      <p class="nota">${multi.host ? "Pasale este código a tus amigos para que entren. Tu mundo es el de la sala." : "Estás en el mundo de tu amigo. Lo que construyas queda en su partida, no en la tuya."}</p>
+      <h3>Jugadores (${multi.otros.size + 1})</h3>
+      <ul class="teclas"><li>${esc(nombreJugador())} (vos)</li>${[...multi.otros.values()].map((o) => `<li>${esc(o.nombre)}</li>`).join("")}</ul>
+      <div class="fila"><button class="boton chico" type="button" data-acc="chat-abrir">Abrir el chat</button><button class="boton chico peligro" type="button" data-acc="sala-salir">Salir de la sala</button></div>`
+    : `<div class="fila"><button class="boton" type="button" data-acc="sala-crear">Crear una sala</button></div>
+      <div class="fila"><label class="campo">Código de un amigo <input type="text" id="codigo-sala" maxlength="5" autocomplete="off" autocapitalize="characters" placeholder="ABCDE"></label><button class="boton chico" type="button" data-acc="sala-unirse">Entrar</button></div>`}
+    <p class="estado" id="multi-estado">${esc(multi.estado)}</p>
+    <p class="nota">Jugá solo con amigos que conozcas y no le pases el código a desconocidos. El chat tapa las malas palabras. Para conectar se usa un servicio gratuito (PeerJS); si en alguna red no conecta, probá con otra.</p>`);
+}
+function refrescarAmigos() { if (!$("panel").hidden && $("panel-titulo").textContent === "Jugar con amigos") panelAmigos(); }
 function panelTaller() {
   abrirPanel("Taller de criaturas", `<p>Inventá tu propio jefe o aliado. Después lo invocás desde acá o desde Jefes.</p>
     <form class="taller" id="taller" onsubmit="return false">
@@ -1688,15 +2296,19 @@ function panelAyuda() {
       <li><kbd>Shift</kbd> bajar cuando volás · <kbd>Ctrl</kbd> correr</li>
       <li><kbd>Clic izquierdo</kbd> romper bloques o pegarle a un jefe</li>
       <li><kbd>Clic derecho</kbd> poner un bloque o plantar el huevo</li>
-      <li><kbd>1</kbd> a <kbd>0</kbd> o la ruedita: elegir bloque</li>
-      <li><kbd>T</kbd> tienda · <kbd>J</kbd> jefes · <kbd>K</kbd> trajes · <kbd>V</kbd> verte desde atrás · <kbd>Esc</kbd> pausa</li>
+      <li><kbd>1</kbd> a <kbd>0</kbd> o la ruedita: elegir bloque · <kbd>E</kbd> cambiar qué bloques tenés en la barra</li>
+      <li><kbd>T</kbd> tienda · <kbd>J</kbd> jefes · <kbd>K</kbd> trajes · <kbd>V</kbd> verte desde atrás · <kbd>Enter</kbd> chat · <kbd>Esc</kbd> pausa</li>
     </ul>
     <h3>En el celu o la tablet</h3>
     <p>Arrastrá el dedo en la mitad izquierda para caminar y en la derecha para mirar. Usá los botones para saltar, romper, poner y volar.</p>
     <h3>Cómo se gana</h3>
-    <p>Comprá el huevo de Gigarex, plantalo y esperá que nazca. Después invocá a los jefes uno por uno: Gorilón, Pirodón, Lumira, Mecharex y Trihidra, el jefe final. Cada jefe que derrotás te da monedas y hace crecer a Gigarex. El mundo no se termina nunca: caminá para descubrir más.</p>
+    <p>Comprá el huevo de Gigarex, plantalo y esperá que nazca. Después invocá a los jefes uno por uno: Gorilón, Pirodón, Lumira, Mecharex y Trihidra, el jefe final. Cada jefe que derrotás te da monedas y hace crecer a Gigarex.</p>
+    <h3>Lugares para visitar</h3>
+    <p>Al lado del inicio hay un portal violeta: entrá y elegí a dónde viajar. Hay una ciudad y una central nuclear cerca del inicio, y un mapa gigante del mundo con todos los países, Tokio y el Monte Fuji. El mundo no se termina nunca.</p>
+    <h3>Jugar con amigos</h3>
+    <p>Con el botón Amigos creás una sala y le pasás el código a tus amigos. Se ven, construyen juntos y chatean con <kbd>Enter</kbd>.</p>
     <h3>Modos</h3>
-    <ul class="teclas">${Object.values(MODOS).map((m) => `<li><b>${m.nombre}:</b> ${m.desc}</li>`).join("")}</ul>`);
+    <ul class="teclas">${Object.values(MODOS).map((m) => `<li><b>${m.nombre}${m.soloCreador ? " (solo el creador)" : ""}:</b> ${m.desc}</li>`).join("")}</ul>`);
 }
 function panelReportar() {
   abrirPanel("Reportar un problema", `<p>¿Encontraste un error o tenés una idea para el juego? Escribilo acá, tocá <b>Copiar</b> y pegalo en el canal <b>#reportes</b> del Discord de Dragon Nacho.</p>
@@ -1731,10 +2343,7 @@ function reiniciarMundo() {
   save.cambios = {}; save.semilla = Math.floor(Math.random() * 1e9); save.huevoPlantado = null;
   huevos.splice(0).forEach((h) => escena.remove(h.g));
   entes.filter((e) => e.equipo === "jefe").forEach(quitarEnte);
-  for (const k of [...mallas.keys()]) quitarMalla(k);
-  datos.clear(); cacheCx = NaN; centroChunks = null;
-  indexarCambios();
-  inicio.y = alturaSuelo(inicio.x, inicio.z);
+  recargarMundo();
   jugador.pos.set(inicio.x, inicio.y, inicio.z);
   jugador.vel.set(0, 0, 0);
   gestionarChunks(25);
@@ -1742,6 +2351,7 @@ function reiniciarMundo() {
   marcar(); guardar();
 }
 function volverAPortada() {
+  if (multi.peer) salirSala(true);
   jugando = false; pausado = false;
   $("panel").hidden = true; $("hud").hidden = true; $("tactil").hidden = true; $("clic").hidden = true;
   if (document.pointerLockElement) document.exitPointerLock();
@@ -1752,13 +2362,16 @@ function volverAPortada() {
 const ACCIONES = {
   seguir: () => cerrarPanel(true), pausa: panelPausa, tienda: panelTienda, jefes: panelJefes, trajes: panelTrajes, admin: panelAdmin,
   taller: panelTaller, ayuda: panelAyuda, reportar: panelReportar, salir: volverAPortada, copiar: copiarReporte,
-  modo: (k) => { if (k === "nacho" && !nachoOk) { panelClave(); return; } cambiarModo(k); panelPausa(); },
+  amigos: panelAmigos, bloques: panelBloques, viaje: () => panelViaje(false),
+  modo: (k) => { if (MODOS[k].soloCreador && !creadorOk) { panelClave(k); return; } cambiarModo(k); panelPausa(); },
   clave: () => {
-    if ($("clave2").value.trim() === CLAVE_NACHO) { nachoOk = true; cambiarModo("nacho"); panelPausa(); }
+    if ($("clave2").value.trim() === CLAVE_CREADOR) { creadorOk = true; cambiarModo(modoPedido || "creador"); panelPausa(); }
     else { $("clave2-error").textContent = "Contraseña incorrecta."; $("clave2").select(); }
   },
   comprar,
   traje: (id) => { ponerTraje(id); dibujarHUD(); $("panel-titulo").textContent === "Tienda" ? panelTienda() : panelTrajes(); },
+  "ranura-edit": (i) => { ranuraEdit = +i; panelBloques(); },
+  "poner-bloque": (id) => { save.ranuras[ranuraEdit] = +id; marcar(); elegirRanura(ranuraEdit); panelBloques(); },
   invocar: (id) => { invocarJefe(JEFES.find((j) => j.id === id)); cerrarPanel(true); },
   criatura: (i) => { if (invocarCriatura(save.criaturas[+i])) cerrarPanel(true); },
   borrar: (i) => { save.criaturas.splice(+i, 1); marcar(); $("panel-titulo").textContent.startsWith("Taller") ? panelTaller() : panelJefes(); },
@@ -1768,16 +2381,27 @@ const ACCIONES = {
     proyectiles.splice(0).forEach((p) => escena.remove(p.m));
     dibujarCorazones(); cerrarPanel(true);
   },
+  "ir-fijo": (i) => { const d = DESTINOS_FIJOS()[+i]; if (d) irA(d[1], d[2], d[0]); },
+  "ir-pais": (i) => { const p = PAISES[+i]; if (p) irA(xDeLon(p[2]), zDeLat(p[1]), p[0]); },
+  tp: () => {
+    const x = Number($("tp-x").value), z = Number($("tp-z").value);
+    if (!Number.isFinite(x) || !Number.isFinite(z) || Math.abs(x) > 1e6 || Math.abs(z) > 1e6) { $("a-estado").textContent = "Escribí números para X y Z (hasta 1.000.000)."; $("a-estado").style.color = "var(--peligro)"; return; }
+    irA(x, z, `X ${Math.floor(x)}, Z ${Math.floor(z)}`);
+  },
+  "sala-crear": crearSala,
+  "sala-unirse": () => unirseSala($("codigo-sala").value),
+  "sala-salir": () => { salirSala(); },
+  "chat-abrir": () => { cerrarPanel(true); abrirChat(); },
   "a-monedas": () => {
-    const n = leerCantidad("a-cant");
-    if (!n) return;
+    const n = leerCantidad("a-cant", 1, 999000);
+    if (n === null) return;
     ganar(n, `+${numero(n)} monedas`);
     $("a-estado").textContent = `Listo: agregaste ${numero(n)}. Ahora tenés ${numero(save.monedas)} monedas.`;
   },
   "a-bloques": () => {
-    const n = leerCantidad("a-bloques");
-    if (!n) return;
-    RANURAS.forEach((b) => { if (b !== "huevo") save.inv[b] = (save.inv[b] || 0) + n; });
+    const n = leerCantidad("a-bloques", 1, 999000);
+    if (n === null) return;
+    PONIBLES.forEach((b) => { save.inv[b] = (save.inv[b] || 0) + n; });
     marcar(); dibujarBarra();
     $("a-estado").textContent = `Listo: +${numero(n)} de cada bloque.`;
   },
@@ -1788,9 +2412,9 @@ const ACCIONES = {
   "a-huevo": () => { if (save.gigarex) avisar("Ya tenés a Gigarex."); else { save.huevos = 1; marcar(); dibujarBarra(); avisar("Tenés un huevo de Gigarex."); } },
   "a-desbloquear": () => { save.desbloqueado = JEFES.length; marcar(); avisar("Todos los jefes desbloqueados"); },
   "a-matar": () => { entes.filter((e) => e.equipo === "jefe").forEach((e) => morir(e)); },
-  "a-inicio": () => { jugador.pos.set(inicio.x, inicio.y, inicio.z); jugador.vel.set(0, 0, 0); cerrarPanel(true); },
   "a-jefe": (id) => { invocarJefe(JEFES.find((j) => j.id === id)); cerrarPanel(true); },
   "a-reiniciar": () => {
+    if (mundoInvitado) { $("zona-reinicio").innerHTML = '<p class="nota">Estás en el mundo de un amigo: no se puede cambiar desde acá.</p>'; return; }
     $("zona-reinicio").innerHTML = `<p class="nota">Se borra todo lo que construiste. Las monedas, Gigarex y tus criaturas quedan. ¿Seguro?</p>
       <div class="fila"><button class="boton chico peligro" type="button" data-acc="a-reiniciar-si">Sí, crear mundo nuevo</button><button class="boton chico" type="button" data-acc="admin">Cancelar</button></div>`;
   },
@@ -1811,26 +2435,33 @@ function guardarCriatura(invocar) {
 $("panel-cuerpo").addEventListener("click", (e) => {
   const b = e.target.closest("[data-acc]");
   if (!b || b.disabled) return;
-  const [acc, arg] = b.dataset.acc.split(":");
+  const i = b.dataset.acc.indexOf(":"), acc = i < 0 ? b.dataset.acc : b.dataset.acc.slice(0, i), arg = i < 0 ? undefined : b.dataset.acc.slice(i + 1);
   if (ACCIONES[acc]) ACCIONES[acc](arg);
 });
 $("panel-cuerpo").addEventListener("input", (e) => {
   const o = { "t-tam": "o-tam", "t-vida": "o-vida", "t-vel": "o-vel" }[e.target.id];
   if (o) $(o).textContent = e.target.value;
+  if (e.target.id === "buscar-pais") $("destinos").innerHTML = htmlDestinos(e.target.value);
+  if (e.target.id === "mi-nombre") { save.nombre = limpiarNombre(e.target.value.trim()).slice(0, 16); if (!e.target.value.trim()) save.nombre = ""; marcar(); }
+  if (e.target.id === "codigo-sala") e.target.value = e.target.value.toUpperCase();
 });
 $("panel-cuerpo").addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
-  if (e.target.id === "clave2") ACCIONES.clave();
-  if (e.target.id === "a-cant") ACCIONES["a-monedas"]();
-  if (e.target.id === "a-bloques") ACCIONES["a-bloques"]();
+  const acciones = { clave2: "clave", "a-cant": "a-monedas", "a-bloques": "a-bloques", "tp-x": "tp", "tp-z": "tp", "codigo-sala": "sala-unirse" };
+  if (acciones[e.target.id]) { e.preventDefault(); ACCIONES[acciones[e.target.id]](); }
 });
 $("panel-cerrar").addEventListener("click", () => cerrarPanel(true));
 $("hud-botones").addEventListener("click", (e) => {
   const b = e.target.closest("[data-hud]");
   if (!b) return;
-  ({ tienda: panelTienda, jefes: panelJefes, admin: panelAdmin, taller: panelTaller, trajes: panelTrajes, pausa: panelPausa })[b.dataset.hud]();
+  ({ tienda: panelTienda, jefes: panelJefes, amigos: panelAmigos, chat: abrirChat, admin: panelAdmin, taller: panelTaller, trajes: panelTrajes, pausa: panelPausa })[b.dataset.hud]();
 });
-$("barra-items").addEventListener("click", (e) => { const b = e.target.closest("[data-ranura]"); if (b) elegirRanura(+b.dataset.ranura); });
+$("barra-items").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-ranura]");
+  if (!b) return;
+  const i = +b.dataset.ranura;
+  if (i === ranura && i < 9) { ranuraEdit = i; panelBloques(); } else elegirRanura(i);
+});
 $("clic").addEventListener("click", () => { $("clic").hidden = true; bloquear(); });
 
 // ================== Controles ==================
@@ -1859,8 +2490,9 @@ addEventListener("keydown", (e) => {
   if (!jugando) return;
   // El Esc que suelta el mouse también abre la pausa: no lo usamos para cerrarla en el mismo instante
   if (pausado) { if (e.code === "Escape" && !panelFijo && performance.now() - abiertoEn > 400) cerrarPanel(false); return; }
-  teclas[e.code] = true;
   const k = e.code;
+  if (k === "Enter" || k === "NumpadEnter") { e.preventDefault(); abrirChat(); return; }
+  teclas[k] = true;
   if (k === "Space") {
     e.preventDefault();
     const ahora = performance.now();
@@ -1871,6 +2503,7 @@ addEventListener("keydown", (e) => {
   if (k === "KeyT") panelTienda();
   if (k === "KeyJ") panelJefes();
   if (k === "KeyK") panelTrajes();
+  if (k === "KeyE") { ranuraEdit = ranura < 9 ? ranura : 0; panelBloques(); }
   if (k === "KeyF") alternarVuelo();
   if (k === "KeyV" || k === "F5") { e.preventDefault(); vista3 = !vista3; }
   if (k === "KeyP" && modo().panel) panelAdmin();
@@ -1926,26 +2559,27 @@ addEventListener("resize", () => {
   camara.updateProjectionMatrix();
 });
 document.addEventListener("visibilitychange", () => { if (document.hidden && sucio) guardar(); });
-addEventListener("pagehide", () => { if (sucio) guardar(); });
+addEventListener("pagehide", () => { if (sucio) guardar(); if (multi.peer) { try { multi.peer.destroy(); } catch (e) {} } });
 
 // ================== Portada y arranque ==================
+const pideClave = () => !!(MODOS[save.modo] && MODOS[save.modo].soloCreador && !creadorOk);
 function dibujarModosPortada() {
   $("modos").innerHTML = '<legend>Modo de juego</legend>' + Object.entries(MODOS).map(([k, m]) =>
-    `<div class="modo-op"><input type="radio" name="modo" id="m-${k}" value="${k}"${k === save.modo ? " checked" : ""}><label for="m-${k}"><b>${m.nombre}</b><span>${m.desc}</span></label></div>`).join("");
-  $("clave-zona").hidden = !(save.modo === "nacho" && !nachoOk);
+    `<div class="modo-op"><input type="radio" name="modo" id="m-${k}" value="${k}"${k === save.modo ? " checked" : ""}><label for="m-${k}"><b>${m.nombre}${m.soloCreador ? '<span class="candado">solo el creador</span>' : ""}</b><span>${m.desc}</span></label></div>`).join("");
+  $("clave-zona").hidden = !pideClave();
 }
 $("modos").addEventListener("change", (e) => {
   if (e.target.name !== "modo") return;
   save.modo = e.target.value;
   marcar();
-  $("clave-zona").hidden = !(save.modo === "nacho" && !nachoOk);
+  $("clave-zona").hidden = !pideClave();
   $("clave-error").textContent = "";
   if (!$("clave-zona").hidden) $("clave").focus();
 });
 function intentarJugar() {
-  if (save.modo === "nacho" && !nachoOk) {
-    if ($("clave").value.trim() !== CLAVE_NACHO) { $("clave-error").textContent = "Contraseña incorrecta."; $("clave").select(); return; }
-    nachoOk = true;
+  if (pideClave()) {
+    if ($("clave").value.trim() !== CLAVE_CREADOR) { $("clave-error").textContent = "Contraseña incorrecta."; $("clave").select(); return; }
+    creadorOk = true;
   }
   empezar();
 }
@@ -1963,6 +2597,7 @@ function empezar() {
     jugador.vel.set(0, 0, 0);
     jugador.vida = jugador.max;
     jugador.volando = !!modo().fantasma;
+    jugador.enPortal = false;
     centroChunks = null;
     gestionarChunks(25);
     construirNacho();
@@ -1972,11 +2607,13 @@ function empezar() {
     $("hud").hidden = false;
     $("tactil").hidden = !tactil;
     jugando = true; pausado = false;
+    lugarMostrado = null;
     dibujarHUD();
     if (save.nuevo) {
       save.nuevo = false;
       avisar("¡Bienvenido a Dragon Nacho! Te regalamos 1000 monedas.", 5000);
       avisar(tactil ? "Tocá Tienda para comprar el huevo de Gigarex." : "Apretá T para la tienda y J para los jefes.", 5000);
+      avisar("Entrá al portal violeta para viajar por el mundo.", 5000);
       marcar(); guardar();
     }
     if (!tactil) bloquear();
@@ -1992,7 +2629,7 @@ requestAnimationFrame(bucle);
 
 // Vista de muestra (#demo): arranca sola en el modo Nacho con un traje, Gigarex, Arácnix y un jefe, sin tocar la partida guardada
 if (demo) {
-  save.modo = "nacho"; nachoOk = true; save.traje = "ironman"; save.gigarex = { nivel: 3, xp: 3 }; save.nuevo = false;
+  save.modo = "nacho"; creadorOk = true; save.traje = "ironman"; save.gigarex = { nivel: 3, xp: 3 }; save.nuevo = false;
   empezar();
   setTimeout(() => {
     vista3 = true; jugador.yaw = Math.PI * 0.85; jugador.pitch = -0.12;

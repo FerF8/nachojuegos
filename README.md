@@ -11,7 +11,14 @@ Juegos buenos para el celu y la compu, gratis y pagos. Ponés tu edad (de 3 a 10
 
 👉 **https://ferf8.github.io/nachojuegos/juego/**
 
-Mundo de bloques infinito en 3D (three.js) que se juega en el navegador: criás a tu kaiju Gigarex, derrotás jefes gigantes y ganás monedas. Modos supervivencia, creativo, observador, admin (agrega monedas y bloques) y creador, más el modo secreto Nacho con trajes de personajes de Marvel. Los jefes y aliados son originales; los trajes de Marvel son de fans y sin fines comerciales. Todo está en `juego/index.html`; para el Discord de reportes, completá `DISCORD_URL` al principio del script.
+Mundo de bloques infinito en 3D (three.js) que se juega en el navegador: criás a tu kaiju Gigarex, derrotás jefes gigantes y ganás monedas.
+
+- Modos supervivencia, creativo y observador para todos; Admin, Creador y Nacho solo para el creador (con contraseña).
+- Ciudad y central nuclear cerca del inicio, y un mapa del mundo con los 242 países (datos de [Natural Earth](https://www.naturalearthdata.com/), dominio público), Tokio y el Monte Fuji. Un portal lleva a cualquier país.
+- Jugar con amigos: salas con código, chat y construcción compartida, con [PeerJS](https://peerjs.com/) (conexión directa entre navegadores).
+- Los jefes y aliados son originales; los trajes de Marvel del modo Nacho son de fans y sin fines comerciales.
+
+Todo está en `juego/index.html`. Para el Discord de reportes, completá `DISCORD_URL` al principio del script.
 
 ---
 
