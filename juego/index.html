@@ -113,6 +113,9 @@
   #progreso i { display: block; height: 100%; width: 0; background: #fff; }
   .abajo { position: absolute; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: grid; gap: 5px; justify-items: center; }
   #nombre-ranura { font-weight: 700; text-shadow: 2px 2px 0 #000; min-height: 1.3em; transition: opacity .4s; }
+  #poder { background: rgba(10, 13, 36, .82); border: 2px solid var(--diamante); color: var(--diamante); border-radius: 999px; padding: 3px 12px; font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; }
+  #poder.espera { border-color: var(--line); color: var(--muted); }
+  #tb-poder { border-color: var(--diamante); color: var(--diamante); }
   #corazones { display: flex; gap: 2px; }
   #corazones svg { width: 18px; height: 16px; }
   .lleno { fill: #FF3B3B; } .medio { fill: #A8323A; } .vacio { fill: #2A2238; }
@@ -166,6 +169,7 @@
   .traje { display: grid; justify-items: center; gap: 4px; padding: 8px 4px; cursor: pointer; background: var(--panel2); border: 3px solid var(--line); border-radius: 8px; font-size: .78rem; font-weight: 700; text-align: center; line-height: 1.15; }
   .traje img { width: 48px; height: 48px; image-rendering: pixelated; border-radius: 4px; }
   .traje.activo { border-color: var(--oro); color: var(--oro); }
+  .traje small { font-weight: 400; font-size: .7rem; color: var(--muted); }
   .sala b { font-family: var(--display); font-weight: 400; font-size: 1.7rem; color: var(--oro); letter-spacing: .12em; }
   .teclas { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   kbd { font-family: var(--body); font-size: .8rem; background: var(--panel2); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
@@ -237,6 +241,7 @@
   <div id="mira"></div>
   <div id="progreso" hidden><i></i></div>
   <div class="abajo">
+    <div id="poder" hidden></div>
     <div id="nombre-ranura"></div>
     <div id="corazones" aria-label="Vida"></div>
     <div id="barra-items"></div>
@@ -248,12 +253,13 @@
 <div id="tactil" hidden>
   <div id="stick" hidden><i></i></div>
   <div class="t-der">
+    <button class="tb chico" id="tb-poder" type="button" hidden>Poder</button>
+    <button class="tb chico" id="tb-vista" type="button">Vista</button>
     <button class="tb" id="tb-romper" type="button">Romper</button>
     <button class="tb" id="tb-poner" type="button">Poner</button>
     <button class="tb" id="tb-bajar" type="button">Bajar</button>
     <button class="tb" id="tb-saltar" type="button">Saltar</button>
     <button class="tb chico" id="tb-volar" type="button">Volar</button>
-    <button class="tb chico" id="tb-vista" type="button">Vista</button>
   </div>
 </div>
 
@@ -273,7 +279,7 @@ const DISCORD_URL = "";
 // Contraseña de los modos del creador (Admin, Creador y Nacho).
 // Ojo: queda a la vista en el código de la página. Es un candado para chicos, no una seguridad real.
 const CLAVE_CREADOR = "999";
-const VERSION = "1.2";
+const VERSION = "1.3";
 const CARA = "data:image/png;base64,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";
 // Para jugar con amigos se usa PeerJS (conexión directa entre navegadores con un servicio público gratuito)
 const PEERJS_URL = "https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js";
@@ -481,7 +487,8 @@ function esFrontera(x, z, c) {
 // ================== Lugares especiales: ciudad, central nuclear, portales, Tokio y el Monte Fuji ==================
 const CIUDAD = { x0: CENTRO + 40, z0: CENTRO - 40, x1: CENTRO + 120, z1: CENTRO + 40, suelo: 16, alto: 26, sal: 11, nombre: "Ciudad" };
 const CENTRAL = { x0: CENTRO + 40, z0: CENTRO + 52, x1: CENTRO + 100, z1: CENTRO + 112, suelo: 16, nombre: "Central nuclear" };
-const PORTAL_INICIO = { x0: CENTRO + 8, z0: CENTRO - 2, x1: CENTRO + 9, z1: CENTRO + 3, suelo: 16 };
+// El portal está apenas enfrente de donde aparecés (mirando hacia +z)
+const PORTAL_INICIO = { x0: CENTRO - 2, z0: CENTRO + 5, x1: CENTRO + 3, z1: CENTRO + 6, suelo: 16 };
 const TOKIO_X = xDeLon(139.69), TOKIO_Z = zDeLat(35.68);
 const TOKIO = { x0: TOKIO_X - 30, z0: TOKIO_Z - 30, x1: TOKIO_X + 30, z1: TOKIO_Z + 30, suelo: 14, alto: 30, sal: 23, nombre: "Tokio, Japón", rojo: true, cerezos: true, torre: [1, 1], portal: [0, 1] };
 const FUJI = { cx: TOKIO_X - 58, cz: TOKIO_Z + 6, r: 18, alto: 26 };
@@ -553,9 +560,9 @@ function columnaPlazaPortal(lu, lv, S, set) {
   if (lu >= 15) { set(S, 1); arbolEn(lu, lv, 17, 6, S, set, 18); arbolEn(lu, lv, 17, 16, S, set, 18); }
 }
 function columnaPortalInicio(x, z, set) {
-  const E = PORTAL_INICIO, S = E.suelo, lv = z - E.z0;
+  const E = PORTAL_INICIO, S = E.suelo, lu = x - E.x0;
   for (let y = S + 1; y <= S + 6; y++) set(y, 0);
-  if (lv === 0 || lv === 4) { for (let y = S; y <= S + 5; y++) set(y, 22); return; }
+  if (lu === 0 || lu === 4) { for (let y = S; y <= S + 5; y++) set(y, 22); return; }
   set(S, 22); for (let k = 1; k <= 4; k++) set(S + k, 23); set(S + 5, 22);
 }
 function columnaCentral(x, z, set) {
@@ -819,22 +826,29 @@ function recargarMundo() {
   indexarCambios();
   inicio.y = alturaSuelo(inicio.x, inicio.z);
 }
-function ponerBloqueEn(x, y, z, id, remoto) {
-  if (y < 1 || y >= WY) return false;
-  const cx = Math.floor(x / CH), cz = Math.floor(z / CH), lx = x - cx * CH, lz = z - cz * CH;
-  datosChunk(cx, cz)[li(lx, y, lz)] = id;
-  cambiosMundo()[`${x},${y},${z}`] = id;
-  agregarCambio(x, y, z, id);
+// Cambia varios bloques de una vez y rehace cada chunk tocado una sola vez (para explosiones, árboles, etc.)
+function ponerBloques(lista, remoto) {
+  const tocados = new Set(), hechos = [];
+  for (const [x, y, z, id] of lista) {
+    if (y < 1 || y >= WY) continue;
+    const cx = Math.floor(x / CH), cz = Math.floor(z / CH), lx = x - cx * CH, lz = z - cz * CH;
+    datosChunk(cx, cz)[li(lx, y, lz)] = id;
+    cambiosMundo()[`${x},${y},${z}`] = id;
+    agregarCambio(x, y, z, id);
+    tocados.add(claveChunk(cx, cz));
+    if (lx === 0) tocados.add(claveChunk(cx - 1, cz));
+    if (lx === CH - 1) tocados.add(claveChunk(cx + 1, cz));
+    if (lz === 0) tocados.add(claveChunk(cx, cz - 1));
+    if (lz === CH - 1) tocados.add(claveChunk(cx, cz + 1));
+    hechos.push([x, y, z, id]);
+  }
+  if (!hechos.length) return false;
   marcar();
-  const rehacer = (a, b) => { if (mallas.has(claveChunk(a, b))) construirChunk(a, b); };
-  rehacer(cx, cz);
-  if (lx === 0) rehacer(cx - 1, cz);
-  if (lx === CH - 1) rehacer(cx + 1, cz);
-  if (lz === 0) rehacer(cx, cz - 1);
-  if (lz === CH - 1) rehacer(cx, cz + 1);
-  if (!remoto && multi.peer) enviar({ t: "bloque", x, y, z, id });
+  for (const k of tocados) if (mallas.has(k)) { const [a, b] = k.split(",").map(Number); construirChunk(a, b); }
+  if (!remoto && multi.peer) enviar(hechos.length === 1 ? { t: "bloque", x: hechos[0][0], y: hechos[0][1], z: hechos[0][2], id: hechos[0][3] } : { t: "bloques", lista: hechos });
   return true;
 }
+const ponerBloqueEn = (x, y, z, id, remoto) => ponerBloques([[x, y, z, id]], remoto);
 
 const marco = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.004, 1.004, 1.004)), new THREE.LineBasicMaterial({ color: 0x000000 }));
 marco.visible = false;
@@ -1048,6 +1062,36 @@ function trajeActual() {
   return modo().trajes ? t : null;
 }
 const trajeVisible = () => { const t = trajeActual(); return t ? t.id : "normal"; };
+// Poderes de cada traje. pas: poderes que funcionan solos (vuelo, escalar, salto, rapidez, fuerza, romperYa, resiste, regenera).
+// act: el poder especial de la tecla Q (o el botón Poder).
+const PODERES = {
+  ironman: { desc: "Vuela y tira rayos repulsores.", pas: { vuelo: true }, act: { nombre: "Rayo repulsor", tipo: "disparo", proy: "repulsor", daño: 12, cd: 0.4 } },
+  capitan: { desc: "Tira el escudo y aguanta más los golpes.", pas: { resiste: 0.6 }, act: { nombre: "Escudo", tipo: "disparo", proy: "escudo", daño: 22, cd: 1.2, tam: 0.7 } },
+  thor: { desc: "Vuela con el martillo y hace caer rayos sobre los jefes.", pas: { vuelo: true }, act: { nombre: "Rayo", tipo: "rayo", daño: 30, radio: 30, cd: 6 } },
+  hulk: { desc: "Súper fuerza: rompe cualquier bloque de un golpe, pega el triple, salta altísimo y aplasta el piso.", pas: { fuerza: 3, romperYa: true, salto: 3, resiste: 0.5 }, act: { nombre: "Aplastar", tipo: "onda", daño: 35, radio: 8, rompe: 2.5, cd: 5 } },
+  viuda: { desc: "Corre y salta más, y tira picanas que paralizan a los jefes.", pas: { rapidez: 1.2, salto: 1.3 }, act: { nombre: "Picanas", tipo: "disparo", proy: "picana", daño: 6, lento: 3, cant: 2, cd: 0.8 } },
+  halcon: { desc: "Tira tres flechas a la vez.", act: { nombre: "Flechas", tipo: "disparo", proy: "flecha", daño: 10, cant: 3, cd: 0.9 } },
+  spiderman: { desc: "Trepa paredes, salta alto y tira telarañas que frenan a los jefes.", pas: { escalar: true, salto: 1.5 }, act: { nombre: "Telaraña", tipo: "disparo", proy: "telaraña", daño: 6, lento: 4, cd: 0.35 } },
+  strange: { desc: "Levita con la capa y abre portales para saltar lejos.", pas: { vuelo: true }, act: { nombre: "Portal", tipo: "salto", dist: 18, cd: 3 } },
+  pantera: { desc: "Salta alto, aguanta golpes y suelta una onda de energía.", pas: { salto: 1.6, resiste: 0.6 }, act: { nombre: "Onda cinética", tipo: "onda", daño: 20, radio: 7, lento: 2, cd: 6 } },
+  capitana: { desc: "Vuela y lanza rayos de fotones.", pas: { vuelo: true }, act: { nombre: "Rayo de fotones", tipo: "disparo", proy: "foton", daño: 20, cd: 0.8, tam: 0.7 } },
+  antman: { desc: "Se encoge: va mucho más rápido y los jefes no lo ven.", act: { nombre: "Encogerse", tipo: "encoger", dur: 10, cd: 15 } },
+  bruja: { desc: "Levita y lanza magia del caos.", pas: { vuelo: true }, act: { nombre: "Magia del caos", tipo: "disparo", proy: "magia", daño: 9, lento: 1.5, cant: 3, cd: 0.9 } },
+  vision: { desc: "Vuela y dispara el rayo de la gema.", pas: { vuelo: true }, act: { nombre: "Rayo de la gema", tipo: "disparo", proy: "gema", daño: 18, cd: 0.7 } },
+  starlord: { desc: "Vuela con las botas cohete y dispara sus pistolas.", pas: { vuelo: true }, act: { nombre: "Pistolas", tipo: "disparo", proy: "blaster", daño: 8, cant: 2, cd: 0.25 } },
+  gamora: { desc: "Corre rápido y embiste con la espada.", pas: { rapidez: 1.3 }, act: { nombre: "Embestida", tipo: "embestida", dist: 10, daño: 25, cd: 3 } },
+  groot: { desc: "Aguanta mucho, se cura solo y hace crecer árboles.", pas: { resiste: 0.6, regenera: 1 }, act: { nombre: "Yo soy Groot", tipo: "arbol", cd: 4 } },
+  rocket: { desc: "Dispara cohetes que explotan y rompen bloques.", act: { nombre: "Cohete", tipo: "disparo", proy: "cohete", daño: 25, rompe: 2, cd: 2 } },
+  falcon: { desc: "Vuela con sus alas y tira misiles.", pas: { vuelo: true }, act: { nombre: "Misiles", tipo: "disparo", proy: "misil", daño: 15, cd: 0.9 } },
+  soldado: { desc: "Pega muy fuerte con el brazo de metal.", pas: { fuerza: 2 }, act: { nombre: "Golpe biónico", tipo: "giro", daño: 45, radio: 4.5, cd: 2 } },
+  loki: { desc: "Crea una ilusión y los jefes dejan de verlo.", act: { nombre: "Ilusión", tipo: "ilusion", dur: 8, cd: 20 } },
+  thanos: { desc: "Súper fuerte. El chasquido les saca la mitad de la vida a los jefes.", pas: { fuerza: 2, resiste: 0.5 }, act: { nombre: "Chasquido", tipo: "chasquido", radio: 80, cd: 45 } },
+  deadpool: { desc: "Se cura solo y gira con sus katanas.", pas: { regenera: 1.5 }, act: { nombre: "Katanas", tipo: "giro", daño: 25, radio: 4, cd: 2 } },
+  wolverine: { desc: "Se cura solo, pega fuerte y ataca con las garras.", pas: { regenera: 1, fuerza: 1.5 }, act: { nombre: "Garras", tipo: "giro", daño: 30, radio: 4, cd: 2 } }
+};
+const poderActual = () => { const t = trajeActual(); return t ? PODERES[t.id] : null; };
+const pasivo = () => { const p = poderActual(); return (p && p.pas) || {}; };
+const puedeVolar = () => !!(modo().vuelo || pasivo().vuelo);
 function agregarExtras(m, x) {
   const P = m.p;
   if (x.capa) parte(m.g, null, 0.5, 1.0, 0.05, 0, 0.98, -0.16, mat(x.capa));
@@ -1154,7 +1198,7 @@ const TIENDA = [
   { id: "huevo", nombre: "Huevo de Gigarex", precio: 500, desc: "Plantalo en el piso y en 20 segundos nace tu kaiju aliado." },
   { id: "espada", nombre: "Espada de diamante", precio: 400, desc: "Pegás más del doble de fuerte." },
   { id: "armadura", nombre: "Armadura de diamante", precio: 600, desc: "Los jefes te sacan la mitad de vida. ¡Y quedás como en la portada!" },
-  { id: "spiderman", nombre: "Traje de Spider-Man", precio: 800, desc: "Ponete el traje del Hombre Araña. Lo podés usar en cualquier modo." },
+  { id: "spiderman", nombre: "Traje de Spider-Man", precio: 800, desc: "Con sus poderes: trepás paredes, saltás alto y tirás telarañas (Q). Lo podés usar en cualquier modo." },
   { id: "pocion", nombre: "Poción de vida", precio: 100, desc: "Te cura toda la vida al instante." },
   { id: "aracnix", nombre: "Llamar a Arácnix", precio: 300, desc: "El héroe araña te ayuda 60 segundos tirando telarañas." },
   { id: "bloques", nombre: "Pack de bloques", precio: 150, desc: "32 de cada bloque para construir." }
@@ -1163,7 +1207,10 @@ const NIVELES_GIGAREX = [null,
   { nombre: "bebé", escala: 0.5, vida: 40, daño: 4, aliento: 0 },
   { nombre: "joven", escala: 0.9, vida: 90, daño: 8, aliento: 10 },
   { nombre: "adulto", escala: 1.4, vida: 180, daño: 14, aliento: 18 }];
-const COLOR_DISPARO = { fuego: "#ff7a1a", laser: "#ff3b3b", rayo: "#ffe14d", polvo: "#ff8be0", "telaraña": "#ffffff", aliento: "#4dd2ff", golpe: "#ffffff" };
+const COLOR_DISPARO = {
+  fuego: "#ff7a1a", laser: "#ff3b3b", rayo: "#ffe14d", polvo: "#ff8be0", "telaraña": "#ffffff", aliento: "#4dd2ff", golpe: "#ffffff",
+  repulsor: "#bff6ff", escudo: "#2b4fb0", flecha: "#c8a060", picana: "#4dd2ff", foton: "#ffd23f", magia: "#ff3355", gema: "#ffe14d", blaster: "#ff5533", cohete: "#ff7a1a", misil: "#9aa0b0"
+};
 
 const entes = [], huevos = [], proyectiles = [], particulas = [];
 const teclas = {}, mov = { x: 0, y: 0 };
@@ -1171,6 +1218,7 @@ let jugando = false, pausado = false, panelFijo = false, vista3 = false, abierto
 let apretIzq = false, cdRomper = 0, ranura = 0, ranuraEdit = 0, ultimoEspacio = 0, golpeNacho = 0;
 let rotura = { x: 0, y: -1, z: 0, t: 0 };
 let tiempoDia = 0.05, gigarexEspera = 0, acumGuardar = 0, lugarT = 0, lugarMostrado = null, modoPedido = null;
+let cdPoder = 0, ilusion = 0, encogido = 0, regenAcc = 0, poderT = 0, poderMostrado = "";
 
 // ================== Jugador ==================
 const R = 0.3, ALTO = 1.8, OJOS = 1.62;
@@ -1205,22 +1253,22 @@ function moverEje(eje, d) {
   return false;
 }
 function alternarVuelo() {
-  if (!modo().vuelo || modo().fantasma) { if (!modo().vuelo) avisar("En supervivencia no se puede volar."); return; }
+  if (!puedeVolar() || modo().fantasma) { if (!puedeVolar()) avisar("En supervivencia no se puede volar (salvo con un traje que vuela)."); return; }
   jugador.volando = !jugador.volando;
   jugador.vel.y = 0;
   avisar(jugador.volando ? "Volando: Espacio sube, Shift baja" : "Dejaste de volar", 1600);
   $("tb-bajar").hidden = !jugador.volando;
 }
 function actualizarJugador(dt) {
-  const M = modo(), p = jugador.pos, v = jugador.vel;
-  if (!M.vuelo) jugador.volando = false;
+  const M = modo(), p = jugador.pos, v = jugador.vel, Pas = pasivo();
+  if (!puedeVolar()) jugador.volando = false;
   if (M.fantasma) jugador.volando = true;
   if (!M.fantasma && chocaEn(p.x, p.y, p.z)) p.y = Math.floor(p.y) + 1;
   const f = (teclas.KeyW || teclas.ArrowUp ? 1 : 0) - (teclas.KeyS || teclas.ArrowDown ? 1 : 0) - mov.y;
   const r = (teclas.KeyD || teclas.ArrowRight ? 1 : 0) - (teclas.KeyA || teclas.ArrowLeft ? 1 : 0) + mov.x;
   const largo = Math.hypot(f, r) || 1, k = Math.min(1, largo) / largo;
   const enAgua = getBloque(Math.floor(p.x), Math.floor(p.y + 0.4), Math.floor(p.z)) === 5;
-  const rap = (teclas.ControlLeft || teclas.ControlRight ? 6.4 : 4.4) * (jugador.volando ? 2.3 : 1) * (enAgua && !jugador.volando ? 0.55 : 1);
+  const rap = (teclas.ControlLeft || teclas.ControlRight ? 6.4 : 4.4) * (jugador.volando ? 2.3 : 1) * (enAgua && !jugador.volando ? 0.55 : 1) * (Pas.rapidez || 1) * (encogido > 0 ? 1.7 : 1);
   const s = Math.sin(jugador.yaw), c = Math.cos(jugador.yaw);
   const vx = (-s * f + c * r) * k * rap, vz = (-c * f - s * r) * k * rap;
   let dy;
@@ -1229,7 +1277,7 @@ function actualizarJugador(dt) {
     dy = ((teclas.Space ? 1 : 0) - (teclas.ShiftLeft || teclas.ShiftRight ? 1 : 0)) * rap;
   } else {
     if (enAgua) { v.y = Math.max(v.y - 10 * dt, -3); if (teclas.Space) v.y = 4; }
-    else { v.y = Math.max(v.y - 28 * dt, -45); if (teclas.Space && jugador.enSuelo) v.y = 8.8; }
+    else { v.y = Math.max(v.y - 28 * dt, -45); if (teclas.Space && jugador.enSuelo) v.y = 8.8 * Math.sqrt(Pas.salto || 1); }
     dy = v.y;
   }
   const chocoX = moverEje("x", vx * dt), chocoZ = moverEje("z", vz * dt);
@@ -1238,10 +1286,12 @@ function actualizarJugador(dt) {
   if (moverEje("y", dy * dt)) {
     if (dy < 0) {
       jugador.enSuelo = true;
-      if (!jugador.volando && vyAntes < -16) dañarJugador(Math.floor((-vyAntes - 14) / 2));
+      if (!jugador.volando && vyAntes < -16 && !trajeActual()) dañarJugador(Math.floor((-vyAntes - 14) / 2));   // los héroes no se lastiman al caer
     }
     v.y = 0;
   }
+  // Trepar paredes: va después del movimiento vertical para que el choque con el piso no lo cancele
+  if (Pas.escalar && !jugador.volando && (chocoX || chocoZ) && Math.hypot(f, r) > 0.1) v.y = Math.max(v.y, 4.5);
   if (tactil && (chocoX || chocoZ) && jugador.enSuelo && Math.hypot(f, r) > 0.3) v.y = 8.8;
   if (p.y < -20) { p.set(inicio.x, inicio.y, inicio.z); v.set(0, 0, 0); }
   if (p.y > WY + 30) p.y = WY + 30;
@@ -1252,6 +1302,10 @@ function actualizarJugador(dt) {
     jugador.regen += dt;
     if (jugador.regen > 3) { jugador.regen = 0; jugador.vida = Math.min(jugador.max, jugador.vida + 1); dibujarCorazones(); }
   }
+  if (Pas.regenera && M.daño && jugador.vida < jugador.max) {   // Deadpool, Wolverine y Groot se curan solos
+    regenAcc += Pas.regenera * dt;
+    if (regenAcc >= 1) { const n = Math.floor(regenAcc); regenAcc -= n; jugador.vida = Math.min(jugador.max, jugador.vida + n); dibujarCorazones(); }
+  }
   // Portal: al entrar se abre la lista de lugares para viajar
   const fx = Math.floor(p.x), fz = Math.floor(p.z);
   const enPortal = getBloque(fx, Math.floor(p.y + 0.5), fz) === 23 || getBloque(fx, Math.floor(p.y + 1.3), fz) === 23;
@@ -1260,7 +1314,7 @@ function actualizarJugador(dt) {
 }
 function dañarJugador(n) {
   if (!modo().daño || jugador.invul > 0 || n <= 0 || !jugando || pausado) return;
-  n = save.armadura ? Math.ceil(n / 2) : n;
+  n = Math.ceil(n * (pasivo().resiste || 1) * (save.armadura ? 0.5 : 1));
   jugador.vida -= n; jugador.invul = 0.5; jugador.sinDaño = 0;
   $("dano").style.opacity = 1;
   setTimeout(() => { $("dano").style.opacity = 0; }, 160);
@@ -1335,6 +1389,7 @@ function actualizarInteraccion(dt) {
   const b = ap.bloque;
   // El creador puede romper hasta la roca madre; el portal no lo rompe nadie
   if (!b || (BLOQUES[b.id].irrompible && !(M.rompeTodo && b.id === 13))) { rotura.t = 0; progreso(0); return; }
+  if (pasivo().romperYa && b.id !== 13) { if (cdRomper <= 0) { romper(b); cdRomper = 0.15; } return; }   // Hulk rompe todo de un golpe
   if (!M.picar && M.infinito) { if (cdRomper <= 0) { romper(b); cdRomper = 0.22; } return; }
   if (rotura.x !== b.x || rotura.y !== b.y || rotura.z !== b.z) rotura = { x: b.x, y: b.y, z: b.z, t: 0 };
   rotura.t += dt;
@@ -1357,7 +1412,7 @@ function romper(b) {
 }
 function golpear(e) {
   golpeNacho = 0.25;
-  dañar(e, save.espada ? 14 : 6);
+  dañar(e, Math.round((save.espada ? 14 : 6) * (pasivo().fuerza || 1)));
   explosion(centro(e), "#ffffff", 4);
 }
 function poner() {
@@ -1376,6 +1431,121 @@ function poner() {
   if (solido(id) && x + 1 > p.x - R && x < p.x + R && y + 1 > p.y && y < p.y + ALTO && z + 1 > p.z - R && z < p.z + R) return;
   golpeNacho = 0.2;
   if (ponerBloqueEn(x, y, z, id) && !bloquesInfinitos()) { save.inv[id]--; dibujarBarra(); }
+}
+
+// ================== Poderes de los trajes ==================
+// Tecla Q (o el botón Poder). Los poderes que funcionan solos (volar, trepar, fuerza…) se aplican en el movimiento y los golpes.
+function usarPoder() {
+  if (!jugando || pausado || modo().fantasma) return;
+  const P = poderActual();
+  if (!P) { avisar("Ponete un traje para tener poderes (tecla K)."); return; }
+  if (cdPoder > 0) return;
+  const a = P.act, o = ojo(), d = direccion().clone();
+  golpeNacho = 0.3;
+  cdPoder = a.cd;
+  if (a.tipo === "disparo") {
+    const n = a.cant || 1, eje = new THREE.Vector3(0, 1, 0);
+    for (let i = 0; i < n; i++) {
+      const dir = d.clone().applyAxisAngle(eje, n === 1 ? 0 : (i - (n - 1) / 2) * 0.09);
+      disparar(o.clone().addScaledVector(dir, 0.8), o.clone().addScaledVector(dir, 40), a.proy, a.daño, "aliado", { lento: a.lento, rompe: a.rompe, tam: a.tam, vel: 28 });
+    }
+  } else if (a.tipo === "onda" || a.tipo === "giro") {
+    const c = jugador.pos.clone();
+    jefesCerca(a.radio).forEach((e) => { dañar(e, a.daño); if (a.lento) e.lento = Math.max(e.lento, a.lento); });
+    anillo(c, a.radio, a.tipo === "onda" ? "#7fe05a" : "#ffffff");
+    if (a.rompe) romperEsfera(c.x, c.y - 0.5, c.z, a.rompe);
+  } else if (a.tipo === "rayo") {
+    const js = jefesCerca(a.radio);
+    js.forEach((e) => { rayoDelCielo(centro(e)); dañar(e, a.daño); });
+    if (!js.length) avisar("No hay jefes cerca para el rayo.");
+  } else if (a.tipo === "chasquido") {
+    const js = jefesCerca(a.radio);
+    js.forEach((e) => dañar(e, Math.ceil(e.max / 2)));
+    explosion(centro(jugador), "#e8b923", 30);
+    avisar(js.length ? "¡Chasquido! Los jefes perdieron la mitad de la vida." : "¡Chasquido! Pero no había jefes cerca.", 3000);
+  } else if (a.tipo === "salto" || a.tipo === "embestida") {
+    const dir = a.tipo === "embestida" ? new THREE.Vector3(d.x, 0, d.z).normalize() : d;
+    const hit = rayoBloque(o, dir, a.dist), dist = hit ? Math.max(0, hit.t - 1) : a.dist;
+    const color = a.tipo === "salto" ? "#ff9a2a" : "#7fe05a", p0 = jugador.pos.clone();
+    explosion(centro(jugador), color, 14);
+    jugador.pos.addScaledVector(dir, dist);
+    for (let k = 0; k < 12 && chocaEn(jugador.pos.x, jugador.pos.y, jugador.pos.z); k++) jugador.pos.y += 1;
+    jugador.vel.set(0, 0, 0);
+    explosion(centro(jugador), color, 14);
+    if (a.tipo === "embestida") entes.filter((e) => e.equipo === "jefe" && distanciaASegmento(e.pos, p0, jugador.pos) < radioDe(e) + 1.5).forEach((e) => dañar(e, a.daño));
+  } else if (a.tipo === "arbol") {
+    const ap = apuntar();
+    if (!ap.bloque) { avisar("Mirá al piso para hacer crecer un árbol."); cdPoder = 0; return; }
+    plantarArbol(ap.bloque.x + ap.bloque.n[0], ap.bloque.y + ap.bloque.n[1], ap.bloque.z + ap.bloque.n[2]);
+  } else if (a.tipo === "encoger") {
+    encogido = a.dur; ilusion = a.dur;
+    avisar(`¡Te encogiste! ${a.dur} segundos más rápido y sin que los jefes te vean.`, 3000);
+  } else if (a.tipo === "ilusion") {
+    ilusion = a.dur;
+    explosion(centro(jugador), "#3fdc6a", 20);
+    avisar(`Ilusión: los jefes no te ven por ${a.dur} segundos.`, 3000);
+  }
+}
+const jefesCerca = (r) => entes.filter((e) => e.equipo === "jefe" && distXZ(e.pos, jugador.pos) < r + radioDe(e));
+function distanciaASegmento(p, a, b) {
+  const abx = b.x - a.x, abz = b.z - a.z, l = abx * abx + abz * abz;
+  const t = l ? clamp(((p.x - a.x) * abx + (p.z - a.z) * abz) / l, 0, 1) : 0;
+  return Math.hypot(p.x - (a.x + abx * t), p.z - (a.z + abz * t));
+}
+function anillo(c, r, color) {
+  for (let i = 0; i < 24 && particulas.length < 220; i++) {
+    const ang = (i / 24) * Math.PI * 2, m = new THREE.Mesh(geoParticula, matBasico(color));
+    m.position.set(c.x, c.y + 0.3, c.z);
+    escena.add(m);
+    particulas.push({ m, v: new THREE.Vector3(Math.cos(ang) * r * 1.6, 1.5, Math.sin(ang) * r * 1.6), vida: 0.6 });
+  }
+}
+function rayoDelCielo(c) {
+  for (let i = 0; i < 14 && particulas.length < 220; i++) {
+    const m = new THREE.Mesh(geoParticula, matBasico("#ffe14d"));
+    m.position.set(c.x + (Math.random() - 0.5) * 0.6, c.y + 2 + i * 0.8, c.z + (Math.random() - 0.5) * 0.6);
+    escena.add(m);
+    particulas.push({ m, v: new THREE.Vector3(0, -6, 0), vida: 0.5 });
+  }
+  explosion(c, "#ffe14d", 12);
+}
+function romperEsfera(cx, cy, cz, r) {
+  const lista = [];
+  for (let x = Math.floor(cx - r); x <= Math.floor(cx + r); x++) for (let y = Math.floor(cy - r); y <= Math.floor(cy + r); y++) for (let z = Math.floor(cz - r); z <= Math.floor(cz + r); z++) {
+    if (y < 1 || Math.hypot(x + 0.5 - cx, y + 0.5 - cy, z + 0.5 - cz) > r) continue;
+    const id = getBloque(x, y, z);
+    if (id && id !== 5 && id !== 13 && id !== 23) lista.push([x, y, z, 0]);
+  }
+  if (lista.length) { ponerBloques(lista); explosion(new THREE.Vector3(cx, cy, cz), "#9a8a70", 20); }
+}
+function estallar(q, r, daño) {   // explosión del cohete de Rocket
+  entes.filter((e) => e.equipo === "jefe" && centro(e).distanceTo(q) < r + radioDe(e) + 1).forEach((e) => dañar(e, Math.round(daño / 2)));
+  romperEsfera(q.x, q.y, q.z, r);
+  explosion(q, "#ff7a1a", 24);
+}
+function plantarArbol(x, y, z) {   // el árbol de Groot
+  const lista = [], libre = (a, b, c) => { const id = getBloque(a, b, c); return id === 0 || id === 5; };
+  for (let dy = 3; dy <= 6; dy++) {
+    const rad = dy >= 5 ? 1 : 2;
+    for (let dz = -rad; dz <= rad; dz++) for (let dx = -rad; dx <= rad; dx++) {
+      if (!(Math.abs(dx) === rad && Math.abs(dz) === rad) && libre(x + dx, y + dy, z + dz)) lista.push([x + dx, y + dy, z + dz, 7]);
+    }
+  }
+  for (let dy = 0; dy < 5; dy++) lista.push([x, y + dy, z, 6]);
+  ponerBloques(lista);
+  explosion(new THREE.Vector3(x + 0.5, y + 1, z + 0.5), "#4fa83a", 16);
+}
+function actualizarPoderHUD(dt) {
+  poderT -= dt;
+  if (poderT > 0) return;
+  poderT = 0.1;
+  const P = poderActual();
+  const txt = P && !modo().fantasma ? `${tactil ? "" : "Q · "}${P.act.nombre}${cdPoder > 0 ? ` (${Math.ceil(cdPoder)})` : ""}` : "";
+  if (txt === poderMostrado) return;
+  poderMostrado = txt;
+  $("poder").hidden = !txt;
+  $("poder").textContent = txt;
+  $("poder").classList.toggle("espera", cdPoder > 0);
 }
 
 // ================== Huevo de Gigarex ==================
@@ -1492,7 +1662,7 @@ function invocarCriatura(def) {
 function elegirObjetivo(e) {
   let mejor = null, md = e.equipo === "jefe" ? 50 : 32;
   if (e.equipo === "jefe") {
-    if (!modo().fantasma) { const d = distXZ(e.pos, jugador.pos); if (d < md) { md = d; mejor = jugador; } }
+    if (!modo().fantasma && ilusion <= 0) { const d = distXZ(e.pos, jugador.pos); if (d < md) { md = d; mejor = jugador; } }
     for (const o of entes) if (o.equipo === "aliado") { const d = distXZ(e.pos, o.pos); if (d < md) { md = d; mejor = o; } }
   } else {
     for (const o of entes) if (o.equipo === "jefe") { const d = distXZ(jugador.pos, o.pos); if (d < md) { md = d; mejor = o; } }
@@ -1503,13 +1673,13 @@ function boca(e) {
   const c = centro(e), a = e.grupo.rotation.y, r = radioDe(e) * 0.8;
   return c.add(new THREE.Vector3(Math.sin(a) * r, e.alto * e.escala * 0.25, Math.cos(a) * r));
 }
-function disparar(desde, hacia, tipo, daño, equipo) {
-  const color = COLOR_DISPARO[tipo] || "#ffffff", tam = tipo === "aliento" ? 0.6 : 0.4;
+function disparar(desde, hacia, tipo, daño, equipo, extra = {}) {
+  const color = COLOR_DISPARO[tipo] || "#ffffff", tam = extra.tam || (tipo === "aliento" ? 0.6 : 0.4);
   const m = new THREE.Mesh(geoCaja, matBasico(color));
   m.scale.setScalar(tam); m.position.copy(desde);
   escena.add(m);
-  const vel = hacia.clone().sub(desde).normalize().multiplyScalar(tipo === "laser" ? 24 : 15);
-  proyectiles.push({ m, vel, daño, equipo, tipo, color, vida: 3 });
+  const vel = hacia.clone().sub(desde).normalize().multiplyScalar(extra.vel || (tipo === "laser" ? 24 : 15));
+  proyectiles.push({ m, vel, daño, equipo, tipo, color, vida: 3, lento: extra.lento || 0, rompe: extra.rompe || 0 });
 }
 function dañar(o, n) {
   if (o === jugador) { dañarJugador(n); return; }
@@ -1610,9 +1780,13 @@ function actualizarProyectiles(dt) {
       if (!modo().fantasma && q.distanceTo(centro(jugador)) < 0.9) { dañarJugador(pr.daño); fin = true; }
       else for (const o of entes) if (o.equipo === "aliado" && q.distanceTo(centro(o)) < radioDe(o) + 0.3) { dañar(o, pr.daño * 2); fin = true; break; }
     } else if (!fin) {
-      for (const o of entes) if (o.equipo === "jefe" && q.distanceTo(centro(o)) < radioDe(o) + 0.4) { dañar(o, pr.daño); if (pr.tipo === "telaraña") o.lento = 2.5; fin = true; break; }
+      for (const o of entes) if (o.equipo === "jefe" && q.distanceTo(centro(o)) < radioDe(o) + 0.4) {
+        dañar(o, pr.daño);
+        if (pr.tipo === "telaraña" || pr.lento) o.lento = Math.max(o.lento, pr.lento || 2.5);
+        fin = true; break;
+      }
     }
-    if (fin) { escena.remove(pr.m); explosion(q, pr.color, 5); proyectiles.splice(i, 1); }
+    if (fin) { escena.remove(pr.m); explosion(q, pr.color, 5); if (pr.rompe) estallar(q.clone(), pr.rompe, pr.daño); proyectiles.splice(i, 1); }
   }
 }
 const geoParticula = new THREE.BoxGeometry(0.12, 0.12, 0.12);
@@ -1807,6 +1981,13 @@ function alRecibir(desde, m) {
     if (![x, y, z].every(Number.isInteger) || y < 1 || y >= WY || !(id === 0 || (BLOQUES[id] && id !== 23))) return;
     ponerBloqueEn(x, y, z, id, true);
     if (multi.host) difundir({ t: "bloque", x, y, z, id }, desde);
+    return;
+  }
+  if (m.t === "bloques" && Array.isArray(m.lista)) {
+    const lista = m.lista.slice(0, 600).filter((b) => Array.isArray(b) && b.length === 4 && b.slice(0, 3).every(Number.isInteger) && b[1] >= 1 && b[1] < WY && (b[3] === 0 || (BLOQUES[b[3]] && b[3] !== 23)));
+    if (!lista.length) return;
+    ponerBloques(lista, true);
+    if (multi.host) difundir({ t: "bloques", lista }, desde);
   }
 }
 function etiqueta(texto) {
@@ -1919,6 +2100,7 @@ function actualizarCamara(dt) {
     camara.rotation.set(jugador.pitch, jugador.yaw, 0);
   }
   nacho.g.visible = tercera;
+  nacho.g.scale.setScalar(nacho.escala * (encogido > 0 ? 0.35 : 1));
   nacho.g.position.copy(jugador.pos);
   nacho.g.rotation.y = jugador.yaw + Math.PI;
   const paso = jugador.mov > 0.5 && jugador.enSuelo ? Math.sin(performance.now() / 90) * 0.6 : 0;
@@ -1969,6 +2151,9 @@ function bucle(ahora) {
     actualizarHuevos(dt);
     actualizarProyectiles(dt);
     humo(dt);
+    cdPoder = Math.max(0, cdPoder - dt);
+    ilusion = Math.max(0, ilusion - dt);
+    if (encogido > 0) { encogido -= dt; if (encogido <= 0) avisar("Volviste a tu tamaño."); }
     if (save.gigarex && gigarexEspera > 0) {
       gigarexEspera -= dt;
       if (gigarexEspera <= 0) { spawnGigarex(); avisar("¡Gigarex volvió!"); }
@@ -1981,6 +2166,7 @@ function bucle(ahora) {
   if (multi.peer) actualizarMulti(dt);
   gestionarChunks(2);
   actualizarLugar(dt);
+  actualizarPoderHUD(dt);
   actualizarCielo();
   actualizarCamara(dt);
   actualizarNubes(dt);
@@ -2048,8 +2234,10 @@ function dibujarHUD() {
   dibujarBarra();
   $("mira").hidden = !!M.fantasma;
   $("tb-romper").hidden = $("tb-poner").hidden = !!M.fantasma;
-  $("tb-volar").hidden = !M.vuelo || !!M.fantasma;
+  $("tb-volar").hidden = !puedeVolar() || !!M.fantasma;
   $("tb-bajar").hidden = !jugador.volando;
+  $("tb-poder").hidden = !poderActual() || !!M.fantasma;
+  poderMostrado = "-";
   vestirNacho();
 }
 
@@ -2151,10 +2339,11 @@ function panelTrajes() {
   const enNacho = modo().trajes;
   const lista = enNacho ? TRAJES : TRAJES.filter((t) => t.id === "spiderman" && save.trajes.spiderman);
   const actual = trajeActual();
-  abrirPanel("Trajes", `<p>${enNacho ? "Elegí un personaje. Apretá V para verte desde atrás." : "Los trajes de Marvel están en el modo Nacho. Acá podés usar los que compraste en la tienda."}</p>
+  abrirPanel("Trajes", `<p>${enNacho ? "Elegí un personaje: cada uno tiene sus poderes. Apretá V para verte desde atrás." : "Los trajes de Marvel están en el modo Nacho. Acá podés usar los que compraste en la tienda."}</p>
+    ${actual ? `<p class="nota"><b>${actual.nombre}:</b> ${PODERES[actual.id].desc} Poder especial con ${tactil ? "el botón Poder" : "la tecla Q"}.</p>` : ""}
     <div class="trajes">
-      <button class="traje${actual ? "" : " activo"}" type="button" data-acc="traje:normal"><img src="${CARA}" alt=""><span>Nacho</span></button>
-      ${lista.map((t) => `<button class="traje${actual === t ? " activo" : ""}" type="button" data-acc="traje:${t.id}"><img src="${iconoTraje(t)}" alt=""><span>${t.nombre}</span></button>`).join("")}
+      <button class="traje${actual ? "" : " activo"}" type="button" data-acc="traje:normal"><img src="${CARA}" alt=""><span>Nacho</span><small>Sin poderes</small></button>
+      ${lista.map((t) => `<button class="traje${actual === t ? " activo" : ""}" type="button" data-acc="traje:${t.id}"><img src="${iconoTraje(t)}" alt=""><span>${t.nombre}</span><small>${PODERES[t.id].act.nombre}</small></button>`).join("")}
     </div>
     ${!enNacho && !save.trajes.spiderman ? '<p class="nota">El traje de Spider-Man está en la tienda.</p>' : ""}`);
 }
@@ -2163,7 +2352,9 @@ function ponerTraje(id) {
   marcar();
   construirNacho();
   const t = trajeActual();
-  avisar(t ? `Ahora sos ${t.nombre}` : "Volviste a ser Nacho", 1800);
+  cdPoder = 0; encogido = 0; ilusion = 0;
+  if (!puedeVolar() && !modo().fantasma) jugador.volando = false;
+  avisar(t ? `Ahora sos ${t.nombre}. ${PODERES[t.id].desc}` : "Volviste a ser Nacho", 3500);
 }
 function panelBloques() {
   if (ranuraEdit > 8) ranuraEdit = 0;
@@ -2297,14 +2488,16 @@ function panelAyuda() {
       <li><kbd>Clic izquierdo</kbd> romper bloques o pegarle a un jefe</li>
       <li><kbd>Clic derecho</kbd> poner un bloque o plantar el huevo</li>
       <li><kbd>1</kbd> a <kbd>0</kbd> o la ruedita: elegir bloque · <kbd>E</kbd> cambiar qué bloques tenés en la barra</li>
-      <li><kbd>T</kbd> tienda · <kbd>J</kbd> jefes · <kbd>K</kbd> trajes · <kbd>V</kbd> verte desde atrás · <kbd>Enter</kbd> chat · <kbd>Esc</kbd> pausa</li>
+      <li><kbd>T</kbd> tienda · <kbd>J</kbd> jefes · <kbd>K</kbd> trajes · <kbd>Q</kbd> poder del traje · <kbd>V</kbd> verte desde atrás · <kbd>Enter</kbd> chat · <kbd>Esc</kbd> pausa</li>
     </ul>
     <h3>En el celu o la tablet</h3>
     <p>Arrastrá el dedo en la mitad izquierda para caminar y en la derecha para mirar. Usá los botones para saltar, romper, poner y volar.</p>
     <h3>Cómo se gana</h3>
     <p>Comprá el huevo de Gigarex, plantalo y esperá que nazca. Después invocá a los jefes uno por uno: Gorilón, Pirodón, Lumira, Mecharex y Trihidra, el jefe final. Cada jefe que derrotás te da monedas y hace crecer a Gigarex.</p>
     <h3>Lugares para visitar</h3>
-    <p>Al lado del inicio hay un portal violeta: entrá y elegí a dónde viajar. Hay una ciudad y una central nuclear cerca del inicio, y un mapa gigante del mundo con todos los países, Tokio y el Monte Fuji. El mundo no se termina nunca.</p>
+    <p>Apenas empezás tenés enfrente un portal violeta: entrá y elegí a dónde viajar. Hay una ciudad y una central nuclear cerca del inicio, y un mapa gigante del mundo con todos los países, Tokio y el Monte Fuji. El mundo no se termina nunca.</p>
+    <h3>Poderes de los trajes</h3>
+    <p>Cada traje tiene poderes: Spider-Man trepa paredes y tira telarañas, Hulk rompe todo de un golpe y aplasta el piso, Iron Man vuela y tira rayos, y así cada uno. El poder especial se usa con la tecla <kbd>Q</kbd> (o el botón Poder en el celu).</p>
     <h3>Jugar con amigos</h3>
     <p>Con el botón Amigos creás una sala y le pasás el código a tus amigos. Se ven, construyen juntos y chatean con <kbd>Enter</kbd>.</p>
     <h3>Modos</h3>
@@ -2331,7 +2524,7 @@ function copiarReporte() {
 }
 function cambiarModo(k) {
   save.modo = k;
-  if (!MODOS[k].vuelo) jugador.volando = false;
+  if (!puedeVolar()) jugador.volando = false;
   if (MODOS[k].fantasma) jugador.volando = true;
   if (MODOS[k].daño) jugador.vida = Math.max(jugador.vida, 1);
   marcar();
@@ -2376,7 +2569,7 @@ const ACCIONES = {
   criatura: (i) => { if (invocarCriatura(save.criaturas[+i])) cerrarPanel(true); },
   borrar: (i) => { save.criaturas.splice(+i, 1); marcar(); $("panel-titulo").textContent.startsWith("Taller") ? panelTaller() : panelJefes(); },
   revivir: () => {
-    jugador.vida = jugador.max; jugador.pos.set(inicio.x, inicio.y, inicio.z); jugador.vel.set(0, 0, 0);
+    jugador.vida = jugador.max; jugador.pos.set(inicio.x, inicio.y, inicio.z); jugador.vel.set(0, 0, 0); jugador.yaw = Math.PI;
     entes.filter((e) => e.equipo === "jefe").forEach(quitarEnte);
     proyectiles.splice(0).forEach((p) => escena.remove(p.m));
     dibujarCorazones(); cerrarPanel(true);
@@ -2496,13 +2689,14 @@ addEventListener("keydown", (e) => {
   if (k === "Space") {
     e.preventDefault();
     const ahora = performance.now();
-    if (!e.repeat && modo().vuelo && !modo().fantasma && ahora - ultimoEspacio < 300) alternarVuelo();
+    if (!e.repeat && puedeVolar() && !modo().fantasma && ahora - ultimoEspacio < 300) alternarVuelo();
     if (!e.repeat) ultimoEspacio = ahora;
   }
   if (/^Digit\d$/.test(k)) { const n = +k.slice(5); elegirRanura(n === 0 ? 9 : n - 1); }
   if (k === "KeyT") panelTienda();
   if (k === "KeyJ") panelJefes();
   if (k === "KeyK") panelTrajes();
+  if (k === "KeyQ") usarPoder();
   if (k === "KeyE") { ranuraEdit = ranura < 9 ? ranura : 0; panelBloques(); }
   if (k === "KeyF") alternarVuelo();
   if (k === "KeyV" || k === "F5") { e.preventDefault(); vista3 = !vista3; }
@@ -2552,6 +2746,7 @@ botonTactil("tb-saltar", () => { teclas.Space = true; }, () => { teclas.Space = 
 botonTactil("tb-bajar", () => { teclas.ShiftLeft = true; }, () => { teclas.ShiftLeft = false; });
 botonTactil("tb-volar", alternarVuelo);
 botonTactil("tb-vista", () => { vista3 = !vista3; });
+botonTactil("tb-poder", usarPoder);
 
 addEventListener("resize", () => {
   renderer.setSize(innerWidth, innerHeight);
@@ -2598,6 +2793,7 @@ function empezar() {
     jugador.vida = jugador.max;
     jugador.volando = !!modo().fantasma;
     jugador.enPortal = false;
+    jugador.yaw = Math.PI; jugador.pitch = -0.15;   // mirando al portal
     centroChunks = null;
     gestionarChunks(25);
     construirNacho();
@@ -2613,9 +2809,9 @@ function empezar() {
       save.nuevo = false;
       avisar("¡Bienvenido a Dragon Nacho! Te regalamos 1000 monedas.", 5000);
       avisar(tactil ? "Tocá Tienda para comprar el huevo de Gigarex." : "Apretá T para la tienda y J para los jefes.", 5000);
-      avisar("Entrá al portal violeta para viajar por el mundo.", 5000);
       marcar(); guardar();
     }
+    avisar("Tenés el portal enfrente: entrá para viajar por el mundo.", 5000);
     if (!tactil) bloquear();
   }, 30);
 }
