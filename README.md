@@ -13,10 +13,10 @@ Juegos buenos para el celu y la compu, gratis y pagos. Ponés tu edad (de 3 a 10
 
 Mundo de bloques infinito en 3D (three.js) que se juega en el navegador: criás a tu kaiju Gigarex, derrotás jefes gigantes y ganás monedas.
 
-- Modos supervivencia, creativo y observador para todos; Admin, Creador y Nacho solo para el creador (con contraseña).
+- Modos supervivencia, creativo, observador, zombies (el mundo se vuelve apocalíptico y aparecen zombies) y transformación (te convertís en los monstruos del juego) para todos; Admin, Creador y Nacho solo para el creador, y Nacho&Fede con su propia contraseña.
 - Ciudad y central nuclear cerca del inicio, y un mapa del mundo con los 242 países (datos de [Natural Earth](https://www.naturalearthdata.com/), dominio público), Tokio y el Monte Fuji. Un portal lleva a cualquier país.
 - Jugar con amigos: salas con código, chat y construcción compartida, con [PeerJS](https://peerjs.com/) (conexión directa entre navegadores).
-- Los jefes y aliados son originales; los trajes de Marvel del modo Nacho son de fans y sin fines comerciales.
+- Los jefes y aliados son originales; los personajes de Marvel, Sonic y Mario Bros de los modos Nacho y Nacho&Fede son de fans y sin fines comerciales.
 
 Todo está en `juego/index.html`. Para el Discord de reportes, completá `DISCORD_URL` al principio del script.
 

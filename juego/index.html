@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dragon Nacho</title>
-<meta name="description" content="El juego de Nacho: un mundo de bloques infinito en 3D con ciudad, central nuclear, Tokio y todos los países. Criá a tu kaiju, derrotá jefes y jugá con amigos. Gratis.">
+<meta name="description" content="El juego de Nacho: un mundo de bloques infinito en 3D con ciudad, central nuclear, Tokio y todos los países. Criá a tu kaiju, derrotá jefes, sobreviví a los zombies y jugá con amigos. Gratis.">
 <meta property="og:title" content="Dragon Nacho">
 <meta property="og:description" content="El juego de Nacho: construí, criá tu kaiju, viajá por todos los países y jugá con amigos. Gratis, en el navegador.">
 <meta property="og:image" content="https://ferf8.github.io/nachojuegos/juego/portada.jpg">
@@ -213,7 +213,7 @@
     <p><span class="moneda"></span> Tenés <b id="p-monedas">1000</b> monedas</p>
     <fieldset class="modos" id="modos"><legend>Modo de juego</legend></fieldset>
     <div id="clave-zona" class="clave" hidden>
-      <label for="clave">Contraseña del creador</label>
+      <label for="clave" id="clave-titulo">Contraseña del creador</label>
       <input id="clave" type="password" inputmode="numeric" autocomplete="off" maxlength="12">
       <p id="clave-error" class="error" aria-live="polite"></p>
     </div>
@@ -276,10 +276,11 @@
 // ================== Configuración ==================
 // Cuando exista el servidor de Discord, pegá acá el link de invitación (por ejemplo "https://discord.gg/abc123")
 const DISCORD_URL = "";
-// Contraseña de los modos del creador (Admin, Creador y Nacho).
-// Ojo: queda a la vista en el código de la página. Es un candado para chicos, no una seguridad real.
-const CLAVE_CREADOR = "999";
-const VERSION = "1.4";
+// Contraseñas de los modos con candado.
+// Ojo: quedan a la vista en el código de la página. Son candados para chicos, no una seguridad real.
+const CLAVE_CREADOR = "999";      // Admin, Creador y Nacho
+const CLAVE_NACHO_FEDE = "1000";  // Nacho&Fede
+const VERSION = "1.5";
 const CARA = "data:image/png;base64,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";
 // Para jugar con amigos se usa PeerJS (conexión directa entre navegadores con un servicio público gratuito)
 const PEERJS_URL = "https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js";
@@ -301,20 +302,26 @@ function rng(s) {
 function lerpAngulo(a, b, t) { const d = ((((b - a) % (2 * Math.PI)) + 3 * Math.PI) % (2 * Math.PI)) - Math.PI; return a + d * t; }
 
 // ================== Modos y partida guardada ==================
-// Admin, Creador y Nacho son solo para el creador (piden contraseña). La tienda es gratis solo en el modo Nacho.
+// Los modos con "clave" piden contraseña: Admin, Creador y Nacho la del creador, y Nacho&Fede la suya.
+// "trajes" dice qué personajes se pueden usar en ese modo. La tienda es gratis en Nacho y Nacho&Fede.
 const MODOS = {
   supervivencia: { nombre: "Supervivencia", desc: "Tenés vida, juntás bloques y comprás con monedas.", daño: true },
   creativo: { nombre: "Creativo", desc: "Bloques infinitos, volás y nadie te puede lastimar.", vuelo: true, infinito: true },
   observador: { nombre: "Observador", desc: "Volás atravesando todo para mirar. No tocás nada.", vuelo: true, infinito: true, fantasma: true },
-  admin: { nombre: "Admin", desc: "Panel para agregar monedas y bloques, invocar jefes y teletransportarte a donde quieras.", vuelo: true, infinito: true, panel: true, soloCreador: true },
-  creador: { nombre: "Creador", desc: "Volás, caminás sobre el agua, picás cualquier bloque en 1 segundo e inventás criaturas.", vuelo: true, infinito: true, taller: true, caminaAgua: true, picar: 1, rompeTodo: true, soloCreador: true },
-  nacho: { nombre: "Nacho", desc: "Todos los poderes del creador, todo gratis y los trajes de héroes: Marvel y Sonic.", vuelo: true, infinito: true, gratis: true, panel: true, taller: true, trajes: true, caminaAgua: true, rompeTodo: true, soloCreador: true }
+  zombies: { nombre: "Zombies", desc: "El mundo se llenó de zombies: cielo verde, pasto seco, tumbas y zombies por todos lados, más de noche. Sobreviví, armá un refugio y ganá monedas por cada zombie.", daño: true, zombies: true },
+  transformacion: { nombre: "Transformación", desc: "Convertite en los monstruos del juego (Gorilón, Pirodón, Lumira, Mecharex, Trihidra, Gigarex, un zombie o Arácnix), cada uno con sus poderes.", daño: true, trajes: (t) => t.grupo === "monstruo" },
+  admin: { nombre: "Admin", desc: "Panel para agregar monedas y bloques, invocar jefes y teletransportarte a donde quieras.", vuelo: true, infinito: true, panel: true, clave: CLAVE_CREADOR, candado: "solo el creador" },
+  creador: { nombre: "Creador", desc: "Volás, caminás sobre el agua, picás cualquier bloque en 1 segundo e inventás criaturas.", vuelo: true, infinito: true, taller: true, caminaAgua: true, picar: 1, rompeTodo: true, clave: CLAVE_CREADOR, candado: "solo el creador" },
+  nacho: { nombre: "Nacho", desc: "Todos los poderes del creador, todo gratis y los trajes de héroes: Marvel y Sonic.", vuelo: true, infinito: true, gratis: true, panel: true, taller: true, trajes: (t) => t.grupo === "marvel" || t.id === "sonic", caminaAgua: true, rompeTodo: true, clave: CLAVE_CREADOR, candado: "solo el creador" },
+  nachofede: { nombre: "Nacho&Fede", desc: "El perfil de Nacho y Fede: todos los poderes del creador, todo gratis y todos los personajes de Marvel, Sonic y Mario Bros.", vuelo: true, infinito: true, gratis: true, panel: true, taller: true, trajes: (t) => t.grupo !== "monstruo", caminaAgua: true, rompeTodo: true, clave: CLAVE_NACHO_FEDE, candado: "Nacho y Fede" }
 };
 const modo = () => MODOS[save.modo] || MODOS.supervivencia;
+// Las contraseñas que ya se escribieron bien en esta visita
+const clavesOk = new Set();
+const bloqueado = (k) => !!(MODOS[k] && MODOS[k].clave && !clavesOk.has(MODOS[k].clave));
 const CLAVE = "dragonnacho:v1";
 const demo = location.hash === "#demo";
 const RANURAS_INICIALES = [1, 2, 3, 4, 8, 9, 10, 12, 14, "huevo"];
-let creadorOk = false;
 function saveNuevo() {
   return {
     monedas: 1000, modo: "supervivencia", inv: { 1: 16, 2: 16, 3: 16, 8: 16, 9: 8 }, huevos: 0, espada: false, armadura: false,
@@ -358,10 +365,14 @@ const BLOQUES = {
   20: { nombre: "Calle con línea", tex: [22, 16, 16], color: "#3a3d44" },
   21: { nombre: "Ventana", tex: [23, 23, 23], color: "#2d5f8a" },
   22: { nombre: "Obsidiana", tex: [24, 24, 24], color: "#2a1838" },
-  23: { nombre: "Portal", tex: [25, 25, 25], color: "#b04cff", recorte: true, irrompible: true }
+  23: { nombre: "Portal", tex: [25, 25, 25], color: "#b04cff", recorte: true, irrompible: true },
+  // 24 a 31 son el agua que corre (más abajo). Estos tres aparecen en el mundo del modo Zombies.
+  32: { nombre: "Pasto seco", tex: [26, 27, 2], color: "#7d7444" },
+  33: { nombre: "Lápida", tex: [3, 28, 3], color: "#8a8d90" },
+  34: { nombre: "Hojas secas", tex: [29, 29, 29], color: "#6b5a3a", recorte: true }
 };
-const PONIBLES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22];
-const DUREZA = { 1: 0.5, 2: 0.45, 3: 1.1, 4: 0.4, 6: 0.8, 7: 0.2, 8: 0.7, 9: 0.3, 10: 1.1, 11: 1.4, 12: 1.6, 14: 1.6, 15: 1, 16: 1.2, 17: 0.3, 18: 0.2, 19: 1, 20: 1, 21: 0.4, 22: 3 };
+const PONIBLES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 32, 33, 34];
+const DUREZA = { 1: 0.5, 2: 0.45, 3: 1.1, 4: 0.4, 6: 0.8, 7: 0.2, 8: 0.7, 9: 0.3, 10: 1.1, 11: 1.4, 12: 1.6, 14: 1.6, 15: 1, 16: 1.2, 17: 0.3, 18: 0.2, 19: 1, 20: 1, 21: 0.4, 22: 3, 32: 0.5, 33: 1.1, 34: 0.2 };
 // Agua: 5 es agua quieta (fuente); 24 a 30 es agua que corre a 1..7 bloques de la fuente; 31 es agua cayendo
 const FLUJO = 24, CAE = 31;
 for (let id = FLUJO; id <= CAE; id++) BLOQUES[id] = { nombre: "Agua", tex: [5, 5, 5], color: "#2f6fd6", agua: true };
@@ -407,7 +418,12 @@ const PINTORES = [
   (x, y, r) => (x === 7 || x === 8) && y % 8 < 5 ? "#e8c23a" : asfalto(x, y, r),
   (x, y, r) => (x === 0 || y === 0 || x === 15 || y === 15) ? hsl(40, 6, 70) : (x - y === 5 || x - y === 6) && x < 12 ? hsl(200, 60, 70) : hsl(205, 55, 32 + (r() - 0.5) * 6),
   (x, y, r) => r() < 0.08 ? hsl(285, 60, 40) : hsl(272, 45, 12 + (r() - 0.5) * 8),
-  (x, y, r) => r() < 0.22 ? null : hsl(285, 90, 45 + 15 * Math.sin((x + y) / 2) + (r() - 0.5) * 10)
+  (x, y, r) => r() < 0.22 ? null : hsl(285, 90, 45 + 15 * Math.sin((x + y) / 2) + (r() - 0.5) * 10),
+  // Modo Zombies: pasto seco (arriba y costado), lápida con una cruz y hojas secas
+  (x, y, r) => r() < 0.1 ? hsl(30, 35, 30) : hsl(52, 28, 38 + (r() - 0.5) * 12),
+  (x, y, r) => (y < 3 || (y === 3 && r() < 0.5)) ? hsl(52, 28, 38 + (r() - 0.5) * 12) : tierra(x, y, r),
+  (x, y, r) => (x === 0 || y === 0 || x === 15 || y === 15) ? hsl(220, 4, 34) : ((x === 7 || x === 8) && y >= 3 && y <= 12) || ((y === 5 || y === 6) && x >= 4 && x <= 11) ? hsl(220, 6, 30) : hsl(220, 5, 58 + (r() - 0.5) * 10),
+  (x, y, r) => r() < 0.38 ? null : hsl(30, 38, 30 + (r() - 0.5) * 16)
 ];
 PINTORES.forEach((pintar, i) => {
   const r = rng(i * 977 + 13), x0 = (i % COLS) * TILE, y0 = Math.floor(i / COLS) * TILE;
@@ -448,6 +464,7 @@ const CH = 16, WY = 48, NIVEL_MAR = 12, CENTRO = 48;
 const RADIO = tactil ? 3 : 5;   // cuántos chunks se ven alrededor del jugador
 const escena = new THREE.Scene();
 const CIELO_DIA = new THREE.Color("#8ec9ff"), CIELO_NOCHE = new THREE.Color("#0a0d24");
+const CIELO_ZOMBIE_DIA = new THREE.Color("#8a9a6e"), CIELO_ZOMBIE_NOCHE = new THREE.Color("#0b120a");
 escena.background = CIELO_DIA.clone();
 escena.fog = new THREE.Fog(CIELO_DIA.clone(), RADIO * CH * 0.45, RADIO * CH - 4);
 const camara = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.08, 400);
@@ -647,6 +664,9 @@ const claveChunk = (cx, cz) => cx + "," + cz;
 const li = (lx, y, lz) => (y * CH + lz) * CH + lx;
 let inicio = { x: CENTRO + 0.5, y: 20, z: CENTRO + 0.5 };
 let mundoListo = false, cacheCx = NaN, cacheCz = NaN, cacheD = null, mundoInvitado = null;
+// En el modo Zombies el mismo mundo se ve apocalíptico (pasto seco, árboles pelados, tumbas, ventanas rotas).
+// Lo que construiste se guarda igual, así que al cambiar de modo solo hay que volver a generar los chunks.
+let mundoZombie = false;
 const semillaMundo = () => (mundoInvitado || save).semilla;
 const cambiosMundo = () => (mundoInvitado || save).cambios;
 
@@ -724,6 +744,19 @@ function generarChunk(cx, cz) {
     const xa = Math.max(E.x0, x0), xb = Math.min(E.x1, x0 + CH), za = Math.max(E.z0, z0), zb = Math.min(E.z1, z0 + CH);
     for (let z = za; z < zb; z++) for (let x = xa; x < xb; x++) {
       E.columna(x, z, (y, id) => { if (y >= 0 && y < WY) d[li(x - x0, y, z - z0)] = id; });
+    }
+  }
+  if (mundoZombie) {
+    const sc = cx * 7919 + cz * 31;
+    for (let i = 0; i < d.length; i++) {
+      const id = d[i];
+      if (id === 1) d[i] = 32;
+      else if (id === 7 || id === 18) d[i] = hash2(i, sc, s + 41) < 0.45 ? 34 : 0;
+      else if (id === 21 && hash2(i, sc, s + 43) < 0.3) d[i] = 0;
+    }
+    for (let lz = 0; lz < CH; lz++) for (let lx = 0; lx < CH; lx++) {   // tumbas sueltas por el campo
+      const x = x0 + lx, z = z0 + lz, h = H[(lz + 2) * A + lx + 2];
+      if (h + 1 < WY && hash2(x, z, s + 333) < 0.006 && d[li(lx, h, lz)] === 32 && d[li(lx, h + 1, lz)] === 0 && !cercaDeEstructura(x, z, 2)) d[li(lx, h + 1, lz)] = 33;
     }
   }
   (cambiosPorChunk.get(claveChunk(cx, cz)) || []).forEach(([x, y, z, id]) => { d[li(x - x0, y, z - z0)] = id; });
@@ -834,6 +867,15 @@ function recargarMundo() {
   aguaPendiente.clear();
   indexarCambios();
   inicio.y = alturaSuelo(inicio.x, inicio.z);
+}
+// Si cambió el modo Zombies, el mundo se rehace con el otro aspecto
+function sincronizarMundo() {
+  const z = !!modo().zombies;
+  if (z === mundoZombie) return;
+  mundoZombie = z;
+  if (!mundoListo) return;
+  recargarMundo();
+  if (jugando) gestionarChunks(25);
 }
 // Cambia varios bloques de una vez y rehace cada chunk tocado una sola vez (para explosiones, árboles, etc.)
 function ponerBloques(lista, remoto) {
@@ -1086,10 +1128,10 @@ function construirModelo(tipo, c) {
   return modeloLagarto(c);
 }
 
-// ================== Trajes de Marvel (modo Nacho) ==================
+// ================== Personajes: Marvel, Sonic, Mario Bros y monstruos ==================
 // cara y pecho son dibujos de 16×16 para el frente de la cabeza y del torso
 const PIEL = "#e0ac7e";
-const TRAJES = [
+const TRAJES_MARVEL = [
   { id: "ironman", nombre: "Iron Man", cabeza: "#b11e1e", cara: [["#e8b923", [3, 4, 10, 10]], ["#bff6ff", [4, 7, 3, 1], [9, 7, 3, 1]], ["#8a6a10", [6, 12, 4, 1]]], torso: "#b11e1e", pecho: [["#e8b923", [0, 10, 16, 2]], ["#bff6ff", [6, 3, 4, 4]]], brazos: "#b11e1e", manos: "#e8b923", piernas: "#b11e1e", extras: { reactor: true } },
   { id: "capitan", nombre: "Capitán América", cabeza: "#1f3f8f", cara: [[PIEL, [2, 8, 12, 8]], ["#ffffff", [7, 2, 2, 4], [6, 4, 4, 1]], ["#2a1a10", [4, 9, 2, 1], [10, 9, 2, 1]], ["#a0603a", [6, 13, 4, 1]]], torso: "#1f3f8f", pecho: [["#ffffff", [7, 2, 2, 6], [5, 4, 6, 2], [0, 11, 16, 1], [0, 13, 16, 1]], ["#b11e1e", [0, 10, 16, 1], [0, 12, 16, 1], [0, 14, 16, 1]]], brazos: "#1f3f8f", manos: "#b11e1e", piernas: "#1a2f6b", extras: { escudo: true } },
   { id: "thor", nombre: "Thor", cabeza: "#e8c26a", cara: [[PIEL, [3, 4, 10, 8]], ["#c9a24a", [3, 11, 10, 5]], ["#3a7bd5", [5, 7, 2, 1], [9, 7, 2, 1]], ["#7a4a2a", [6, 13, 4, 1]]], torso: "#3a3f4a", pecho: [["#c0c6d0", [3, 3, 3, 3], [10, 3, 3, 3], [3, 9, 3, 3], [10, 9, 3, 3]]], brazos: "#3a3f4a", manos: PIEL, piernas: "#2a2d35", extras: { capa: "#a3161a", martillo: true } },
@@ -1112,9 +1154,72 @@ const TRAJES = [
   { id: "loki", nombre: "Loki", cabeza: "#15151a", cara: [["#efd2b0", [4, 4, 8, 10]], ["#2a6b3a", [5, 7, 2, 1], [9, 7, 2, 1]], ["#a07060", [6, 11, 4, 1]], ["#15151a", [2, 4, 2, 12], [12, 4, 2, 12]], ["#e8b923", [3, 1, 10, 2]]], torso: "#1f5a2a", pecho: [["#e8b923", [2, 0, 3, 5], [11, 0, 3, 5]], ["#15151a", [6, 0, 4, 16]]], brazos: "#15151a", manos: "#1f5a2a", piernas: "#15151a", extras: { capa: "#1f5a2a", cuernos: "#e8b923" } },
   { id: "thanos", nombre: "Thanos", cabeza: "#7a5aa0", cara: [["#5a3a80", [4, 9, 1, 4], [11, 9, 1, 4], [6, 13, 1, 3], [9, 13, 1, 3]], ["#38ccff", [4, 6, 2, 1], [10, 6, 2, 1]], ["#4a2a60", [5, 11, 6, 1]]], torso: "#c99a2a", pecho: [["#1f3f8f", [0, 9, 16, 7]], ["#e8c24a", [3, 1, 10, 6]]], brazos: "#7a5aa0", manos: "#e8b923", piernas: "#1f3f8f", escala: 1.3, extras: { guantelete: true } },
   { id: "deadpool", nombre: "Deadpool", cabeza: "#b11e1e", cara: [["#000000", [2, 4, 5, 5], [9, 4, 5, 5]], ["#ffffff", [3, 6, 3, 2], [10, 6, 3, 2]]], torso: "#b11e1e", pecho: [["#1a1a1a", [0, 0, 3, 16], [13, 0, 3, 16], [0, 10, 16, 2]]], brazos: "#b11e1e", manos: "#1a1a1a", piernas: "#b11e1e", extras: { espadas: true } },
-  { id: "wolverine", nombre: "Wolverine", cabeza: "#f2c230", cara: [["#1a1a1a", [1, 0, 4, 6], [11, 0, 4, 6]], [PIEL, [3, 9, 10, 7]], ["#ffffff", [4, 6, 3, 2], [9, 6, 3, 2]], ["#3a2a20", [3, 13, 2, 3], [11, 13, 2, 3]], ["#7a4a2a", [6, 13, 4, 1]]], torso: "#f2c230", pecho: [["#1d3f9e", [0, 0, 4, 16], [12, 0, 4, 16]], ["#1a1a1a", [5, 0, 1, 7], [10, 0, 1, 7]], ["#c8102e", [0, 11, 16, 2]]], brazos: "#1d3f9e", manos: PIEL, piernas: "#1d3f9e", extras: { garras: true } },
-  { id: "sonic", nombre: "Sonic", cabeza: "#1f4fd8", cara: [["#f2c79a", [3, 9, 10, 7]], ["#ffffff", [3, 3, 4, 6], [9, 3, 4, 6]], ["#2fa84f", [5, 5, 2, 3], [9, 5, 2, 3]], ["#000000", [6, 6, 1, 2], [9, 6, 1, 2]], ["#111111", [7, 10, 2, 1]], ["#7a3a2a", [6, 13, 4, 1]]], torso: "#1f4fd8", pecho: [["#f2c79a", [4, 5, 8, 9]]], brazos: "#f2c79a", manos: "#ffffff", piernas: "#1f4fd8", escala: 0.9, extras: { puas: "#1f4fd8", zapatillas: true } }
+  { id: "wolverine", nombre: "Wolverine", cabeza: "#f2c230", cara: [["#1a1a1a", [1, 0, 4, 6], [11, 0, 4, 6]], [PIEL, [3, 9, 10, 7]], ["#ffffff", [4, 6, 3, 2], [9, 6, 3, 2]], ["#3a2a20", [3, 13, 2, 3], [11, 13, 2, 3]], ["#7a4a2a", [6, 13, 4, 1]]], torso: "#f2c230", pecho: [["#1d3f9e", [0, 0, 4, 16], [12, 0, 4, 16]], ["#1a1a1a", [5, 0, 1, 7], [10, 0, 1, 7]], ["#c8102e", [0, 11, 16, 2]]], brazos: "#1d3f9e", manos: PIEL, piernas: "#1d3f9e", extras: { garras: true } }
 ];
+// Cara de los personajes de Sonic: hocico, ojos grandes, nariz y boca (más detalles opcionales)
+const caraErizo = (hocico, iris, ...mas) => [[hocico, [3, 9, 10, 7]], ["#ffffff", [3, 3, 4, 6], [9, 3, 4, 6]], [iris, [5, 5, 2, 3], [9, 5, 2, 3]], ["#000000", [6, 6, 1, 2], [9, 6, 1, 2]], ["#111111", [7, 10, 2, 1]], ["#7a3a2a", [6, 13, 4, 1]], ...mas];
+const TRAJES_SONIC = [
+  { id: "sonic", nombre: "Sonic", cabeza: "#1f4fd8", cara: caraErizo("#f2c79a", "#2fa84f"), torso: "#1f4fd8", pecho: [["#f2c79a", [4, 5, 8, 9]]], brazos: "#f2c79a", manos: "#ffffff", piernas: "#1f4fd8", escala: 0.9, extras: { puas: "#1f4fd8", zapatillas: true } },
+  { id: "tails", nombre: "Tails", cabeza: "#f0a030", cara: caraErizo("#ffffff", "#3a7bd5"), torso: "#f0a030", pecho: [["#ffffff", [4, 1, 8, 7]]], brazos: "#f0a030", manos: "#ffffff", piernas: "#f0a030", escala: 0.78, extras: { orejas: "#f0a030", colas: "#f0a030", zapatillas: true } },
+  { id: "knuckles", nombre: "Knuckles", cabeza: "#d8261c", cara: caraErizo("#f2c79a", "#8a2fa8"), torso: "#d8261c", pecho: [["#ffffff", [5, 2, 6, 3]]], brazos: "#d8261c", manos: "#ffffff", piernas: "#d8261c", escala: 0.95, extras: { puas: "#d8261c", zapatos: "#2fa84f" } },
+  { id: "amy", nombre: "Amy", cabeza: "#ff8fc0", cara: caraErizo("#f2c79a", "#2fa84f", ["#d8261c", [2, 1, 12, 1]]), torso: "#d8261c", pecho: [["#ffffff", [6, 0, 4, 3]]], brazos: "#f2c79a", manos: "#ffffff", piernas: "#ff8fc0", escala: 0.85, extras: { puas: "#ff8fc0", vestido: "#d8261c", zapatos: "#d8261c", mazo: true } },
+  { id: "shadow", nombre: "Shadow", cabeza: "#1a1a1a", cara: caraErizo("#f2c79a", "#d8261c", ["#d8261c", [0, 2, 2, 3], [14, 2, 2, 3]]), torso: "#1a1a1a", pecho: [["#ffffff", [5, 0, 6, 4]]], brazos: "#1a1a1a", manos: "#ffffff", piernas: "#1a1a1a", escala: 0.9, extras: { puas: "#1a1a1a", zapatillas: true } },
+  { id: "silver", nombre: "Silver", cabeza: "#d8dde8", cara: caraErizo("#eef1f6", "#e8c030"), torso: "#d8dde8", pecho: [["#ffffff", [4, 0, 8, 6]], ["#4dfff0", [0, 9, 16, 1]]], brazos: "#d8dde8", manos: "#ffffff", piernas: "#d8dde8", escala: 0.9, extras: { puas: "#d8dde8", zapatos: "#4dfff0" } },
+  { id: "rouge", nombre: "Rouge", cabeza: "#ffffff", cara: [["#f2c79a", [3, 7, 10, 9]], ["#5a6ac8", [3, 3, 4, 1], [9, 3, 4, 1]], ["#ffffff", [3, 4, 4, 4], [9, 4, 4, 4]], ["#2fa8a0", [5, 5, 2, 2], [9, 5, 2, 2]], ["#111111", [7, 10, 2, 1]], ["#d8508a", [6, 13, 4, 1]]], torso: "#1a1a1a", pecho: [["#ff8fc0", [4, 1, 8, 5], [6, 6, 4, 2]]], brazos: "#f2c79a", manos: "#ffffff", piernas: "#1a1a1a", escala: 0.88, extras: { orejas: "#ffffff", alas: "#2a2a3a", zapatos: "#ff8fc0" } },
+  { id: "cream", nombre: "Cream", cabeza: "#f2d8a8", cara: caraErizo("#ffffff", "#7a3a2a"), torso: "#ff7a2a", pecho: [["#1f4fd8", [6, 0, 4, 3]]], brazos: "#f2d8a8", manos: "#ffffff", piernas: "#f2d8a8", escala: 0.7, extras: { orejas: "#f2d8a8", vestido: "#ff7a2a", zapatos: "#ffd23f" } },
+  { id: "blaze", nombre: "Blaze", cabeza: "#8a5ac8", cara: caraErizo("#f2e0c0", "#ffd23f", ["#d8261c", [7, 0, 2, 2]]), torso: "#8a5ac8", pecho: [["#ff6fae", [6, 3, 4, 13]], ["#ffffff", [5, 0, 6, 2]]], brazos: "#8a5ac8", manos: "#ffffff", piernas: "#ffffff", escala: 0.9, extras: { orejas: "#8a5ac8", zapatos: "#ff6fae" } },
+  { id: "big", nombre: "Big", cabeza: "#7a5ab0", cara: caraErizo("#f2e0c0", "#ffd23f"), torso: "#7a5ab0", pecho: [["#f2e0c0", [3, 4, 10, 12]]], brazos: "#7a5ab0", manos: "#ffffff", piernas: "#7a5ab0", escala: 1.4, extras: { orejas: "#7a5ab0" } },
+  { id: "espio", nombre: "Espio", cabeza: "#8a3ab0", cara: caraErizo("#e8c0a0", "#ffd23f", ["#ffd23f", [7, 0, 2, 2]]), torso: "#8a3ab0", pecho: [["#e8c0a0", [4, 3, 8, 8]]], brazos: "#8a3ab0", manos: "#ffffff", piernas: "#8a3ab0", escala: 0.9, extras: { puas: "#8a3ab0" } },
+  { id: "vector", nombre: "Vector", cabeza: "#3cb043", cara: [["#f2d080", [2, 8, 12, 8]], ["#ffffff", [3, 2, 4, 4], [9, 2, 4, 4], [3, 9, 10, 1]], ["#d8261c", [5, 3, 2, 2], [9, 3, 2, 2]], ["#111111", [6, 7, 1, 1], [9, 7, 1, 1]]], torso: "#3cb043", pecho: [["#f2d080", [3, 4, 10, 12]], ["#ffd23f", [3, 1, 10, 1]]], brazos: "#3cb043", manos: "#ffffff", piernas: "#3cb043", escala: 1.25 },
+  { id: "charmy", nombre: "Charmy", cabeza: "#1a1a1a", cara: caraErizo("#f2c79a", "#7a3a2a"), torso: "#ffd23f", pecho: [["#1a1a1a", [0, 4, 16, 2], [0, 9, 16, 2]]], brazos: "#1a1a1a", manos: "#ffffff", piernas: "#1a1a1a", escala: 0.65, extras: { orejas: "#1a1a1a", alas: "#d8f0ff" } },
+  { id: "metalsonic", nombre: "Metal Sonic", cabeza: "#2f3a9a", cara: [["#1a1a1a", [3, 4, 10, 4]], ["#ff2a2a", [4, 5, 3, 2], [9, 5, 3, 2]], ["#c0c6d0", [4, 10, 8, 4]]], torso: "#2f3a9a", pecho: [["#c0c6d0", [4, 0, 8, 2]], ["#ffd23f", [6, 5, 4, 4]]], brazos: "#2f3a9a", manos: "#c0c6d0", piernas: "#2f3a9a", escala: 0.9, extras: { puas: "#2f3a9a", zapatos: "#d8261c" } },
+  { id: "eggman", nombre: "Dr. Eggman", cabeza: "#f2c08a", cara: [["#1a1a1a", [1, 2, 14, 1]], ["#4dd2ff", [3, 1, 4, 3], [9, 1, 4, 3], [4, 6, 3, 2], [9, 6, 3, 2]], ["#ff9a8a", [6, 8, 4, 3]], ["#c8641e", [2, 10, 3, 1], [11, 10, 3, 1], [1, 11, 6, 2], [9, 11, 6, 2]]], torso: "#d8261c", pecho: [["#1a1a1a", [6, 0, 4, 16]], ["#ffd23f", [7, 2, 2, 2], [7, 7, 2, 2], [7, 12, 2, 2]]], brazos: "#d8261c", manos: "#ffffff", piernas: "#1a1a1a", escala: 1.25 }
+];
+// Caras de Mario Bros: con gorra y bigote, de princesa, y el overol con botones
+const PIEL_M = "#f2c08a";
+const caraGorra = (pelo, iris, bigote) => [[PIEL_M, [2, 5, 12, 11]], [pelo, [2, 5, 2, 4], [12, 5, 2, 4]], ["#ffffff", [5, 6, 2, 3], [9, 6, 2, 3]], [iris, [6, 7, 1, 2], [9, 7, 1, 2]], ["#e8a070", [6, 9, 4, 2]], [bigote, [4, 11, 8, 2]], ["#a04030", [6, 13, 4, 1]]];
+const caraPrincesa = (pelo, iris, ...mas) => [[PIEL_M, [3, 4, 10, 10]], [pelo, [3, 4, 10, 2], [2, 4, 1, 10], [13, 4, 1, 10]], ["#ffffff", [4, 7, 3, 3], [9, 7, 3, 3]], [iris, [5, 8, 2, 2], [9, 8, 2, 2]], ["#ff6f9a", [6, 12, 4, 1]], ...mas];
+const pechoOverol = (overol) => [[overol, [3, 6, 10, 10], [3, 0, 2, 6], [11, 0, 2, 6]], ["#ffd23f", [4, 7, 2, 2], [10, 7, 2, 2]]];
+const TRAJES_MARIO = [
+  { id: "mario", nombre: "Mario", cabeza: "#d8261c", cara: [["#ffffff", [6, 1, 4, 3]], ["#d8261c", [7, 2, 2, 1]], ...caraGorra("#4a2a12", "#1f4fd8", "#3a2010")], torso: "#d8261c", pecho: pechoOverol("#1f4fd8"), brazos: "#d8261c", manos: "#ffffff", piernas: "#1f4fd8", extras: { gorra: "#d8261c", zapatos: "#6b3a1a" } },
+  { id: "luigi", nombre: "Luigi", cabeza: "#2fa84f", cara: [["#ffffff", [6, 1, 4, 3]], ["#2fa84f", [7, 1, 1, 3], [7, 3, 2, 1]], ...caraGorra("#4a2a12", "#1f4fd8", "#3a2010")], torso: "#2fa84f", pecho: pechoOverol("#1f4fd8"), brazos: "#2fa84f", manos: "#ffffff", piernas: "#1f4fd8", escala: 1.06, extras: { gorra: "#2fa84f", zapatos: "#6b3a1a" } },
+  { id: "peach", nombre: "Peach", cabeza: "#f5d76e", cara: caraPrincesa("#f5d76e", "#3a7bd5", ["#4dd2ff", [2, 11, 1, 2], [13, 11, 1, 2]]), torso: "#ff8fc0", pecho: [["#ff6fae", [0, 0, 16, 4]], ["#4dd2ff", [7, 5, 2, 2]]], brazos: "#ff8fc0", manos: "#ffffff", piernas: "#ff8fc0", extras: { corona: "#ffd23f", vestido: "#ff8fc0" } },
+  { id: "daisy", nombre: "Daisy", cabeza: "#c8641e", cara: caraPrincesa("#c8641e", "#3a7bd5", ["#3fdc6a", [2, 11, 1, 2], [13, 11, 1, 2]]), torso: "#ffb52e", pecho: [["#ff9a1e", [0, 0, 16, 4]], ["#3fdc6a", [7, 5, 2, 2]]], brazos: "#ffb52e", manos: "#ffffff", piernas: "#ffb52e", extras: { corona: "#ffd23f", vestido: "#ffb52e" } },
+  { id: "rosalina", nombre: "Rosalina", cabeza: "#f2e6b0", cara: [[PIEL_M, [3, 4, 9, 10]], ["#ffffff", [4, 7, 3, 3]], ["#3a7bd5", [5, 8, 2, 2]], ["#ff8fa8", [5, 12, 4, 1]], ["#f2e6b0", [8, 3, 6, 9], [3, 4, 5, 2]]], torso: "#7fd0f0", pecho: [["#ffe14d", [7, 3, 2, 2]]], brazos: "#7fd0f0", manos: PIEL_M, piernas: "#7fd0f0", escala: 1.08, extras: { corona: "#e8e8f0", vestido: "#7fd0f0" } },
+  { id: "toad", nombre: "Toad", cabeza: PIEL_M, cara: [["#ffffff", [0, 0, 16, 4]], ["#e8262a", [5, 0, 6, 3]], ["#000000", [4, 6, 2, 4], [10, 6, 2, 4]], ["#ffffff", [4, 6, 1, 1], [10, 6, 1, 1]], ["#a04030", [6, 12, 4, 2]]], torso: "#1f4fd8", pecho: [["#ffffff", [5, 0, 6, 16]], ["#ffd23f", [4, 0, 1, 16], [11, 0, 1, 16]]], brazos: PIEL_M, manos: PIEL_M, piernas: "#ffffff", escala: 0.75, extras: { hongo: ["#ffffff", "#e8262a"], zapatos: "#6b3a1a" } },
+  { id: "toadette", nombre: "Toadette", cabeza: PIEL_M, cara: [["#ff8fc0", [0, 0, 16, 4]], ["#ffffff", [5, 0, 6, 3]], ["#000000", [4, 6, 2, 4], [10, 6, 2, 4]], ["#ffffff", [4, 6, 1, 1], [10, 6, 1, 1]], ["#ff9ab0", [2, 10, 2, 1], [12, 10, 2, 1]], ["#a04030", [6, 12, 4, 2]]], torso: "#ff8fc0", pecho: [["#ffffff", [5, 0, 6, 5]]], brazos: PIEL_M, manos: PIEL_M, piernas: "#ff8fc0", escala: 0.72, extras: { hongo: ["#ff8fc0", "#ffffff"], vestido: "#ff8fc0", zapatos: "#c8508a" } },
+  { id: "yoshi", nombre: "Yoshi", cabeza: "#3cb043", cara: [["#ffffff", [3, 1, 4, 6], [9, 1, 4, 6], [2, 10, 12, 6]], ["#000000", [5, 3, 2, 3], [9, 3, 2, 3]], ["#1a1a1a", [4, 13, 8, 1]]], torso: "#ffffff", pecho: [["#3cb043", [0, 0, 3, 16], [13, 0, 3, 16]]], brazos: "#3cb043", manos: "#3cb043", piernas: "#3cb043", extras: { hocico: "#3cb043", puas: "#e8262a", montura: "#e8262a", zapatos: "#e8701e" } },
+  { id: "bowser", nombre: "Bowser", cabeza: "#d8b040", cara: [["#e8401e", [0, 0, 16, 3], [0, 3, 3, 4], [13, 3, 3, 4], [4, 5, 3, 1], [9, 5, 3, 1]], ["#ffffff", [4, 6, 3, 2], [9, 6, 3, 2]], ["#c8102e", [5, 6, 1, 2], [10, 6, 1, 2]], ["#f0e0a0", [3, 9, 10, 6]], ["#5a3a10", [6, 10, 1, 1], [9, 10, 1, 1]], ["#5a1a10", [4, 13, 8, 1]], ["#ffffff", [5, 14, 1, 1], [10, 14, 1, 1]]], torso: "#f0d070", pecho: [["#c8a040", [0, 4, 16, 1], [0, 8, 16, 1], [0, 12, 16, 1]]], brazos: "#d8b040", manos: "#d8b040", piernas: "#d8b040", escala: 1.45, extras: { cuernos: "#f3ead2", caparazon: "#2f8a3a", puasCaparazon: "#f3ead2" } },
+  { id: "bowserjr", nombre: "Bowser Jr.", cabeza: "#d8b040", cara: [["#e8401e", [6, 0, 4, 3]], ["#ffffff", [4, 5, 3, 3], [9, 5, 3, 3], [2, 10, 12, 6]], ["#000000", [5, 6, 2, 2], [9, 6, 2, 2], [4, 11, 8, 1]], ["#e8262a", [5, 12, 6, 2]]], torso: "#f0d070", brazos: "#d8b040", manos: "#d8b040", piernas: "#d8b040", escala: 0.75, extras: { cuernos: "#f3ead2", caparazon: "#2f8a3a", puasCaparazon: "#f3ead2" } },
+  { id: "wario", nombre: "Wario", cabeza: "#f2d22a", cara: [["#ffffff", [6, 1, 4, 3]], ["#1f4fd8", [6, 1, 1, 3], [9, 1, 1, 3], [7, 2, 2, 1]], [PIEL_M, [2, 5, 12, 11]], ["#ffffff", [4, 6, 3, 2], [9, 6, 3, 2]], ["#1f4fd8", [5, 6, 1, 2], [10, 6, 1, 2]], ["#ff9a8a", [6, 8, 4, 3]], ["#2a1a10", [3, 11, 4, 1], [9, 11, 4, 1], [4, 12, 2, 1], [10, 12, 2, 1]], ["#ffffff", [5, 13, 6, 2]]], torso: "#f2d22a", pecho: pechoOverol("#6a2fa8"), brazos: "#f2d22a", manos: "#ffffff", piernas: "#6a2fa8", escala: 1.1, extras: { gorra: "#f2d22a", zapatos: "#3a8a3a" } },
+  { id: "waluigi", nombre: "Waluigi", cabeza: "#5a2a8a", cara: [["#ffffff", [6, 1, 4, 3]], ["#5a2a8a", [7, 1, 2, 1], [8, 2, 1, 2]], [PIEL_M, [3, 5, 10, 11]], ["#ffffff", [5, 6, 2, 2], [9, 6, 2, 2]], ["#5a2a8a", [6, 6, 1, 2], [9, 6, 1, 2]], ["#ff9a8a", [7, 8, 2, 4]], ["#2a1a10", [3, 12, 4, 1], [9, 12, 4, 1]], ["#a04030", [6, 14, 4, 1]]], torso: "#5a2a8a", pecho: pechoOverol("#1f1f4a"), brazos: "#5a2a8a", manos: "#ffffff", piernas: "#1f1f4a", escala: 1.18, extras: { gorra: "#5a2a8a", zapatos: "#e8701e" } },
+  { id: "donkey", nombre: "Donkey Kong", cabeza: "#6b3a1a", cara: [["#e8c090", [3, 7, 10, 9]], ["#ffffff", [4, 6, 3, 2], [9, 6, 3, 2]], ["#1a1a1a", [5, 6, 1, 2], [10, 6, 1, 2]], ["#5a3a1a", [6, 10, 1, 1], [9, 10, 1, 1]], ["#5a2a1a", [4, 13, 8, 1]]], torso: "#6b3a1a", pecho: [["#e8c090", [3, 6, 10, 8]], ["#d8261c", [6, 0, 4, 3], [7, 3, 2, 8]], ["#ffd23f", [7, 5, 2, 2]]], brazos: "#6b3a1a", manos: "#e8c090", piernas: "#6b3a1a", escala: 1.35 },
+  { id: "diddy", nombre: "Diddy Kong", cabeza: "#d8261c", cara: [["#ffd23f", [7, 1, 2, 2]], ["#6b3a1a", [0, 5, 16, 11]], ["#e8c090", [2, 6, 12, 10]], ["#ffffff", [4, 7, 3, 3], [9, 7, 3, 3]], ["#1a1a1a", [5, 8, 2, 2], [10, 8, 1, 2]], ["#5a2a1a", [5, 13, 6, 1]]], torso: "#d8261c", pecho: [["#ffd23f", [6, 5, 4, 4]]], brazos: "#6b3a1a", manos: "#e8c090", piernas: "#6b3a1a", escala: 0.7, extras: { gorra: "#d8261c" } },
+  { id: "koopa", nombre: "Koopa Troopa", cabeza: "#f2d22a", cara: [["#ffffff", [4, 3, 3, 6], [9, 3, 3, 6]], ["#000000", [5, 5, 2, 3], [9, 5, 2, 3]], ["#e8a028", [5, 11, 6, 3]]], torso: "#f3ead2", pecho: [["#d8c890", [0, 5, 16, 1], [0, 10, 16, 1]]], brazos: "#f2d22a", manos: "#f2d22a", piernas: "#f2d22a", escala: 0.85, extras: { caparazon: "#2fa84f", zapatos: "#e8701e" } },
+  { id: "goomba", nombre: "Goomba", cabeza: "#8a4a1e", cara: [["#e8c090", [3, 10, 10, 6]], ["#1a1a1a", [3, 4, 4, 1], [9, 4, 4, 1], [5, 13, 6, 1]], ["#ffffff", [4, 5, 3, 4], [9, 5, 3, 4], [5, 11, 1, 2], [10, 11, 1, 2]], ["#1a1a1a", [5, 6, 2, 3], [9, 6, 2, 3]]], torso: "#e8c090", brazos: "#e8c090", manos: "#e8c090", piernas: "#3a2010", escala: 0.65, extras: { hongo: ["#8a4a1e"] } },
+  { id: "boo", nombre: "Boo", cabeza: "#ffffff", cara: [["#ffc0d0", [2, 8, 2, 1], [12, 8, 2, 1]], ["#1a1a1a", [4, 4, 2, 4], [10, 4, 2, 4], [4, 10, 8, 4]], ["#ff6f9a", [6, 12, 4, 2]], ["#ffffff", [5, 10, 1, 1], [10, 10, 1, 1]]], torso: "#ffffff", brazos: "#ffffff", manos: "#ffffff", piernas: "#ffffff", escala: 1.1, extras: { fantasma: true } },
+  { id: "shyguy", nombre: "Shy Guy", cabeza: "#d8261c", cara: [["#ffffff", [3, 3, 10, 12]], ["#1a1a1a", [5, 6, 2, 3], [9, 6, 2, 3], [7, 11, 2, 2]]], torso: "#d8261c", pecho: [["#1a1a1a", [0, 12, 16, 2]]], brazos: "#d8261c", manos: "#d8261c", piernas: "#d8261c", escala: 0.75, extras: { zapatos: "#1f4fd8" } }
+];
+// Zombies: la cara sirve para los del modo Zombies y para el ícono de la transformación
+const CARA_ZOMBIE = [["#2f4a26", [0, 0, 16, 3], [0, 3, 2, 3], [14, 3, 2, 2]], ["#1a1a1a", [3, 6, 4, 3], [9, 6, 4, 3]], ["#ff3b3b", [4, 7, 2, 1], [10, 7, 2, 1]], ["#3a5a30", [7, 9, 2, 2]], ["#2a1a1a", [4, 12, 8, 2]], ["#e8e0c0", [5, 12, 1, 1], [8, 12, 1, 1], [10, 12, 1, 1]]];
+// Monstruos del modo Transformación: usan el modelo de la criatura (forma); cabeza y cara son solo para el ícono
+const MONSTRUOS = [
+  { id: "t-gorilon", nombre: "Gorilón", forma: "gorila", colores: COLORES.gorila, escala: 0.75, cabeza: "#3b2a20", cara: [["#8c6b55", [3, 5, 10, 10]], ["#111111", [5, 7, 2, 2], [9, 7, 2, 2]], ["#5a4a40", [6, 11, 4, 2]]] },
+  { id: "t-pirodon", nombre: "Pirodón", forma: "volador", colores: COLORES.pirodon, escala: 1.1, cabeza: "#c0392b", cara: [["#ff8a2a", [0, 0, 16, 3]], ["#ffd23f", [3, 6, 3, 2], [10, 6, 3, 2], [5, 11, 6, 4]]] },
+  { id: "t-lumira", nombre: "Lumira", forma: "polilla", colores: COLORES.lumira, escala: 1, cabeza: "#5b3a8c", cara: [["#ffcf3f", [0, 0, 4, 16], [12, 0, 4, 16]], ["#4dd2ff", [5, 6, 2, 3], [9, 6, 2, 3]]] },
+  { id: "t-mecharex", nombre: "Mecharex", forma: "lagarto", colores: COLORES.mecharex, escala: 0.95, cabeza: "#9aa4b1", cara: [["#5c6773", [2, 10, 12, 4]], ["#ff3b3b", [3, 5, 3, 2], [10, 5, 3, 2]], ["#4dd2ff", [7, 1, 2, 3]]] },
+  { id: "t-trihidra", nombre: "Trihidra", forma: "dragon", colores: COLORES.trihidra, escala: 0.85, cabeza: "#e8b923", cara: [["#c98a12", [2, 0, 2, 4], [12, 0, 2, 4]], ["#ff3b3b", [4, 6, 2, 2], [10, 6, 2, 2]], ["#fff0a8", [4, 10, 8, 4]]] },
+  { id: "t-gigarex", nombre: "Gigarex", forma: "lagarto", colores: COLORES.gigarex, escala: 0.95, cabeza: "#55705f", cara: [["#97ab95", [2, 10, 12, 4]], ["#ffd23f", [3, 5, 3, 2], [10, 5, 3, 2]], ["#7fe7ff", [7, 0, 2, 3]]] },
+  { id: "t-zombie", nombre: "Zombie", forma: "zombie", escala: 1, cabeza: "#6fa35a", cara: CARA_ZOMBIE },
+  { id: "t-aracnix", nombre: "Arácnix", forma: "aracnix", escala: 1, cabeza: "#13262a", cara: [["#2fd0c0", [1, 0, 1, 16], [6, 0, 1, 16], [11, 0, 1, 16], [0, 1, 16, 1], [0, 11, 16, 1]], ["#ffffff", [2, 6, 5, 3], [9, 6, 5, 3]], ["#ff9a2a", [3, 7, 3, 1], [10, 7, 3, 1]]] }
+];
+const TRAJES = [
+  ...TRAJES_MARVEL.map((t) => Object.assign(t, { grupo: "marvel" })),
+  ...TRAJES_SONIC.map((t) => Object.assign(t, { grupo: "sonic" })),
+  ...TRAJES_MARIO.map((t) => Object.assign(t, { grupo: "mario" })),
+  ...MONSTRUOS.map((t) => Object.assign(t, { grupo: "monstruo" }))
+];
+const GRUPOS_TRAJES = [["marvel", "Marvel"], ["sonic", "Sonic"], ["mario", "Mario Bros"], ["monstruo", "Monstruos"]];
 const TRAJE_POR_ID = Object.fromEntries(TRAJES.map((t) => [t.id, t]));
 // Súper Sonic: el mismo modelo, dorado y con ojos rojos, mientras dura el poder
 const SUPER_SONIC = Object.assign({}, TRAJE_POR_ID.sonic, {
@@ -1127,11 +1232,12 @@ function trajeActual() {
   const t = TRAJE_POR_ID[save.traje];
   if (!t) return null;
   if (t.id === "spiderman" && save.trajes.spiderman) return t;
-  return modo().trajes ? t : null;
+  const permitido = modo().trajes;
+  return permitido && permitido(t) ? t : null;
 }
 const trajeVisible = () => { const t = trajeActual(); return t ? t.id : "normal"; };
-// Poderes de cada traje. pas: poderes que funcionan solos (vuelo, escalar, salto, rapidez, fuerza, romperYa, resiste, regenera).
-// act: el poder especial de la tecla Q (o el botón Poder).
+// Poderes de cada traje. pas: poderes que funcionan solos (vuelo, escalar, salto, rapidez, fuerza, romperYa, resiste, regenera,
+// autosalto, planear y pisotón). act: el poder especial de la tecla Q (o el botón Poder).
 const PODERES = {
   ironman: { desc: "Vuela y tira rayos repulsores.", pas: { vuelo: true }, act: { nombre: "Rayo repulsor", tipo: "disparo", proy: "repulsor", daño: 12, cd: 0.4 } },
   capitan: { desc: "Tira el escudo y aguanta más los golpes.", pas: { resiste: 0.6 }, act: { nombre: "Escudo", tipo: "disparo", proy: "escudo", daño: 22, cd: 1.2, tam: 0.7 } },
@@ -1156,7 +1262,47 @@ const PODERES = {
   thanos: { desc: "Súper fuerte. El chasquido les saca la mitad de la vida a los jefes.", pas: { fuerza: 2, resiste: 0.5 }, act: { nombre: "Chasquido", tipo: "chasquido", radio: 80, cd: 45 } },
   deadpool: { desc: "Se cura solo y gira con sus katanas.", pas: { regenera: 1.5 }, act: { nombre: "Katanas", tipo: "giro", daño: 25, radio: 4, cd: 2 } },
   wolverine: { desc: "Se cura solo, pega fuerte y ataca con las garras.", pas: { regenera: 1, fuerza: 1.5 }, act: { nombre: "Garras", tipo: "giro", daño: 30, radio: 4, cd: 2 } },
-  sonic: { desc: "Súper velocidad: corre muchísimo, salta alto y sube los escalones solo. Con el poder se vuelve Súper Sonic: dorado, todavía más rápido, invencible y lastima a los jefes con solo tocarlos.", pas: { rapidez: 2.5, salto: 1.6, autosalto: true }, act: { nombre: "Súper Sonic", tipo: "supersonic", dur: 8, cd: 20 } }
+  sonic: { desc: "Súper velocidad: corre muchísimo, salta alto y sube los escalones solo. Con el poder se vuelve Súper Sonic: dorado, todavía más rápido, invencible y lastima a los jefes con solo tocarlos.", pas: { rapidez: 2.5, salto: 1.6, autosalto: true }, act: { nombre: "Súper Sonic", tipo: "supersonic", dur: 8, cd: 20 } },
+  tails: { desc: "Vuela girando sus dos colas y ataca con un torbellino.", pas: { vuelo: true, rapidez: 1.6 }, act: { nombre: "Torbellino de colas", tipo: "giro", daño: 22, radio: 4, cd: 1.5 } },
+  knuckles: { desc: "Trepa paredes, rompe la roca a piñas y golpea el piso.", pas: { escalar: true, fuerza: 2.5, romperYa: true, rapidez: 1.6 }, act: { nombre: "Puño al piso", tipo: "onda", daño: 30, radio: 6, rompe: 2, cd: 3 } },
+  amy: { desc: "Corre rápido y aplasta con su martillo Piko Piko.", pas: { rapidez: 1.8, salto: 1.4 }, act: { nombre: "Martillo Piko Piko", tipo: "onda", daño: 28, radio: 5, cd: 1.5 } },
+  shadow: { desc: "Súper velocidad y Lanzas del Caos.", pas: { rapidez: 2.4, salto: 1.5, autosalto: true }, act: { nombre: "Lanza del Caos", tipo: "disparo", proy: "caos", daño: 12, cant: 3, cd: 0.8 } },
+  silver: { desc: "Levita con la mente y frena a los enemigos con psicoquinesis.", pas: { vuelo: true }, act: { nombre: "Psicoquinesis", tipo: "disparo", proy: "psiquico", daño: 10, lento: 4, cd: 0.6 } },
+  rouge: { desc: "Vuela con sus alas de murciélago y hace una patada taladro.", pas: { vuelo: true }, act: { nombre: "Patada taladro", tipo: "embestida", dist: 12, daño: 25, cd: 2.5 } },
+  cream: { desc: "Vuela agitando las orejas y manda a su amigo Cheese a atacar.", pas: { vuelo: true }, act: { nombre: "Ataque de Cheese", tipo: "disparo", proy: "cheese", daño: 14, cd: 0.8, tam: 0.5 } },
+  blaze: { desc: "Corre muy rápido y gira envuelta en fuego.", pas: { rapidez: 2.2, salto: 1.4, autosalto: true }, act: { nombre: "Tornado de fuego", tipo: "giro", daño: 30, radio: 5, cd: 2 } },
+  big: { desc: "Enorme y fuerte: aguanta todo y aplasta con la panza.", pas: { fuerza: 2.5, resiste: 0.4 }, act: { nombre: "Panzazo", tipo: "onda", daño: 30, radio: 6, cd: 3 } },
+  espio: { desc: "El ninja camaleón: trepa paredes y se camufla para que no lo vean.", pas: { escalar: true, rapidez: 1.4 }, act: { nombre: "Camuflaje", tipo: "ilusion", dur: 10, cd: 18 } },
+  vector: { desc: "El cocodrilo fuerte: pega duro y pega un grito que frena a los enemigos.", pas: { fuerza: 2.2, resiste: 0.6 }, act: { nombre: "Grito", tipo: "onda", daño: 18, radio: 9, lento: 3, cd: 3 } },
+  charmy: { desc: "Vuela como una abeja y pica con su aguijón.", pas: { vuelo: true, rapidez: 1.3 }, act: { nombre: "Aguijón", tipo: "disparo", proy: "aguijon", daño: 10, cd: 0.4 } },
+  metalsonic: { desc: "El Sonic robot: súper velocidad, vuela y dispara láser.", pas: { rapidez: 2.4, vuelo: true }, act: { nombre: "Láser", tipo: "disparo", proy: "laser", daño: 14, cd: 0.5 } },
+  eggman: { desc: "Vuela en su nave y dispara misiles.", pas: { vuelo: true, resiste: 0.6 }, act: { nombre: "Misiles", tipo: "disparo", proy: "misil", daño: 14, cant: 2, cd: 1 } },
+  mario: { desc: "Salta altísimo, aplasta a los enemigos cayéndoles encima y tira bolas de fuego.", pas: { salto: 1.8, pisoton: 20 }, act: { nombre: "Bola de fuego", tipo: "disparo", proy: "fuego", daño: 12, cd: 0.45 } },
+  luigi: { desc: "El que salta más alto de todos: aplasta enemigos y tira bolas de fuego verdes.", pas: { salto: 2.4, pisoton: 20 }, act: { nombre: "Fuego verde", tipo: "disparo", proy: "fuegoVerde", daño: 12, cd: 0.45 } },
+  peach: { desc: "Flota en el aire si mantenés apretado Espacio y tira corazones que frenan a los enemigos.", pas: { salto: 1.4, planear: true }, act: { nombre: "Corazones", tipo: "disparo", proy: "corazon", daño: 10, lento: 2, cant: 3, cd: 0.9 } },
+  daisy: { desc: "Salta alto, flota manteniendo Espacio y lanza flores.", pas: { salto: 1.6, planear: true }, act: { nombre: "Flor", tipo: "disparo", proy: "flor", daño: 14, cd: 0.6 } },
+  rosalina: { desc: "Flota por el espacio y tira trozos de estrella.", pas: { vuelo: true }, act: { nombre: "Trozos de estrella", tipo: "disparo", proy: "estrella", daño: 9, cant: 3, cd: 0.7 } },
+  toad: { desc: "Corre rápido. Con el Súper hongo se hace gigante: pega el doble y aguanta más.", pas: { rapidez: 1.4 }, act: { nombre: "Súper hongo", tipo: "crecer", dur: 12, cd: 20 } },
+  toadette: { desc: "Corre rápido y tira bolas de hielo que congelan a los enemigos.", pas: { rapidez: 1.4 }, act: { nombre: "Bola de hielo", tipo: "disparo", proy: "hielo", daño: 8, lento: 4, cd: 0.6 } },
+  yoshi: { desc: "Revolotea en el aire (mantené Espacio), aplasta enemigos y tira huevos.", pas: { salto: 1.7, planear: true, pisoton: 15 }, act: { nombre: "Huevo de Yoshi", tipo: "disparo", proy: "huevo", daño: 15, cd: 0.6, tam: 0.5 } },
+  bowser: { desc: "Súper fuerte y duro: tira llamaradas de fuego.", pas: { fuerza: 2.5, resiste: 0.5 }, act: { nombre: "Llamarada", tipo: "disparo", proy: "fuego", daño: 14, cant: 3, cd: 1, tam: 0.6 } },
+  bowserjr: { desc: "Vuela en su auto payaso y dispara balas.", pas: { vuelo: true }, act: { nombre: "Bala", tipo: "disparo", proy: "bala", daño: 18, cd: 1, tam: 0.6 } },
+  wario: { desc: "Pega muy fuerte y embiste con el hombro.", pas: { fuerza: 2.5 }, act: { nombre: "Embestida", tipo: "embestida", dist: 10, daño: 30, cd: 2.5 } },
+  waluigi: { desc: "Salta alto y gira con su raqueta.", pas: { salto: 1.8 }, act: { nombre: "Raquetazo", tipo: "giro", daño: 25, radio: 4.5, cd: 1.8 } },
+  donkey: { desc: "Fuerza de gorila: rompe bloques de un golpe y golpea el piso.", pas: { fuerza: 3, romperYa: true, salto: 1.6 }, act: { nombre: "Golpe al piso", tipo: "onda", daño: 30, radio: 7, rompe: 2, cd: 4 } },
+  diddy: { desc: "Corre rápido, trepa paredes y dispara maníes.", pas: { rapidez: 1.5, escalar: true }, act: { nombre: "Pistola de maní", tipo: "disparo", proy: "mani", daño: 7, cant: 2, cd: 0.4 } },
+  koopa: { desc: "Aguanta golpes con el caparazón y lo tira para voltear enemigos.", pas: { resiste: 0.6 }, act: { nombre: "Caparazón", tipo: "disparo", proy: "caparazon", daño: 22, cd: 1, tam: 0.7 } },
+  goomba: { desc: "Chiquito pero valiente: embiste de un cabezazo.", pas: { rapidez: 1.2 }, act: { nombre: "Cabezazo", tipo: "embestida", dist: 7, daño: 18, cd: 1.5 } },
+  boo: { desc: "Vuela y se vuelve invisible: los enemigos no lo ven.", pas: { vuelo: true }, act: { nombre: "Invisible", tipo: "ilusion", dur: 8, cd: 15 } },
+  shyguy: { desc: "Salta alto y gira como un trompo.", pas: { salto: 1.5 }, act: { nombre: "Trompo", tipo: "giro", daño: 20, radio: 4, cd: 1.5 } },
+  "t-gorilon": { desc: "Fuerza de gorila gigante: trepa edificios, rompe todo de un golpe y hace temblar el piso.", pas: { fuerza: 3, romperYa: true, salto: 2, escalar: true, resiste: 0.6 }, act: { nombre: "Piñazo al piso", tipo: "onda", daño: 35, radio: 8, rompe: 2.5, cd: 4 } },
+  "t-pirodon": { desc: "Vuela rapidísimo y tira bolas de fuego.", pas: { vuelo: true, rapidez: 1.6 }, act: { nombre: "Bola de fuego", tipo: "disparo", proy: "fuego", daño: 16, cd: 0.6, tam: 0.6 } },
+  "t-lumira": { desc: "Vuela y tira polvo de colores que frena a los enemigos.", pas: { vuelo: true }, act: { nombre: "Polvo de colores", tipo: "disparo", proy: "polvo", daño: 8, lento: 3, cant: 3, cd: 0.7 } },
+  "t-mecharex": { desc: "Lagarto robot blindado: aguanta mucho y dispara láser.", pas: { resiste: 0.4, fuerza: 2 }, act: { nombre: "Láser", tipo: "disparo", proy: "laser", daño: 14, cd: 0.3 } },
+  "t-trihidra": { desc: "El dragón de tres cabezas: vuela y tira tres rayos a la vez.", pas: { vuelo: true, resiste: 0.6 }, act: { nombre: "Rayos triples", tipo: "disparo", proy: "rayo", daño: 14, cant: 3, cd: 0.8 } },
+  "t-gigarex": { desc: "El kaiju: fuerte, duro y con aliento atómico que rompe bloques.", pas: { fuerza: 2.5, resiste: 0.5 }, act: { nombre: "Aliento atómico", tipo: "disparo", proy: "aliento", daño: 25, rompe: 1.5, cd: 1.5, tam: 0.6 } },
+  "t-zombie": { desc: "Aguanta mucho, se cura solo y llama a una horda de zombies que pelea de tu lado.", pas: { resiste: 0.7, regenera: 1 }, act: { nombre: "Horda zombie", tipo: "horda", cant: 3, dur: 30, cd: 35 } },
+  "t-aracnix": { desc: "El héroe araña: trepa paredes, salta alto y tira telarañas.", pas: { escalar: true, salto: 1.5 }, act: { nombre: "Telaraña", tipo: "disparo", proy: "telaraña", daño: 6, lento: 4, cd: 0.35 } }
 };
 const poderActual = () => { const t = trajeActual(); return t ? PODERES[t.id] : null; };
 const pasivo = () => { const p = poderActual(); return (p && p.pas) || {}; };
@@ -1174,7 +1320,7 @@ function agregarExtras(m, x) {
   if (x.martillo) { const h = pivote(P.brazos[1], 0, -0.72, 0.08); parte(h, null, 0.08, 0.08, 0.45, 0, 0, 0.15, mat("#6b4a2b")); parte(h, null, 0.28, 0.2, 0.2, 0, 0, 0.42, mat("#9aa0b0")); }
   if (x.cuernos) [-0.2, 0.2].forEach((s) => parte(P.cabeza, null, 0.08, 0.35, 0.08, s, 0.62, 0.18, mat(x.cuernos)));
   if (x.garras) P.brazos.forEach((b) => [-0.07, 0, 0.07].forEach((dz) => parte(b, null, 0.03, 0.3, 0.03, 0, -0.9, dz + 0.02, mat("#d0d6de"))));
-  if (x.alas) [-1, 1].forEach((s) => parte(m.g, null, 0.6, 0.5, 0.05, s * 0.4, 1.2, -0.18, mat("#9aa0b0")));
+  if (x.alas) [-1, 1].forEach((s) => parte(m.g, null, 0.6, 0.5, 0.05, s * 0.4, 1.2, -0.18, mat(typeof x.alas === "string" ? x.alas : "#9aa0b0")));
   if (x.espadas) [-1, 1].forEach((s) => { parte(m.g, null, 0.05, 0.9, 0.05, 0, 1.15, -0.17, mat("#c0c6d0")).rotation.z = s * 0.6; });
   if (x.arco) parte(m.g, null, 0.05, 0.9, 0.05, 0.1, 1.1, -0.18, mat("#5a3a22")).rotation.z = 0.3;
   if (x.hojas) [[-0.15, 0.55, 0.1], [0.12, 0.58, -0.05], [0, 0.6, 0.15]].forEach(([a, b, c]) => parte(P.cabeza, null, 0.14, 0.1, 0.14, a, b, c, mat("#4fa83a")));
@@ -1184,6 +1330,32 @@ function agregarExtras(m, x) {
     parte(P.cabeza, null, 0.16, 0.16, 0.45, a, b, -0.42, mat(x.puas)).rotation.x = rx;
   });
   if (x.zapatillas) P.piernas.forEach((pv) => { parte(pv, null, 0.3, 0.14, 0.4, 0, -0.69, 0.05, mat("#d81e1e")); parte(pv, null, 0.31, 0.04, 0.18, 0, -0.6, 0.05, mat("#ffffff")); });
+  if (x.zapatos) P.piernas.forEach((pv) => parte(pv, null, 0.28, 0.14, 0.38, 0, -0.69, 0.05, mat(x.zapatos)));
+  if (x.gorra) parte(P.cabeza, null, 0.52, 0.06, 0.2, 0, 0.35, 0.35, mat(x.gorra));   // visera
+  if (x.corona) {
+    parte(P.cabeza, null, 0.3, 0.1, 0.3, 0, 0.55, 0, mat(x.corona, true));
+    [-0.1, 0, 0.1].forEach((s) => parte(P.cabeza, null, 0.06, 0.1, 0.06, s, 0.65, 0.12, mat(x.corona, true)));
+  }
+  if (x.hongo) {   // sombrero de hongo de Toad, Toadette y Goomba: [color, color de las manchas]
+    const [base, puntos] = x.hongo;
+    parte(P.cabeza, null, 0.85, 0.4, 0.85, 0, 0.62, 0, mat(base));
+    if (puntos) {
+      parte(P.cabeza, null, 0.28, 0.04, 0.28, 0, 0.83, 0, mat(puntos));
+      [[0, 0.43, 0.24, 0.04], [0, -0.43, 0.24, 0.04], [0.43, 0, 0.04, 0.24], [-0.43, 0, 0.04, 0.24]].forEach(([a, b, w, d]) => parte(P.cabeza, null, w, 0.2, d, a, 0.64, b, mat(puntos)));
+    }
+  }
+  if (x.vestido) { parte(m.g, null, 0.64, 0.6, 0.44, 0, 0.5, 0, mat(x.vestido)); parte(m.g, null, 0.74, 0.25, 0.54, 0, 0.27, 0, mat(x.vestido)); }
+  if (x.caparazon) {   // caparazón en la espalda (Koopa y Bowser)
+    parte(m.g, null, 0.58, 0.7, 0.3, 0, 1.12, -0.26, mat(x.caparazon));
+    parte(m.g, null, 0.62, 0.08, 0.34, 0, 0.8, -0.26, mat("#f3ead2"));
+    if (x.puasCaparazon) [[-0.14, 1.32], [0.14, 1.32], [-0.14, 1.0], [0.14, 1.0]].forEach(([a, b]) => parte(m.g, null, 0.1, 0.1, 0.14, a, b, -0.46, mat(x.puasCaparazon)));
+  }
+  if (x.colas) [-0.1, 0.1].forEach((s) => { const c = parte(m.g, null, 0.14, 0.14, 0.55, s, 0.85, -0.38, mat(x.colas)); c.rotation.x = -0.5; c.rotation.y = s * 2; });
+  if (x.orejas) [-0.16, 0.16].forEach((s) => parte(P.cabeza, null, 0.1, 0.32, 0.08, s, 0.64, 0, mat(x.orejas)));
+  if (x.hocico) parte(P.cabeza, null, 0.34, 0.22, 0.2, 0, 0.22, 0.33, mat(x.hocico));   // la nariz de Yoshi
+  if (x.montura) parte(m.g, null, 0.4, 0.14, 0.22, 0, 1.3, -0.2, mat(x.montura));
+  if (x.mazo) { const h = pivote(P.brazos[1], 0, -0.72, 0.08); parte(h, null, 0.06, 0.06, 0.5, 0, 0, 0.18, mat("#ffd23f")); parte(h, null, 0.34, 0.26, 0.26, 0, 0, 0.48, mat("#e8262a")); }
+  if (x.fantasma) { P.piernas.forEach((pv) => { pv.visible = false; }); parte(m.g, null, 0.3, 0.3, 0.3, 0, 0.6, -0.1, mat("#ffffff")); }   // Boo flota sin piernas
 }
 
 // Nacho: el jugador, con su cara en el frente de la cabeza
@@ -1207,7 +1379,11 @@ let caraGenerica = null;
 // Modelo de un jugador: con un traje, con la cara de Nacho (vos) o con una cara común (tus amigos sin traje)
 function modeloJugador(t, conMiCara) {
   let m;
-  if (t) {
+  if (t && t.forma) {   // un monstruo del modo Transformación
+    m = t.forma === "zombie" ? modeloZombie("zombie") : t.forma === "aracnix" ? modeloAracnix() : construirModelo(t.forma, t.colores);
+    m.brazosAdelante = t.forma === "zombie";
+    m.escala = t.escala || 1;
+  } else if (t) {
     const cab = mat(t.cabeza), torso = mat(t.torso);
     const cara = new THREE.MeshLambertMaterial({ map: texturaDe(lienzoDibujo(t.cabeza, t.cara)) });
     const pecho = t.pecho ? new THREE.MeshLambertMaterial({ map: texturaDe(lienzoDibujo(t.torso, t.pecho)) }) : torso;
@@ -1259,6 +1435,23 @@ function modeloAracnix() {
   }
   return modeloHumano(matsAracnix);
 }
+// Zombies: los del modo Zombies, los de la horda que llama el zombie de Transformación (aliado) y el de la transformación
+const ZOMBIE_TIPOS = {
+  zombie: { nombre: "Zombie", piel: "#6fa35a", ropa: "#3f6fa8", pantalon: "#4a3a6b", escala: 1, vida: 20, vel: 2.4, daño: 2, premio: 5 },
+  corredor: { nombre: "Zombie corredor", piel: "#7fb06a", ropa: "#d9692a", pantalon: "#3a3f4a", escala: 0.7, vida: 12, vel: 4.6, daño: 1, premio: 8 },
+  gigante: { nombre: "Zombie gigante", piel: "#4f7a40", ropa: "#6b2a2a", pantalon: "#2a2d35", escala: 2.2, vida: 120, vel: 1.9, daño: 5, premio: 40 },
+  aliado: { nombre: "Zombie amigo", piel: "#6fa35a", ropa: "#ffd23f", pantalon: "#2b2f6b", escala: 1, vida: 40, vel: 4, daño: 6, premio: 0 }
+};
+const matsZombie = {};
+function modeloZombie(tipo) {
+  if (!matsZombie[tipo]) {
+    const z = ZOMBIE_TIPOS[tipo], piel = mat(z.piel), ropa = mat(z.ropa);
+    const cara = new THREE.MeshLambertMaterial({ map: texturaDe(lienzoDibujo(z.piel, CARA_ZOMBIE)) });
+    const pecho = new THREE.MeshLambertMaterial({ map: texturaDe(lienzoDibujo(z.ropa, [[z.piel, [0, 12, 3, 4], [6, 13, 4, 3], [12, 11, 4, 5]], ["rgba(0,0,0,0.25)", [3, 3, 3, 3]]])) });
+    matsZombie[tipo] = { cabeza: [piel, piel, piel, piel, cara, piel], torso: [ropa, ropa, ropa, ropa, pecho, ropa], brazos: piel, manos: piel, piernas: mat(z.pantalon) };
+  }
+  return modeloHumano(matsZombie[tipo]);
+}
 
 // ================== Jefes, tienda y estado del juego ==================
 const JEFES = [
@@ -1283,7 +1476,9 @@ const NIVELES_GIGAREX = [null,
   { nombre: "adulto", escala: 1.4, vida: 180, daño: 14, aliento: 18 }];
 const COLOR_DISPARO = {
   fuego: "#ff7a1a", laser: "#ff3b3b", rayo: "#ffe14d", polvo: "#ff8be0", "telaraña": "#ffffff", aliento: "#4dd2ff", golpe: "#ffffff",
-  repulsor: "#bff6ff", escudo: "#2b4fb0", flecha: "#c8a060", picana: "#4dd2ff", foton: "#ffd23f", magia: "#ff3355", gema: "#ffe14d", blaster: "#ff5533", cohete: "#ff7a1a", misil: "#9aa0b0"
+  repulsor: "#bff6ff", escudo: "#2b4fb0", flecha: "#c8a060", picana: "#4dd2ff", foton: "#ffd23f", magia: "#ff3355", gema: "#ffe14d", blaster: "#ff5533", cohete: "#ff7a1a", misil: "#9aa0b0",
+  caos: "#ffd23f", psiquico: "#4dfff0", cheese: "#ffe8a0", aguijon: "#ffd23f", fuegoVerde: "#5aff5a", corazon: "#ff7ab8", flor: "#ff9a1e", estrella: "#ffe14d",
+  hielo: "#bfe9ff", huevo: "#f3ead2", bala: "#1a1a1a", mani: "#c8a060", caparazon: "#2fa84f"
 };
 
 const entes = [], huevos = [], proyectiles = [], particulas = [];
@@ -1292,7 +1487,8 @@ let jugando = false, pausado = false, panelFijo = false, vista3 = false, abierto
 let apretIzq = false, cdRomper = 0, ranura = 0, ranuraEdit = 0, ultimoEspacio = 0, golpeNacho = 0;
 let rotura = { x: 0, y: -1, z: 0, t: 0 };
 let tiempoDia = 0.05, gigarexEspera = 0, acumGuardar = 0, lugarT = 0, lugarMostrado = null, modoPedido = null;
-let cdPoder = 0, ilusion = 0, encogido = 0, regenAcc = 0, poderT = 0, poderMostrado = "", superSonic = 0, estelaT = 0;
+let cdPoder = 0, ilusion = 0, encogido = 0, crecido = 0, regenAcc = 0, poderT = 0, poderMostrado = "", superSonic = 0, estelaT = 0;
+let zombiesT = 0, zombiesDerrotados = 0, nocheZombie = false;
 
 // ================== Jugador ==================
 const R = 0.3, ALTO = 1.8, OJOS = 1.62;
@@ -1351,7 +1547,7 @@ function actualizarJugador(dt) {
     dy = ((teclas.Space ? 1 : 0) - (teclas.ShiftLeft || teclas.ShiftRight ? 1 : 0)) * rap;
   } else {
     if (enAgua) { v.y = Math.max(v.y - 10 * dt, -3); if (teclas.Space) v.y = 4; }
-    else { v.y = Math.max(v.y - 28 * dt, -45); if (teclas.Space && jugador.enSuelo) v.y = 8.8 * Math.sqrt(Pas.salto || 1); }
+    else { v.y = Math.max(v.y - 28 * dt, Pas.planear && teclas.Space ? -2.5 : -45); if (teclas.Space && jugador.enSuelo) v.y = 8.8 * Math.sqrt(Pas.salto || 1); }   // planear: Peach, Daisy y Yoshi caen despacito
     dy = v.y;
   }
   const chocoX = moverEje("x", vx * dt), chocoZ = moverEje("z", vz * dt);
@@ -1367,6 +1563,19 @@ function actualizarJugador(dt) {
   // Trepar paredes: va después del movimiento vertical para que el choque con el piso no lo cancele
   if (Pas.escalar && !jugador.volando && (chocoX || chocoZ) && Math.hypot(f, r) > 0.1) v.y = Math.max(v.y, 4.5);
   if ((tactil || Pas.autosalto) && (chocoX || chocoZ) && jugador.enSuelo && Math.hypot(f, r) > 0.3) v.y = 8.8 * Math.sqrt(Pas.salto || 1);
+  // Pisotón (Mario, Luigi y Yoshi): caerle encima a un enemigo lo lastima y te hace rebotar
+  if (Pas.pisoton && vyAntes < -2 && !jugador.volando) {
+    for (const e of entes) {
+      if (e.equipo !== "jefe") continue;
+      const arriba = e.pos.y + e.alto * e.escala;
+      if (distXZ(e.pos, p) < radioDe(e) + 0.4 && p.y > arriba - 1 && p.y < arriba + 0.6) {
+        explosion(new THREE.Vector3(p.x, p.y, p.z), "#ffffff", 8);
+        dañar(e, Pas.pisoton);
+        v.y = 10;
+        break;
+      }
+    }
+  }
   if (p.y < -20) { p.set(inicio.x, inicio.y, inicio.z); v.set(0, 0, 0); }
   if (p.y > WY + 30) p.y = WY + 30;
   jugador.mov = Math.hypot(vx, vz);
@@ -1388,7 +1597,7 @@ function actualizarJugador(dt) {
 }
 function dañarJugador(n) {
   if (!modo().daño || jugador.invul > 0 || n <= 0 || !jugando || pausado || superSonic > 0) return;
-  n = Math.ceil(n * (pasivo().resiste || 1) * (save.armadura ? 0.5 : 1));
+  n = Math.ceil(n * (pasivo().resiste || 1) * (save.armadura ? 0.5 : 1) * (crecido > 0 ? 0.5 : 1));
   jugador.vida -= n; jugador.invul = 0.5; jugador.sinDaño = 0;
   $("dano").style.opacity = 1;
   setTimeout(() => { $("dano").style.opacity = 0; }, 160);
@@ -1397,6 +1606,12 @@ function dañarJugador(n) {
 }
 function morirJugador() {
   jugador.vida = 0;
+  if (modo().zombies) {
+    abrirPanel("¡Te atraparon los zombies!", `<p>Derrotaste <b>${numero(zombiesDerrotados)}</b> zombies. Tu récord es ${numero(save.recordZombies || 0)}.</p>
+      <p>Volvé a aparecer en el inicio. Consejo: armá un refugio con paredes de dos bloques de alto, porque los zombies solo suben escalones de uno.</p>
+      <button class="boton grande" type="button" data-acc="revivir">Volver a aparecer</button>`, true);
+    return;
+  }
   abrirPanel("¡Te derrotaron!", `<p>Los jefes se fueron. Volvé a aparecer en el inicio y preparate mejor: comprá la armadura o el huevo de Gigarex en la tienda.</p>
     <button class="boton grande" type="button" data-acc="revivir">Volver a aparecer</button>`, true);
 }
@@ -1406,7 +1621,7 @@ function irA(x, z, nombre) {
   jugador.vel.set(0, 0, 0);
   centroChunks = null;
   gestionarChunks(25);
-  entes.filter((e) => e.equipo === "aliado").forEach((e) => { e.pos.set(jugador.pos.x + 2, alturaSuelo(jugador.pos.x + 2, jugador.pos.z + 2), jugador.pos.z + 2); });
+  entes.filter((e) => e.equipo === "aliado").forEach((e) => { e.pos.set(jugador.pos.x + 2, alturaSuelo(jugador.pos.x + 2, jugador.pos.z + 2), jugador.pos.z + 2); e.piso = e.pos.y; });
   cerrarPanel(true);
   avisar(`Llegaste a ${nombre}`, 3000);
 }
@@ -1473,7 +1688,7 @@ function actualizarInteraccion(dt) {
 }
 function botin(id) {
   if (id === 6) return [8, 4];
-  if (id === 7 || id === 18) return null;
+  if (id === 7 || id === 18 || id === 34) return null;
   if (id === 11) { ganar(25, "¡Encontraste un diamante! +25 monedas"); return [12, 1]; }
   return [id, 1];
 }
@@ -1486,7 +1701,7 @@ function romper(b) {
 }
 function golpear(e) {
   golpeNacho = 0.25;
-  dañar(e, Math.round((save.espada ? 14 : 6) * (pasivo().fuerza || 1)));
+  dañar(e, Math.round((save.espada ? 14 : 6) * (pasivo().fuerza || 1) * (crecido > 0 ? 2 : 1)));
   explosion(centro(e), "#ffffff", 4);
 }
 function poner() {
@@ -1557,7 +1772,20 @@ function usarPoder() {
   } else if (a.tipo === "ilusion") {
     ilusion = a.dur;
     explosion(centro(jugador), "#3fdc6a", 20);
-    avisar(`Ilusión: los jefes no te ven por ${a.dur} segundos.`, 3000);
+    avisar(`${a.nombre}: los enemigos no te ven por ${a.dur} segundos.`, 3000);
+  } else if (a.tipo === "crecer") {
+    crecido = a.dur;
+    explosion(centro(jugador), "#e8262a", 20);
+    avisar(`¡${a.nombre}! ${a.dur} segundos gigante: pegás el doble y aguantás más.`, 3000);
+  } else if (a.tipo === "horda") {
+    entes.filter((e) => e.tipo === "zombie" && e.equipo === "aliado").forEach(quitarEnte);
+    for (let i = 0; i < a.cant; i++) {
+      const ang = jugador.yaw + (i - (a.cant - 1) / 2) * 0.7;
+      const e = crearZombie("aliado", jugador.pos.x - Math.sin(ang) * 3, jugador.pos.z - Math.cos(ang) * 3, "aliado");
+      e.duracion = a.dur;
+      explosion(centro(e), "#7fb06a", 10);
+    }
+    avisar(`¡${a.nombre}! ${a.cant} zombies pelean de tu lado durante ${a.dur} segundos.`, 3000);
   } else if (a.tipo === "supersonic") {
     superSonic = a.dur;
     construirNacho();
@@ -1759,8 +1987,80 @@ function invocarCriatura(def) {
   return e;
 }
 
+// ================== Zombies ==================
+// Caminan por el piso de verdad: suben escalones de un bloque (los gigantes de dos), caen por los huecos
+// y las paredes más altas los frenan. Así un refugio con paredes de dos bloques te protege.
+function crearZombie(tipo, x, z, equipo) {
+  const Z = ZOMBIE_TIPOS[tipo];
+  const e = crearEnte(modeloZombie(tipo), { tipo: "zombie", nombre: Z.nombre, equipo, escala: Z.escala, vida: Z.vida, rapidez: Z.vel, ataque: { tipo: "golpe", daño: Z.daño, alcance: 2, cd: 1 }, recompensa: Z.premio, zombie: equipo === "jefe", camina: true, brazosAdelante: true, escalon: Z.escala > 1.5 ? 2 : 1 });
+  e.piso = alturaSuelo(x, z);
+  e.pos.set(x, e.piso, z);
+  e.grupo.position.copy(e.pos);
+  return e;
+}
+function pisoCaminable(x, y, z, escalon) {
+  const xi = Math.floor(x), zi = Math.floor(z), s = (k) => solido(getBloque(xi, k, zi));
+  let k = y;
+  while (s(k) && k <= y + escalon) k++;   // sube el escalón
+  if (k > y + escalon || s(k + 1)) return null;   // pared muy alta o no entra la cabeza
+  if (k === y) while (k > 1 && k > y - 12 && !s(k - 1)) k--;   // baja o cae
+  return k;
+}
+function moverCaminante(e, nx, nz) {
+  // Si choca de frente prueba moverse en un solo eje, así se desliza por las paredes
+  for (const [x, z] of [[nx, nz], [nx, e.pos.z], [e.pos.x, nz]]) {
+    const y = pisoCaminable(x, e.piso, z, e.escalon || 1);
+    if (y !== null) { e.pos.x = x; e.pos.z = z; e.piso = y; return true; }
+  }
+  return false;
+}
+// Un zombie pega solo si el otro está a la altura de sus brazos y no hay una pared en el medio
+function alcanzaGolpe(e, obj) {
+  const alto = obj === jugador ? ALTO : obj.alto * obj.escala, cabeza = e.pos.y + 1.4 * e.escala;
+  if (obj.pos.y > e.pos.y + 1.7 * e.escala || obj.pos.y + alto < e.pos.y) return false;
+  const o = new THREE.Vector3(e.pos.x, cabeza, e.pos.z);
+  const d = new THREE.Vector3(obj.pos.x, clamp(cabeza, obj.pos.y + 0.2, obj.pos.y + alto - 0.2), obj.pos.z).sub(o), largo = d.length();
+  if (largo < 0.01) return true;
+  const h = rayoBloque(o, d.divideScalar(largo), largo);
+  return !(h && solido(h.id));
+}
+const esDeNoche = () => Math.cos(tiempoDia * Math.PI * 2) < -0.2;
+const quitarZombies = () => entes.filter((e) => e.zombie).forEach(quitarEnte);
+const hayJefe = () => entes.some((e) => e.equipo === "jefe" && !e.zombie);   // los zombies no cuentan como jefe
+function spawnZombie() {
+  for (let i = 0; i < 8; i++) {
+    const a = Math.random() * Math.PI * 2, d = 16 + Math.random() * 24;
+    const x = Math.floor(jugador.pos.x + Math.cos(a) * d) + 0.5, z = Math.floor(jugador.pos.z + Math.sin(a) * d) + 0.5;
+    const y = alturaSuelo(x, z), abajo = getBloque(Math.floor(x), y - 1, Math.floor(z));
+    if (Math.abs(y - jugador.pos.y) > 8 || esAgua(abajo) || abajo === 23) continue;   // ni en techos, ni en el agua, ni en el portal
+    const r = Math.random(), e = crearZombie(r < 0.06 ? "gigante" : r < 0.3 ? "corredor" : "zombie", x, z, "jefe");
+    explosion(new THREE.Vector3(x, y + 0.3, z), "#4a6a3a", 10);   // sale de la tierra
+    return e;
+  }
+  return null;
+}
+function actualizarZombies(dt) {
+  if (!modo().zombies) return;
+  const noche = esDeNoche();
+  if (noche !== nocheZombie) { nocheZombie = noche; avisar(noche ? "Se hizo de noche: ¡vienen más zombies!" : "Salió el sol: quedan menos zombies.", 3500); }
+  zombiesT -= dt;
+  if (zombiesT > 0) return;
+  zombiesT = 1.2;
+  for (const e of entes.slice()) if (e.zombie && distXZ(e.pos, jugador.pos) > 80) quitarEnte(e);   // los que quedaron lejos se van
+  const maximo = (tactil ? 5 : 8) + (noche ? (tactil ? 4 : 8) : 0);
+  if (entes.filter((e) => e.zombie).length < maximo) spawnZombie();
+}
+function zombieDerrotado(e) {
+  zombiesDerrotados++;
+  if (zombiesDerrotados > (save.recordZombies || 0)) save.recordZombies = zombiesDerrotados;
+  ganar(e.recompensa);
+  if (e.escala > 1.5) avisar(`¡Derrotaste a un ${e.nombre}! +${numero(e.recompensa)} monedas`, 3000);
+  else if (zombiesDerrotados % 10 === 0) avisar(`¡Ya van ${zombiesDerrotados} zombies!`, 3000);
+  dibujarModoHUD();
+}
+
 function elegirObjetivo(e) {
-  let mejor = null, md = e.equipo === "jefe" ? 50 : 32;
+  let mejor = null, md = e.zombie ? 32 : e.equipo === "jefe" ? 50 : 32;
   if (e.equipo === "jefe") {
     if (!modo().fantasma && ilusion <= 0) { const d = distXZ(e.pos, jugador.pos); if (d < md) { md = d; mejor = jugador; } }
     for (const o of entes) if (o.equipo === "aliado") { const d = distXZ(e.pos, o.pos); if (d < md) { md = d; mejor = o; } }
@@ -1789,6 +2089,11 @@ function dañar(o, n) {
 }
 function morir(e) {
   quitarEnte(e);
+  if (e.tipo === "zombie") {
+    explosion(centro(e), "#7fb06a", 16);
+    if (e.zombie) zombieDerrotado(e);
+    return;
+  }
   explosion(centro(e), e.equipo === "jefe" ? "#ffd23f" : "#7fe7ff", 26);
   if (e.equipo === "jefe") {
     if (e.recompensa) ganar(e.recompensa);
@@ -1811,7 +2116,11 @@ function morir(e) {
 function animar(e, caminando, dt) {
   const P = e.partes, t = e.t, swing = caminando ? Math.sin(t * 8) * 0.6 : 0;
   if (P.piernas) { P.piernas[0].rotation.x = swing; P.piernas[1].rotation.x = -swing; }
-  if (P.brazos) { const g = e.golpe > 0 ? 1.4 : 0; P.brazos[0].rotation.x = -swing * 0.8 - g; P.brazos[1].rotation.x = swing * 0.8 - g; }
+  if (P.brazos) {
+    const g = e.golpe > 0 ? 1.4 : 0;
+    if (e.brazosAdelante) { P.brazos[0].rotation.x = -1.45 + swing * 0.15 - g * 0.3; P.brazos[1].rotation.x = -1.45 - swing * 0.15 - g * 0.3; }   // zombie: brazos estirados
+    else { P.brazos[0].rotation.x = -swing * 0.8 - g; P.brazos[1].rotation.x = swing * 0.8 - g; }
+  }
   if (P.alas) { const a = Math.sin(t * (e.vuela ? 5 : 2)) * 0.55; P.alas[0].rotation.z = -a; P.alas[1].rotation.z = a; }
   if (P.cola) P.cola.rotation.y = Math.sin(t * 2) * 0.25;
   if (P.cabezas) P.cabezas.forEach((c, i) => { c.rotation.x = Math.sin(t * 2 + i * 1.7) * 0.2; });
@@ -1824,10 +2133,10 @@ function actualizarEntidad(e, dt) {
   e.lento = Math.max(0, e.lento - dt); e.golpeado = Math.max(0, e.golpeado - dt);
   if (e.duracion !== undefined) {
     e.duracion -= dt;
-    if (e.duracion <= 0) { quitarEnte(e); avisar(`${e.nombre} se fue. ¡Llamalo otra vez desde la tienda!`); return; }
+    if (e.duracion <= 0) { quitarEnte(e); if (e.tipo === "aracnix") avisar(`${e.nombre} se fue. ¡Llamalo otra vez desde la tienda!`); return; }
   }
   const obj = elegirObjetivo(e);
-  if (e.equipo === "aliado" && distXZ(e.pos, jugador.pos) > 40) { e.pos.x = jugador.pos.x + 2; e.pos.z = jugador.pos.z + 2; }
+  if (e.equipo === "aliado" && distXZ(e.pos, jugador.pos) > 40) { e.pos.x = jugador.pos.x + 2; e.pos.z = jugador.pos.z + 2; e.piso = alturaSuelo(e.pos.x, e.pos.z); }
   if (e.equipo === "aliado" && !obj) e.vida = Math.min(e.max, e.vida + 4 * dt);
   let tx, tz, quiero;
   if (obj) {
@@ -1844,11 +2153,14 @@ function actualizarEntidad(e, dt) {
   let caminando = false;
   if (dist > quiero) {
     const paso = Math.min(dist - quiero, e.rapidez * (e.lento > 0 ? 0.4 : 1) * dt);
-    e.pos.x += (dx / dist) * paso; e.pos.z += (dz / dist) * paso;
-    caminando = true;
+    if (e.camina) caminando = moverCaminante(e, e.pos.x + (dx / dist) * paso, e.pos.z + (dz / dist) * paso);
+    else { e.pos.x += (dx / dist) * paso; e.pos.z += (dz / dist) * paso; caminando = true; }
+  } else if (e.camina) {   // quieto: igual cae si le sacan el piso
+    const y = pisoCaminable(e.pos.x, e.piso, e.pos.z, 0);
+    if (y !== null) e.piso = y;
   }
   if (dist > 0.05) e.grupo.rotation.y = lerpAngulo(e.grupo.rotation.y, Math.atan2(dx, dz), Math.min(1, dt * 6));
-  const suelo = alturaSuelo(e.pos.x, e.pos.z);
+  const suelo = e.camina ? e.piso : alturaSuelo(e.pos.x, e.pos.z);
   let yObj = suelo;
   if (e.vuela) yObj = suelo + (obj && e.t % 7 > 5 ? 1.2 : e.vuela) + Math.sin(e.t * 1.5) * 0.4;   // cada tanto bajan en picada
   else if (e.tipo === "aracnix" && caminando) yObj = suelo + Math.abs(Math.sin(e.t * 4)) * 0.8;
@@ -1856,7 +2168,7 @@ function actualizarEntidad(e, dt) {
   if (obj && e.cd <= 0) {
     const c = centro(obj);
     if (e.ataque.tipo === "golpe") {
-      if (dist <= quiero + 0.8) { dañar(obj, e.equipo === "jefe" && obj !== jugador ? e.ataque.daño * 2 : e.ataque.daño); e.cd = e.ataque.cd; e.golpe = 0.3; }
+      if (dist <= quiero + 0.8 && (!e.camina || alcanzaGolpe(e, obj))) { dañar(obj, e.equipo === "jefe" && obj !== jugador ? e.ataque.daño * 2 : e.ataque.daño); e.cd = e.ataque.cd; e.golpe = 0.3; }
     } else if (c.distanceTo(centro(e)) < e.ataque.alcance) {
       disparar(boca(e), c, e.ataque.tipo, e.ataque.daño, e.equipo);
       e.cd = e.ataque.cd;
@@ -2138,7 +2450,7 @@ function actualizarMulti(dt) {
     o.modelo.g.position.lerpVectors(o.desde, o.hacia, o.t);
     o.modelo.g.rotation.y = o.yaw + Math.PI;
     const anda = o.desde.distanceTo(o.hacia) > 0.05 ? Math.sin(performance.now() / 90) * 0.6 : 0;
-    o.modelo.p.piernas[0].rotation.x = anda; o.modelo.p.piernas[1].rotation.x = -anda;
+    if (o.modelo.p.piernas) { o.modelo.p.piernas[0].rotation.x = anda; o.modelo.p.piernas[1].rotation.x = -anda; }   // los monstruos voladores no tienen piernas
   }
 }
 // Chat
@@ -2180,19 +2492,25 @@ $("chat-form").addEventListener("submit", (e) => {
 $("chat-txt").addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); cerrarChat(); } });
 
 // ================== Cielo, cámara y bucle ==================
+const NIEBLA_LEJOS = RADIO * CH - 4;
 function actualizarCielo() {
-  const dia = (Math.cos(tiempoDia * Math.PI * 2) + 1) / 2, luz = 0.32 + 0.68 * Math.min(1, dia * 1.6);
-  escena.background.copy(CIELO_NOCHE).lerp(CIELO_DIA, Math.min(1, dia * 1.4));
+  const Z = mundoZombie;   // en el modo Zombies el cielo es verdoso, hay menos luz y más niebla
+  const dia = (Math.cos(tiempoDia * Math.PI * 2) + 1) / 2, luz = (0.32 + 0.68 * Math.min(1, dia * 1.6)) * (Z ? 0.8 : 1);
+  escena.background.copy(Z ? CIELO_ZOMBIE_NOCHE : CIELO_NOCHE).lerp(Z ? CIELO_ZOMBIE_DIA : CIELO_DIA, Math.min(1, dia * 1.4));
   escena.fog.color.copy(escena.background);
-  matOpaco.color.setScalar(luz); matAgua.color.setScalar(luz);
+  escena.fog.far = NIEBLA_LEJOS * (Z ? 0.7 : 1); escena.fog.near = escena.fog.far * (Z ? 0.3 : 0.47);
+  if (Z) matOpaco.color.setRGB(luz * 0.9, luz, luz * 0.8); else matOpaco.color.setScalar(luz);
+  matAgua.color.setScalar(luz);
   luzAmb.intensity = 0.35 + 0.6 * luz; luzSol.intensity = 0.55 * luz;
+  matNube.color.setScalar(Z ? 0.55 : 1);
   matNube.opacity = 0.45 + 0.4 * luz;
 }
 function actualizarCamara(dt) {
   const o = ojo(), M = modo();
   const tercera = vista3 && !M.fantasma;
+  const tam = nacho.escala * (encogido > 0 ? 0.35 : 1) * (crecido > 0 ? 2 : 1);
   if (tercera) {
-    const d = direccion(), lejos = 4.5 * Math.max(1, nacho.escala);
+    const d = direccion(), lejos = 4.5 * Math.max(1, (tam * Math.max(nacho.alto, nacho.radio * 2)) / 2);
     camara.position.set(o.x - d.x * lejos, o.y - d.y * lejos + 0.6, o.z - d.z * lejos);
     camara.lookAt(o);
   } else {
@@ -2200,15 +2518,20 @@ function actualizarCamara(dt) {
     camara.rotation.set(jugador.pitch, jugador.yaw, 0);
   }
   nacho.g.visible = tercera;
-  nacho.g.scale.setScalar(nacho.escala * (encogido > 0 ? 0.35 : 1));
+  nacho.g.scale.setScalar(tam);
   nacho.g.position.copy(jugador.pos);
   nacho.g.rotation.y = jugador.yaw + Math.PI;
+  // Cada modelo mueve las partes que tiene (los monstruos tienen alas, cola o tres cabezas)
+  const P = nacho.p, t = performance.now() / 1000;
   const paso = jugador.mov > 0.5 && jugador.enSuelo ? Math.sin(performance.now() / 90) * 0.6 : 0;
-  nacho.p.piernas[0].rotation.x = paso; nacho.p.piernas[1].rotation.x = -paso;
   golpeNacho = Math.max(0, golpeNacho - dt);
-  nacho.p.brazos[0].rotation.x = -paso;
-  nacho.p.brazos[1].rotation.x = paso - (golpeNacho > 0 ? 1.6 : 0);
-  nacho.p.cabeza.rotation.x = -jugador.pitch * 0.6;
+  if (P.piernas) { P.piernas[0].rotation.x = paso; P.piernas[1].rotation.x = -paso; }
+  if (P.brazos && nacho.brazosAdelante) { P.brazos[0].rotation.x = -1.45 + paso * 0.2; P.brazos[1].rotation.x = -1.45 - paso * 0.2 - (golpeNacho > 0 ? 0.5 : 0); }
+  else if (P.brazos) { P.brazos[0].rotation.x = -paso; P.brazos[1].rotation.x = paso - (golpeNacho > 0 ? 1.6 : 0); }
+  if (P.cabeza) P.cabeza.rotation.x = -jugador.pitch * 0.6;
+  if (P.alas) { const a = Math.sin(t * (jugador.volando ? 8 : 2)) * 0.55; P.alas[0].rotation.z = -a; P.alas[1].rotation.z = a; }
+  if (P.cola) P.cola.rotation.y = Math.sin(t * 2) * 0.25;
+  if (P.cabezas) P.cabezas.forEach((c, i) => { c.rotation.x = Math.sin(t * 2 + i * 1.7) * 0.2 - (golpeNacho > 0 ? 0.4 : 0); });
 }
 function actualizarNubes(dt) {
   for (const n of nubes) {
@@ -2221,7 +2544,7 @@ function actualizarNubes(dt) {
 let jefeMostrado = null;
 function actualizarBarraJefe() {
   let j = null, md = Infinity;
-  for (const e of entes) if (e.equipo === "jefe") { const d = distXZ(e.pos, jugador.pos); if (d < md) { md = d; j = e; } }
+  for (const e of entes) if (e.equipo === "jefe" && !(e.zombie && e.max < 100)) { const d = distXZ(e.pos, jugador.pos); if (d < md) { md = d; j = e; } }   // de los zombies, solo los gigantes
   $("jefe-barra").hidden = !j;
   if (!j) { jefeMostrado = null; return; }
   if (jefeMostrado !== j) { $("jefe-nombre").textContent = j.nombre; jefeMostrado = j; }
@@ -2256,7 +2579,9 @@ function bucle(ahora) {
     cdPoder = Math.max(0, cdPoder - dt);
     ilusion = Math.max(0, ilusion - dt);
     if (encogido > 0) { encogido -= dt; if (encogido <= 0) avisar("Volviste a tu tamaño."); }
+    if (crecido > 0) { crecido -= dt; if (crecido <= 0) avisar("Se terminó el Súper hongo: volviste a tu tamaño."); }
     actualizarSonic(dt);
+    actualizarZombies(dt);
     if (save.gigarex && gigarexEspera > 0) {
       gigarexEspera -= dt;
       if (gigarexEspera <= 0) { spawnGigarex(); avisar("¡Gigarex volvió!"); }
@@ -2324,15 +2649,19 @@ function elegirRanura(i) {
   clearTimeout(timerNombre);
   timerNombre = setTimeout(() => { $("nombre-ranura").style.opacity = 0; }, 1500);
 }
+function dibujarModoHUD() {
+  const M = modo();
+  $("hud-modo").textContent = "Modo " + M.nombre + (M.zombies ? ` · ${numero(zombiesDerrotados)} zombies` : "") + (multi.codigo ? ` · Sala ${multi.codigo}` : "");
+}
 function dibujarHUD() {
   const M = modo();
   dibujarMonedas();
-  $("hud-modo").textContent = "Modo " + M.nombre + (multi.codigo ? ` · Sala ${multi.codigo}` : "");
+  dibujarModoHUD();
   const b = (hud, texto, tecla) => `<button class="boton" type="button" data-hud="${hud}">${texto}${tecla ? `<kbd>${tecla}</kbd>` : ""}</button>`;
   $("hud-botones").innerHTML = b("tienda", "Tienda", "T") + b("jefes", "Jefes", "J") + b("amigos", "Amigos")
     + (multi.peer ? b("chat", "Chat", "Enter") : "")
     + (M.panel ? b("admin", "Admin", "P") : "") + (M.taller ? b("taller", "Taller", "C") : "")
-    + (M.trajes || save.trajes.spiderman ? b("trajes", "Trajes", "K") : "") + b("pausa", "Menú", "Esc");
+    + (M.trajes || save.trajes.spiderman ? b("trajes", save.modo === "transformacion" ? "Transformarse" : "Trajes", "K") : "") + b("pausa", "Menú", "Esc");
   dibujarCorazones();
   dibujarBarra();
   $("mira").hidden = !!M.fantasma;
@@ -2388,13 +2717,14 @@ function panelPausa() {
       <button class="boton" type="button" data-acc="reportar">Reportar un problema</button>
     </div>
     <h3>Cambiar de modo</h3>
-    <div class="chips">${Object.entries(MODOS).map(([k, m]) => `<button class="chip${k === save.modo ? " activo" : ""}" type="button" data-acc="modo:${k}">${m.nombre}${m.soloCreador && !creadorOk ? '<span class="candado">creador</span>' : ""}</button>`).join("")}</div>
+    <div class="chips">${Object.entries(MODOS).map(([k, m]) => `<button class="chip${k === save.modo ? " activo" : ""}" type="button" data-acc="modo:${k}">${esc(m.nombre)}${bloqueado(k) ? `<span class="candado">${esc(m.candado)}</span>` : ""}</button>`).join("")}</div>
     <p class="nota">${esc(M.desc)}</p>
     <button class="boton chico" type="button" data-acc="salir">Volver a la portada</button>`);
 }
 function panelClave(k) {
   modoPedido = k;
-  abrirPanel("Solo el creador", `<p>El modo ${esc(MODOS[k].nombre)} es solo para el creador del juego. Escribí la contraseña para entrar.</p>
+  const delCreador = MODOS[k].clave === CLAVE_CREADOR;
+  abrirPanel(delCreador ? "Solo el creador" : "Con contraseña", `<p>El modo ${esc(MODOS[k].nombre)} ${delCreador ? "es solo para el creador del juego" : "tiene contraseña"}. Escribí la contraseña para entrar.</p>
     <label class="campo">Contraseña <input type="password" id="clave2" inputmode="numeric" autocomplete="off" maxlength="12"></label>
     <p class="error" id="clave2-error" aria-live="polite"></p>
     <div class="fila"><button class="boton chico" type="button" data-acc="clave">Entrar</button><button class="boton chico" type="button" data-acc="pausa">Volver</button></div>`);
@@ -2413,7 +2743,7 @@ function estadoItem(it) {
 }
 function panelTienda() {
   const gratis = modo().gratis;
-  abrirPanel("Tienda", `<p><span class="moneda"></span> Tenés <b>${numero(save.monedas)}</b> monedas${gratis ? ". En el modo Nacho todo es gratis." : "."}</p>
+  abrirPanel("Tienda", `<p><span class="moneda"></span> Tenés <b>${numero(save.monedas)}</b> monedas${gratis ? `. En el modo ${esc(modo().nombre)} todo es gratis.` : "."}</p>
     <div class="lista">${TIENDA.map((it) => {
       if (it.id === "spiderman" && save.trajes.spiderman) {
         const puesto = save.traje === "spiderman";
@@ -2439,25 +2769,26 @@ function comprar(id) {
   marcar(); dibujarHUD(); panelTienda();
 }
 function panelTrajes() {
-  const enNacho = modo().trajes;
-  const lista = enNacho ? TRAJES : TRAJES.filter((t) => t.id === "spiderman" && save.trajes.spiderman);
+  const permitido = modo().trajes, monstruos = save.modo === "transformacion";
+  const lista = permitido ? TRAJES.filter(permitido) : TRAJES.filter((t) => t.id === "spiderman" && save.trajes.spiderman);
   const actual = trajeActual();
-  abrirPanel("Trajes", `<p>${enNacho ? "Elegí un personaje: cada uno tiene sus poderes. Apretá V para verte desde atrás." : "Los trajes de héroes (Marvel y Sonic) están en el modo Nacho. Acá podés usar los que compraste en la tienda."}</p>
-    ${actual ? `<p class="nota"><b>${actual.nombre}:</b> ${PODERES[actual.id].desc} Poder especial con ${tactil ? "el botón Poder" : "la tecla Q"}.</p>` : ""}
-    <div class="trajes">
-      <button class="traje${actual ? "" : " activo"}" type="button" data-acc="traje:normal"><img src="${CARA}" alt=""><span>Nacho</span><small>Sin poderes</small></button>
-      ${lista.map((t) => `<button class="traje${actual === t ? " activo" : ""}" type="button" data-acc="traje:${t.id}"><img src="${iconoTraje(t)}" alt=""><span>${t.nombre}</span><small>${PODERES[t.id].act.nombre}</small></button>`).join("")}
-    </div>
-    ${!enNacho && !save.trajes.spiderman ? '<p class="nota">El traje de Spider-Man está en la tienda.</p>' : ""}`);
+  const grupos = GRUPOS_TRAJES.map(([g, titulo]) => [titulo, lista.filter((t) => t.grupo === g)]).filter(([, l]) => l.length);
+  const boton = (t) => `<button class="traje${actual === t ? " activo" : ""}" type="button" data-acc="traje:${t.id}"><img src="${iconoTraje(t)}" alt=""><span>${esc(t.nombre)}</span><small>${esc(PODERES[t.id].act.nombre)}</small></button>`;
+  abrirPanel(monstruos ? "Transformaciones" : "Trajes", `<p>${!permitido ? "Los trajes de héroes están en los modos Nacho y Nacho&amp;Fede, y los monstruos en el modo Transformación. Acá podés usar los que compraste en la tienda."
+      : monstruos ? "Elegí en qué monstruo transformarte: cada uno tiene sus poderes. Apretá V para verte." : "Elegí un personaje: cada uno tiene sus poderes. Apretá V para verte desde atrás."}</p>
+    ${actual ? `<p class="nota"><b>${esc(actual.nombre)}:</b> ${PODERES[actual.id].desc} Poder especial con ${tactil ? "el botón Poder" : "la tecla Q"}.</p>` : ""}
+    <div class="trajes"><button class="traje${actual ? "" : " activo"}" type="button" data-acc="traje:normal"><img src="${CARA}" alt=""><span>Nacho</span><small>Sin poderes</small></button></div>
+    ${grupos.map(([titulo, l]) => `${grupos.length > 1 ? `<h3>${titulo} (${l.length})</h3>` : ""}<div class="trajes">${l.map(boton).join("")}</div>`).join("")}
+    ${!permitido && !save.trajes.spiderman ? '<p class="nota">El traje de Spider-Man está en la tienda.</p>' : ""}`);
 }
 function ponerTraje(id) {
   save.traje = id;
   marcar();
-  cdPoder = 0; encogido = 0; ilusion = 0; superSonic = 0;
+  cdPoder = 0; encogido = 0; crecido = 0; ilusion = 0; superSonic = 0;
   construirNacho();
   const t = trajeActual();
   if (!puedeVolar() && !modo().fantasma) jugador.volando = false;
-  avisar(t ? `Ahora sos ${t.nombre}. ${PODERES[t.id].desc}` : "Volviste a ser Nacho", 3500);
+  avisar(!t ? "Volviste a ser Nacho" : `${t.forma ? "Te transformaste en" : "Ahora sos"} ${t.nombre}. ${PODERES[t.id].desc}`, 3500);
 }
 function panelBloques() {
   if (ranuraEdit > 8) ranuraEdit = 0;
@@ -2468,7 +2799,7 @@ function panelBloques() {
     <p class="nota">La ranura 0 siempre es para el huevo de Gigarex.</p>`);
 }
 function panelJefes() {
-  const admin = !!modo().panel, activo = entes.some((e) => e.equipo === "jefe") && !admin;
+  const admin = !!modo().panel, activo = hayJefe() && !admin;
   abrirPanel("Jefes", `<p>Invocá un jefe y derrotalo para ganar monedas y desbloquear el siguiente.${save.gigarex ? "" : " Consejo: comprá el huevo de Gigarex en la tienda para tener ayuda."}</p>
     ${activo ? '<p class="nota">Ya hay un jefe en el mundo. Derrotalo primero.</p>' : ""}
     <div class="lista">${JEFES.map((j, i) => {
@@ -2572,7 +2903,7 @@ function panelTaller() {
         <label><input type="radio" name="t-equipo" value="aliado"> Aliado (te ayuda)</label></fieldset>
       <div class="fila"><button class="boton chico" type="button" data-acc="t-guardar">Guardar</button><button class="boton chico" type="button" data-acc="t-probar">Guardar e invocar</button></div>
     </form>
-    ${listaCriaturas(entes.some((e) => e.equipo === "jefe") && !modo().panel)}`);
+    ${listaCriaturas(hayJefe() && !modo().panel)}`);
 }
 function leerTaller() {
   const v = (id) => $(id).value;
@@ -2603,10 +2934,15 @@ function panelAyuda() {
     <p>Apenas empezás tenés enfrente un portal violeta: entrá y elegí a dónde viajar. Hay una ciudad y una central nuclear cerca del inicio, y un mapa gigante del mundo con todos los países, Tokio y el Monte Fuji. El mundo no se termina nunca.</p>
     <h3>Poderes de los trajes</h3>
     <p>Cada traje tiene poderes: Spider-Man trepa paredes y tira telarañas, Hulk rompe todo de un golpe y aplasta el piso, Iron Man vuela y tira rayos, Sonic corre a súper velocidad y se vuelve Súper Sonic, y así cada uno. El poder especial se usa con la tecla <kbd>Q</kbd> (o el botón Poder en el celu).</p>
+    <p>En el modo Nacho&amp;Fede están también todos los de Sonic y de Mario Bros: Mario y Luigi aplastan a los enemigos cayéndoles encima, Peach flota si mantenés Espacio, Toad se hace gigante con el Súper hongo y Tails, Rouge y Cream vuelan.</p>
+    <h3>Modo Zombies</h3>
+    <p>El mundo se pone apocalíptico y aparecen zombies por todos lados, más de noche. Hay zombies comunes, corredores (chiquitos y rápidos) y gigantes. Los zombies suben escalones de un bloque pero no paredes de dos: armá un refugio para defenderte. Cada zombie te da monedas.</p>
+    <h3>Modo Transformación</h3>
+    <p>Apretá <kbd>K</kbd> (o el botón Transformarse) y convertite en un monstruo: Gorilón trepa edificios, Pirodón y Trihidra vuelan, Gigarex tira aliento atómico y el zombie llama a una horda que pelea de tu lado.</p>
     <h3>Jugar con amigos</h3>
     <p>Con el botón Amigos creás una sala y le pasás el código a tus amigos. Se ven, construyen juntos y chatean con <kbd>Enter</kbd>.</p>
     <h3>Modos</h3>
-    <ul class="teclas">${Object.values(MODOS).map((m) => `<li><b>${m.nombre}${m.soloCreador ? " (solo el creador)" : ""}:</b> ${m.desc}</li>`).join("")}</ul>`);
+    <ul class="teclas">${Object.values(MODOS).map((m) => `<li><b>${esc(m.nombre)}${m.clave ? ` (${esc(m.candado)})` : ""}:</b> ${esc(m.desc)}</li>`).join("")}</ul>`);
 }
 function panelReportar() {
   abrirPanel("Reportar un problema", `<p>¿Encontraste un error o tenés una idea para el juego? Escribilo acá, tocá <b>Copiar</b> y pegalo en el canal <b>#reportes</b> del Discord de Dragon Nacho.</p>
@@ -2632,11 +2968,19 @@ function cambiarModo(k) {
   if (!puedeVolar()) jugador.volando = false;
   if (MODOS[k].fantasma) jugador.volando = true;
   if (MODOS[k].daño) jugador.vida = Math.max(jugador.vida, 1);
-  superSonic = 0;
+  superSonic = 0; crecido = 0;
+  if (!MODOS[k].zombies) quitarZombies();
+  zombiesDerrotados = 0; zombiesT = 4;
+  sincronizarMundo();
   marcar();
   construirNacho();
   dibujarHUD();
   avisar("Modo " + MODOS[k].nombre);
+  avisoDelModo();
+}
+function avisoDelModo() {
+  if (modo().zombies) avisar("¡Llegaron los zombies! Armá un refugio y defendete: cada zombie te da monedas.", 5000);
+  if (save.modo === "transformacion") avisar(tactil ? "Tocá Transformarse para convertirte en un monstruo." : "Apretá K para transformarte en un monstruo.", 5000);
 }
 function reiniciarMundo() {
   save.cambios = {}; save.semilla = Math.floor(Math.random() * 1e9); save.huevoPlantado = null;
@@ -2646,7 +2990,7 @@ function reiniciarMundo() {
   jugador.pos.set(inicio.x, inicio.y, inicio.z);
   jugador.vel.set(0, 0, 0);
   gestionarChunks(25);
-  entes.filter((e) => e.equipo === "aliado").forEach((e) => { e.pos.set(inicio.x + 2, alturaSuelo(inicio.x + 2, inicio.z + 2), inicio.z + 2); });
+  entes.filter((e) => e.equipo === "aliado").forEach((e) => { e.pos.set(inicio.x + 2, alturaSuelo(inicio.x + 2, inicio.z + 2), inicio.z + 2); e.piso = e.pos.y; });
   marcar(); guardar();
 }
 function volverAPortada() {
@@ -2662,9 +3006,10 @@ const ACCIONES = {
   seguir: () => cerrarPanel(true), pausa: panelPausa, tienda: panelTienda, jefes: panelJefes, trajes: panelTrajes, admin: panelAdmin,
   taller: panelTaller, ayuda: panelAyuda, reportar: panelReportar, salir: volverAPortada, copiar: copiarReporte,
   amigos: panelAmigos, bloques: panelBloques, viaje: () => panelViaje(false),
-  modo: (k) => { if (MODOS[k].soloCreador && !creadorOk) { panelClave(k); return; } cambiarModo(k); panelPausa(); },
+  modo: (k) => { if (bloqueado(k)) { panelClave(k); return; } cambiarModo(k); panelPausa(); },
   clave: () => {
-    if ($("clave2").value.trim() === CLAVE_CREADOR) { creadorOk = true; cambiarModo(modoPedido || "creador"); panelPausa(); }
+    const m = MODOS[modoPedido];
+    if (m && $("clave2").value.trim() === m.clave) { clavesOk.add(m.clave); cambiarModo(modoPedido); panelPausa(); }
     else { $("clave2-error").textContent = "Contraseña incorrecta."; $("clave2").select(); }
   },
   comprar,
@@ -2676,9 +3021,10 @@ const ACCIONES = {
   borrar: (i) => { save.criaturas.splice(+i, 1); marcar(); $("panel-titulo").textContent.startsWith("Taller") ? panelTaller() : panelJefes(); },
   revivir: () => {
     jugador.vida = jugador.max; jugador.pos.set(inicio.x, inicio.y, inicio.z); jugador.vel.set(0, 0, 0); jugador.yaw = Math.PI;
+    jugador.invul = 3; zombiesDerrotados = 0; zombiesT = 4;
     entes.filter((e) => e.equipo === "jefe").forEach(quitarEnte);
     proyectiles.splice(0).forEach((p) => escena.remove(p.m));
-    dibujarCorazones(); cerrarPanel(true);
+    dibujarCorazones(); dibujarModoHUD(); cerrarPanel(true);
   },
   "ir-fijo": (i) => { const d = DESTINOS_FIJOS()[+i]; if (d) irA(d[1], d[2], d[0]); },
   "ir-pais": (i) => { const p = PAISES[+i]; if (p) irA(xDeLon(p[2]), zDeLat(p[1]), p[0]); },
@@ -2727,7 +3073,7 @@ function guardarCriatura(invocar) {
   save.criaturas.push(def);
   marcar(); guardar();
   if (invocar) {
-    if (def.equipo === "jefe" && entes.some((e) => e.equipo === "jefe") && !modo().panel) { avisar("Guardada. Ya hay un jefe en el mundo: derrotalo primero."); panelTaller(); return; }
+    if (def.equipo === "jefe" && hayJefe() && !modo().panel) { avisar("Guardada. Ya hay un jefe en el mundo: derrotalo primero."); panelTaller(); return; }
     invocarCriatura(def); cerrarPanel(true);
   } else { avisar(`Guardaste a ${def.nombre}.`); panelTaller(); }
 }
@@ -2863,24 +3209,29 @@ document.addEventListener("visibilitychange", () => { if (document.hidden && suc
 addEventListener("pagehide", () => { if (sucio) guardar(); if (multi.peer) { try { multi.peer.destroy(); } catch (e) {} } });
 
 // ================== Portada y arranque ==================
-const pideClave = () => !!(MODOS[save.modo] && MODOS[save.modo].soloCreador && !creadorOk);
+const pideClave = () => bloqueado(save.modo);
+function mostrarClavePortada() {
+  $("clave-zona").hidden = !pideClave();
+  $("clave-titulo").textContent = modo().clave === CLAVE_CREADOR ? "Contraseña del creador" : `Contraseña del modo ${modo().nombre}`;
+}
 function dibujarModosPortada() {
   $("modos").innerHTML = '<legend>Modo de juego</legend>' + Object.entries(MODOS).map(([k, m]) =>
-    `<div class="modo-op"><input type="radio" name="modo" id="m-${k}" value="${k}"${k === save.modo ? " checked" : ""}><label for="m-${k}"><b>${m.nombre}${m.soloCreador ? '<span class="candado">solo el creador</span>' : ""}</b><span>${m.desc}</span></label></div>`).join("");
-  $("clave-zona").hidden = !pideClave();
+    `<div class="modo-op"><input type="radio" name="modo" id="m-${k}" value="${k}"${k === save.modo ? " checked" : ""}><label for="m-${k}"><b>${esc(m.nombre)}${m.clave ? `<span class="candado">${esc(m.candado)}</span>` : ""}</b><span>${esc(m.desc)}</span></label></div>`).join("");
+  mostrarClavePortada();
 }
 $("modos").addEventListener("change", (e) => {
   if (e.target.name !== "modo") return;
   save.modo = e.target.value;
   marcar();
-  $("clave-zona").hidden = !pideClave();
+  mostrarClavePortada();
+  $("clave").value = "";
   $("clave-error").textContent = "";
   if (!$("clave-zona").hidden) $("clave").focus();
 });
 function intentarJugar() {
   if (pideClave()) {
-    if ($("clave").value.trim() !== CLAVE_CREADOR) { $("clave-error").textContent = "Contraseña incorrecta."; $("clave").select(); return; }
-    creadorOk = true;
+    if ($("clave").value.trim() !== modo().clave) { $("clave-error").textContent = "Contraseña incorrecta."; $("clave").select(); return; }
+    clavesOk.add(modo().clave);
   }
   empezar();
 }
@@ -2890,10 +3241,13 @@ function empezar() {
   $("cargando").hidden = false;
   setTimeout(() => {
     if (!mundoListo) {
+      mundoZombie = !!modo().zombies;
       indexarCambios();
       inicio.y = alturaSuelo(inicio.x, inicio.z);
       mundoListo = true;
-    }
+    } else sincronizarMundo();
+    if (!modo().zombies) quitarZombies();
+    zombiesDerrotados = 0; zombiesT = 4; crecido = 0;
     jugador.pos.set(inicio.x, inicio.y, inicio.z);
     jugador.vel.set(0, 0, 0);
     jugador.vida = jugador.max;
@@ -2918,6 +3272,7 @@ function empezar() {
       marcar(); guardar();
     }
     avisar("Tenés el portal enfrente: entrá para viajar por el mundo.", 5000);
+    avisoDelModo();
     if (!tactil) bloquear();
   }, 30);
 }
@@ -2931,7 +3286,7 @@ requestAnimationFrame(bucle);
 
 // Vista de muestra (#demo): arranca sola en el modo Nacho con un traje, Gigarex, Arácnix y un jefe, sin tocar la partida guardada
 if (demo) {
-  save.modo = "nacho"; creadorOk = true; save.traje = "ironman"; save.gigarex = { nivel: 3, xp: 3 }; save.nuevo = false;
+  save.modo = "nacho"; clavesOk.add(CLAVE_CREADOR); save.traje = "ironman"; save.gigarex = { nivel: 3, xp: 3 }; save.nuevo = false;
   empezar();
   setTimeout(() => {
     vista3 = true; jugador.yaw = Math.PI * 0.85; jugador.pitch = -0.12;
